@@ -1,0 +1,65 @@
+{% extends 'admin/admin_base.html' %}
+{% block content %}
+    <div class="boloContainer" id="vSetting">
+        <div class="ui breadcrumb">
+            <a class="section">设置</a>
+            <i class="right angle icon divider"></i>
+        </div>
+        <div class="ui divider"></div>
+        <div class="ui grid">
+            <div class="six wide column">
+                <div class="ui card">
+                    <div class="image">
+                        <img src="/s/image/avatar.png">
+                    </div>
+                    <div class="content">
+                        <a class="header">${ admin.nick }}</a>
+                        <div class="meta">
+                            <span class="date">${ admin.phone }}</span>
+                        </div>
+                        <div class="description">
+                            拥有权限: 所有
+                        </div>
+                    </div>
+                    <div class="extra content">
+                        <a><i class="time icon"></i>${ admin.last_login }}</a>
+                    </div>
+                </div>
+            </div>
+            <div class="ten wide column">
+                <h2>
+                    操作
+                </h2>
+                <div class="ui styled fluid accordion">
+                    <div class="title"><i class="dropdown icon"></i> 修改密码</div>
+                    <div class="content">
+                        <form action="" class="ui form" method="post">
+                            <div class="field">
+                                <label for="">原密码</label>
+                                <input type="text" placeholder="原密码" v-model="modify.old_password" name="old_password">
+                            </div>
+                            <div class="field">
+                                <label for="">新密码</label>
+                                <input type="text" placeholder="新密码" name="new_password" v-model="modify.new_password">
+                            </div>
+                            <div class="ui green button" @click="changePassword">提交</div>
+                        </form>
+                    </div>
+                    <div class="title"><i class="dropdown icon"></i> 暂时没想好</div>
+                    <div class="content">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    </div>
+{% endblock %}
+{% block script %}
+    <script src="/s/js/src/setting.js"></script>
+    <script>
+        $('.ui.accordion')
+                .accordion()
+        ;
+    </script>
+{% endblock %}

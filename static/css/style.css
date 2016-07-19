@@ -1,0 +1,199 @@
+/* CSS Document */
+
+*{ margin:0px; padding:0px;list-style:none;}
+.footer{ width:1200px; height:60px; background:#f7f7f7;}
+.footer p{ text-align:center; line-height:60px; color:#dacbca; font-size:18px;}
+/*==================Login.html====================*/
+#box{ width:1200px; height:845px; margin:0px auto;}
+#box .banner{ width:1200px; height:280px; background:url(../images/ic_login_rectangle_bg.png);}
+#box .banner_QQ{ margin-top:50px; margin-left:460px;}
+#box .banner_Agora{margin-left: 40%;color: #fff;position:absolute;font-size: 3em;}
+#box .Login{ width:1200px; height:480px;}
+#box input{width:310px; height:50px; text-indent:40px;  margin-top:15px; background:#ededed; border:none; -webkit-border-radius:3px; -moz-border-radius:3px; 
+           -o-border-radius:3px; -ms-border-radius:3px;}
+#box .vendorkey{ margin-top:60px;}
+#box form{margin-left:440px; position:relative;}
+#box .vendorkey_img{ position:absolute; left:10px; top:70px;}
+#box .channel_img{ position:absolute; left:10px; top:138px;}
+#box .video{ padding-top:15px; position:relative;width:100%;height:auto;background: transparent;}
+#box .video .video_choose{ position:absolute; top:15px; left:10px; cursor:pointer;}
+#box .video .video_img{ position:absolute; top:15px; left:60px;}
+#box .video .audio_choose{ position:absolute; top:15px; left:190px; cursor:pointer;}
+#box .video .audio_img{ position:absolute; top:15px; left:230px;}
+#box .enter_room{ width:310px; margin-top:50px; text-indent:18px; font-size:20px; background:#1677cb; color:#fff; cursor:pointer;}
+
+/*=============collaboration begin===================*/
+#collaboration{width:1200px; height:845px; margin:0px auto;}
+#collaboration .banner{ width:1200px; height:60px; background:#1677cb; position:relative;}
+#collaboration .banner .navigation_left{ margin-top:13px; margin-left:20px; position:absolute; cursor:pointer;}
+#collaboration .banner span{position:absolute; left:50px; top:20px; color:#fff; font-family:"微软雅黑";}
+#collaboration .banner .navigation_center{ margin-top:8px; margin-left:475px;}
+.multi.video{ background:#3a3f4d; width:1200px; height:720px; position:relative;}
+.multi .left{ width:950px; height:620px; float:left;}
+.multi .left div{width:100%;height:100%;}
+.multi .right{ width:225px; height:718px; float:right; margin-right:20px;}
+.multi .right .remoteVideo{ width:130px; height:130px; margin:auto; margin-top:10px;}
+.multi .right div{width:100%;height:100%}
+.multi .right .remoteAudio{ width:130px; height:130px; margin:auto; margin-top:10px;background: rgba(255,255,255,0.1);}
+
+.multi .right .remoteAudio div{width:30px; height:45px; margin-left:45px; padding-top:20px; background:url(../images/ic_login_cell_voice.png);background-size:30px 45px;    background-position: 0% 100%;background-repeat: no-repeat;}
+.multi .right .remoteAudio p{ font-family:"微软雅黑"; text-align:center; margin-top:2px; color:#fff;}
+.audioImg div{display:none;}
+/*img{ margin-left:22px; margin-top:5px;}*/
+#collaboration .video .video_right ul li.small p{ font-family:"微软雅黑"; color:#fff; text-align:center; margin-top:2px;}
+.multi .options{ width:387px; height:100px; border-right:1px #000 solid; position:absolute; bottom:0px; left:562px;}
+.multi .options ul li{ width:80px; height:85px; float:left; margin-right:10px; margin-left:auto; margin-top:auto; text-align:center; padding-top:5px; cursor:pointer;}
+.multi .options ul li p{ color:#FFF; margin-top:10px; font-size:14px; font-family:"微软雅黑";}
+.multi .options ul li p.telephone{ color:#dcb056;}
+
+/*================interface begin======================*/
+#interface{width:1200px; height:845px; margin:0px auto; position:relative;}
+#interface .banner{ width:1200px; height:60px; background:#1677cb; position:relative;}
+#interface .banner .navigation_left{ margin-top:13px; margin-left:20px; position:absolute; cursor:pointer;}
+#interface .banner span{position:absolute; left:50px; top:20px; color:#fff; font-family:"微软雅黑";}
+#interface .banner .navigation_center{ margin-top:8px; margin-left:475px;}
+#interface .video{ width:1200px; height:720px;}
+
+.screen{width:1200px;height:720px;}
+.single .left{width:1200px;height:720px;}
+.single .left #local{width:100%;height:100%;}
+.single .right ul li{ width:150px; height:150px; margin:10px auto;background:rgba(0,0,0,0.5);}
+.single .right ul .remoteAudio{padding-top:20px;}
+
+.single .options{ background:rgba(0,0,0,0.5); width:370px; height:100px; -webkit-border-radius:8px;-moz-border-radius:8px;
+                     -o-border-radius:8px;-ms-border-radius:8px; position:absolute; bottom:110px; left:400px;}
+.single .options ul li{width:80px; height:85px; float:left; margin-left:10px; text-align:center; padding-top:5px; cursor:pointer;}
+.single .options ul li p{color:#FFF; margin-top:4px; font-size:14px; font-family:"微软雅黑";}
+.single .options ul li p.telephone{color:#dcb056;}
+.single .right{ width:180px; height:670px; position:absolute; top:90px; right:40px;}
+.single .right .remoteAudio div{width:38px; height:54px; margin:auto; background:url(../images/ic_login_cell_voice.png);background-size:38px 54px;}
+.single .right .remoteAudio p{ font-family:"微软雅黑"; text-align:center; margin-top:15px; color:#fff;}
+.single .right .audioImg div{display:none;}
+.single .right .remoteVideo{width:150px; height:150px; margin:auto;}
+.single .right .remoteVideo div{width:100%;height:100%;}
+
+.options ul li{ width:80px; height:80px; float:left; margin-left:20px; cursor:pointer; margin-top:10px;}
+.options .audioSwitch .on{ width:50px; height:50px; margin:auto; background:url(../images/mute%20.png);background-size:50px 50px;}
+.options .audioSwitch .off{ width:50px; height:50px; margin:auto; background:url(../images/ic_others_button_mute_pressed.png);background-size:50px 50px;}
+.options .audioSwitch .on:hover{ background:url(../images/ic_others_button_mute_pressed.png);background-size:50px 50px;}
+
+.options .videoSwitch .on{ width:50px; height:50px; margin:auto; background:url(../images/close_camera.png); background-size:50px 50px;}
+.options .videoSwitch .off{ width:50px; height:50px; margin:auto; background:url(../images/ic_others_button_close_pressed.png); background-size:50px 50px;}
+.options .videoSwitch .on:hover{ background:url(../images/ic_others_button_close_pressed.png);background-size:50px 50px;}
+
+.options .viewSwitch .on{ width:50px; height:50px;  margin:auto; background:url(../images/Perspective%20switch.png);background-size:50px 50px;}
+.options .viewSwitch .off{ width:50px; height:50px;  margin:auto; background:url(../images/ic_others_button_change_pressed.png);background-size:50px 50px;}
+.options .viewSwitch .on:hover{ background:url(../images/ic_others_button_change_pressed.png);background-size:50px 50px;}
+
+.options ul li .four{ width:50px; height:50px;  margin:auto; background:url(../images/telephone.png);background-size:50px 50px;}
+.options ul li .four:hover{background:url(../images/telephone.png);background-size:50px 50px;}
+.options ul li p{font-size:16px; color:#fff; text-align:center; font-family:"微软雅黑"; margin-top:6px;}
+.options ul li p.telephone{ color:#dcb056;}
+
+.audio .videoSwitch{display:none;}
+.audio .viewSwitch{display:none;}
+
+/*============interface_Waiting begin=================*/
+.first-div{width:1200px; height:845px; margin:0px auto;position:relative;}
+.banner{ width:1200px; height:60px; background:#1677cb; position:relative;}
+.banner .navigation_left{ margin-top:15px; margin-left:20px; position:absolute; cursor:pointer;width:18;height:18}
+.banner span{ position:absolute; left:50px; top:20px; color:#fff; font-family:"微软雅黑";}
+.banner .navigation_center{ margin-top:8px; margin-left:475px;width:144;height:40;}
+.video{ width:1200px; height:695px; background:#3a3f4d;}
+.wait .left{width:1200px; height:695px;}
+.wait .left div{width:100%;height:100%}
+.wait .left .waitAudio{background:url(../images/ic_waitting_bg.png);background-size:1200px 695px;}
+.wait .options{display:none;}
+.wait .right{display:none;}
+.content{ width:400px; height:200px; position:absolute; top:355px; left:400px;display:none;}
+.info{ width:400px; height:200px; position:absolute; top:355px; left:400px;}
+.info p{ text-align:center; color:#fff; font-size:25px; padding-top:10px; line-height:20px;font-family:"微软雅黑";}
+.wait .content{display:block;}
+.wait .info{display:none;}
+.content p{ text-align:center; color:#fff; font-size:25px; padding-top:10px; line-height:20px;font-family:"微软雅黑";}
+.content img{ margin-top:75px; margin-left:175px; cursor:pointer;}
+
+/*=============interface_audio begin================*/
+#interface_audio{width:1200px; height:845px; margin:0px auto;position:relative;}
+#interface_audio .banner{ width:1200px; height:60px; background:#1677cb; position:relative;}
+#interface_audio .banner .navigation_left{ margin-top:13px; margin-left:20px; position:absolute; cursor:pointer;}
+#interface_audio .banner span{position:absolute; left:50px; top:20px; color:#fff; font-family:"微软雅黑";}
+#interface_audio .banner .navigation_center{ margin-top:8px; margin-left:475px;}
+
+.audio .left{width: 1200px; height: 695px;}
+.audio .left #local{width:100%; height:100%; background:url(../images/ic_waitting_bg.png);background-size:1200px 695px;}
+.audio .options{ width:200px; height:90px; background:rgba(255,255,255,0.1); position:absolute; bottom:135px; left:480px; -webkit-border-radius:10px;
+                           -moz-border-radius:10px; -ms-border-radius:10px; -o-border-radius:10px;}
+.audio .options ul li{width:80px; height:85px; float:left; margin-left:10px; text-align:center; padding-top:5px; cursor:pointer;}
+.audio .options ul li p{color:#FFF; margin-top:4px; font-size:14px; font-family:"微软雅黑";}
+.audio .options ul li p.telephone{ color:#dcb056;}
+.audio .right{ width:150px; height:670px; position:absolute; top:80px; right:0px;}
+.audio .right ul li{width:100px; height:100px;background:rgba(255,255,255,0.1); margin-top:10px;}
+.audio .right .remoteAudio div{width:38px; height:54px; margin-left:30px; margin-top:10px; background:url(../images/ic_login_cell_voice.png);background-size:38px 54px;}
+/*.audio .right ul li img{ padding-left:30px; padding-top:10px;}*/
+.audio .right ul li p{ text-align:center; padding-top:8px; color:#fff; font-family:"微软雅黑";}
+
+/*=====================switch-view begin===========================*/
+#switch-view{ width:1200px; height:850px; margin:0 auto;}
+#switch-view .banner{ width:1200px; height:70px; background:#1677cb; position:relative;}
+#switch-view .banner .navigation_left{position:absolute; top:23px; left:40px;cursor:pointer;}
+#switch-view .banner .navigation_center{ margin-top:10px; margin-left:475px;}
+#switch-view .banner .navigation_right_one{ position:absolute; right:60px; top:23px;cursor:pointer;}
+#switch-view .banner .navigation_right_two{ position:absolute; right:40px; top:35px; cursor:pointer;}
+.switch .left{ width:996px; height:600px; background:#22252e; float:left;}
+.switch .left ul li{ width:100px; height:100px; float:left;margin-left: 30px;margin-top: 40px;}
+.switch .left .remoteAudio{ width:100px; height:100px; margin-left:30px; margin-top:40px;background: rgba(255,255,255,0.1);}
+.switch .left .remoteAudio div{width:38px; height:54px; margin-left:30px; margin-top:10px;background:url(../images/ic_login_cell_voice.png);background-size:38px 54px;}
+.switch .left .remoteVideo div{width:100%;height:100%;}
+/*.switch .left .remoteAudio p{ font-family:"微软雅黑"; text-align:center; margin-top:2px; color:#fff;}*/
+
+/*#switch-view .video_left ul li.video_audio img{ margin-left:30px;}*/
+.switch .left .remoteAudio  p{font-size:16px; color:#fff; text-align:center; font-family:"微软雅黑"; margin-top:6px;}
+.switch .right{ width:204px; height:695px; background:#3a3f4d; float:right;}
+.switch .right  ul li{ width:150px; height:150px; margin:10px auto;}
+.switch .right .remoteVideo div{width:100%;height:100%;}
+/*.switch .options{ width:995px; height:95px; border-right:1px solid #000; float:left; background:#3a3f4d;}*/
+.switch .options{ width:auto; height:95px; border-right:1px solid #000; float:right; background:#3a3f4d;}
+.switch .options ul{ float:right;}
+.footer{ width:1200px; height:60px; background:#f7f7f7; clear:both;}
+#switch-view .footer p{ text-align:center; line-height:60px; color:#dacbca; font-size:18px;}
+
+.remoteVideo p{
+  font-size: 16px;
+  color: #fff;
+  text-align: center;
+  font-family: "微软雅黑";
+  margin-top: 6px;
+}
+.big_images {
+  position: absolute;
+  top: 60px;
+  left: 0px;
+  width: 996px;
+  height: 600px;
+  background: #000;
+  display: none;
+}
+.big_images .cancel {
+  float: right;
+  width: 40px;
+  height: 40px;
+  font-size: 20px;
+  line-height: 20px;
+  text-align: center;
+  color: #FFF;
+  cursor: pointer;
+  z-index:9999;
+  position:relative;
+}
+.big_images .bigVideo{
+  width: 995px;
+  height: 560px;
+  position: relative;
+}
+#video_profile {width: 100%;}
+#select_video_device {width:100%;}
+#select_audio_device {width:100%;}
+.video_profile_span {display: block;width:310px;height:50px;margin-top:15px;}
+.video_device_span {display: block;width:310px;height:50px;margin-top:5px;}
+.audio_device_span {display: block;width:310px;height:50px;margin-top:5px;}

@@ -1,0 +1,71 @@
+body {
+    font-family: "Microsoft YaHei UI";
+}
+
+.boloContainer {
+    margin: 3%;
+}
+
+.colorBlue {
+    color: 4183C4;
+}
+
+.colorGreen {
+    color: #21BA45;
+}
+
+.colorOrange {
+    color: #F2711C;
+}
+
+.fullWidth {
+    width: 100%;
+}
+
+#tournamentList>.item {
+    margin-left: 0;
+    padding-left: 0;
+}
+
+[v-cloak] { display: none; }
+
+#tournamentList>.item:hover {
+    cursor: pointer;
+}
+
+.btn-file {
+    position: relative;
+    overflow: hidden;
+}
+.btn-file input[type=file] {
+    position: absolute;
+    top: 0;
+    right: 0;
+    min-width: 100%;
+    min-height: 100%;
+    font-size: 100px;
+    text-align: right;
+    filter: alpha(opacity=0);
+    opacity: 0;
+    outline: none;
+    background: white;
+    cursor: inherit;
+    display: block;
+}
+
+/* 必需 */
+.expand-transition {
+  transition: all .3s ease;
+  /*height: 30px;*/
+  padding: 10px;
+  background-color: #eee;
+  overflow: hidden;
+}
+
+/* .expand-enter 定义进入的开始状态 */
+/* .expand-leave 定义离开的结束状态 */
+.expand-enter, .expand-leave {
+  height: 0;
+  padding: 0 10px;
+  opacity: 0;
+}

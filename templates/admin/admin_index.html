@@ -1,0 +1,80 @@
+{% extends 'admin/admin_base.html' %}
+{% block content %}
+    <div id="vIndex" class="boloContainer">
+        <div class="ui breadcrumb">
+            <a class="section">控制台</a>
+            <i class="right angle icon divider"></i>
+        </div>
+        <div class="ui divider"></div>
+        <div class="ui three column divided grid">
+            <div class="stretched row">
+                <div class="column">
+                    <a class="blue ui link card" style="width: 100%; color: #4183C4;" href="/admin/users">
+                        <div class="content">
+                            <div class="left floated">
+                                <i class="icon users big" style="font-size: 6em;"></i>
+                            </div>
+                            <div class="right floated right aligned" style="padding-top: 1.5em;">
+                                <div v-show="noData" :class="noData ? classLoading : ''"></div>
+                                <div v-else="noData" style="font-size: 3em;padding-bottom: 0.5em;" v-cloak>${ data.users
+                                    }}
+                                </div>
+                                <div style="font-size: 2em;">注册用户数</div>
+                            </div>
+                        </div>
+                        <div class="extra content" style="color: #4183C4;">
+                            <div class="left floated">查看详情</div>
+                            <div class="right floated author blue"><i class="ui icon right arrow"></i>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <div class="column">
+                    <a class="green ui link card" style="width: 100%; color: #21BA45;" href="/admin/chat">
+                        <div class="content">
+                            <div class="left floated">
+                                <i class="icon newspaper big" style="font-size: 6em;"></i>
+                            </div>
+                            <div class="right floated right aligned" style="padding-top: 1.5em;">
+                                <div v-show="noData" :class="noData ? classLoading : ''"></div>
+                                <div style="font-size: 3em;padding-bottom: 0.5em;" v-else="noData" v-cloak="">${
+                                    data.chatting }}
+                                </div>
+                                <div style="font-size: 2em;">正在聊天中</div>
+                            </div>
+                        </div>
+                        <div class="extra content" style="color: #21BA45;">
+                            <div class="left floated">查看详情</div>
+                            <div class="right floated author blue"><i class="ui icon right arrow"></i>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <div class="column">
+                    <a class="orange ui link card" style="width: 100%; color: #F2711C;" href="/admin/chat">
+                        <div class="content">
+                            <div class="left floated">
+                                <i class="icon game big" style="font-size: 6em;"></i>
+                            </div>
+                            <div class="right floated right aligned" style="padding-top: 1.5em;">
+                                <div v-show="noData" :class="noData ? classLoading : ''"></div>
+                                <div style="font-size: 3em;padding-bottom: 0.5em;" v-else="noData" v-cloak="">${
+                                    data.total }}
+                                </div>
+                                <div style="font-size: 2em;">已匹配数</div>
+                            </div>
+                        </div>
+                        <div class="extra content" style="color: #F2711C;">
+                            <div class="left floated">查看详情</div>
+                            <div class="right floated author blue"><i class="ui icon right arrow"></i>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block script %}
+    <script src="/s/js/src/index.js"></script>
+{% endblock %}

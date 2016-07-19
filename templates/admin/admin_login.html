@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>管理登陆</title>
+    <link rel="stylesheet" href="/s/css/semantic.min.css">
+</head>
+<body>
+<div style="height: 300px;"></div>
+<div class="ui raised very padded text container segment" v-cloak>
+
+    <h2 class="ui header">后台管理</h2>
+    <div id="vLogin" class="ui two column middle aligned very relaxed stackable grid">
+        <div class="column">
+            <div class="ui form" @keyup.enter="login">
+                <div class="field">
+                    <label>用户名</label>
+                        <div class="ui left icon input" :class="{'error': usernameError}">
+                        <input @input="change" placeholder="用户名" name="username" v-model="login_dict.username" number>
+                        <i class="user icon"></i>
+                    </div>
+                    <div v-show="usernameError" class="ui pointing red basic label" >${ res.username }}</div>
+                </div>
+                <div class="field">
+                    <label>密码</label>
+                        <div class="ui left icon input" :class="{'error: passwordError}">
+                        <input @input="change" type="password" placeholder="密码" name="password" v-model="login_dict.password">
+                        <i class="lock icon"></i>
+                    </div>
+                    <div v-show="passwordError" class="ui pointing red basic label">${ res.password }}</div>
+                </div>
+                <button @click="login" class="ui blue submit button" :class="{'disabled': isLogin}">${ isLogin ? '登录中..' : '登陆' }}</button>
+            </div>
+        </div>
+        <div class="ui vertical divider"></div>
+        <div class="center aligned column">
+            <h2 class="ui center aligned icon header"><img src="/s/image/avatar.png" class="circular alternate icon" style="height: 40px;"/> FaceChat </h2>
+        </div>
+    </div>
+</div>
+<script src="http://cdn.bootcss.com/jquery/2.2.1/jquery.min.js"></script>
+<script src="/s/js/semantic.min.js"></script>
+<script src="http://cdn.bootcss.com/vue/1.0.17/vue.min.js"></script>
+<script src="http://cdn.bootcss.com/vue-resource/0.7.0/vue-resource.min.js"></script>
+<script src="/s/js/src/http.js"></script>
+<script src="/s/js/src/admin.js"></script>
+</body>
+</html>
