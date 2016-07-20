@@ -23,7 +23,7 @@ class AdminView(UpdateView):
     def get(self, request, *args, **kwargs):
         token = request.session.get('token')
         if token:
-            if FAdmin.objects.filter(token=token).exists():
+            if HAdmin.objects.filter(token=token).exists():
                 return HttpResponseRedirect('/admin/index')
         return render_to_response('admin/admin_login.html')
 

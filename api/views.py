@@ -6,8 +6,6 @@ import json
 import random
 import string
 
-from django.db.models import QuerySet
-from django.shortcuts import render
 
 # Create your views here.
 from django.utils.timezone import get_current_timezone
@@ -100,7 +98,6 @@ class UserRegisterView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, C
     http_method_names = ['post']
     datetime_type = 'timestamp'
     success_url = 'localhost'
-    datetime_type = 'timestamp'
     include_attr = ['token', 'id', 'create_time', 'nick', 'phone', 'avatar']
     count = 64
     token = ''
@@ -133,7 +130,6 @@ class UserResetView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, Upda
     datetime_type = 'timestamp'
     http_method_names = ['post']
     success_url = 'localhost'
-    datetime_type = 'timestamp'
     include_attr = ['token', 'id', 'create_time', 'nick', 'phone', 'avatar']
     pk_url_kwarg = 'phone'
     count = 64
@@ -186,7 +182,6 @@ class UserLoginView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, Upda
     count = 64
     http_method_names = ['post']
     pk_url_kwarg = 'phone'
-    datetime_type = 'timestamp'
     include_attr = ['token', 'id', 'create_time', 'nick', 'phone', 'avatar']
     success_url = 'localhost'
     token = ''
@@ -261,6 +256,7 @@ class UserLogoutView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonR
         if not self.wrap_check_token_result():
             return self.render_to_response(dict())
         self.user.token = self.create_token()
+        self.user.online = False
         self.user.save()
         return self.render_to_response(dict())
 
@@ -324,7 +320,7 @@ class HeartView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespon
                 dct.appendlist(obj.room.room_id, obj)
             else:
                 dct.appendlist('free', obj)
-        tp = [{'room': k, 'parts': dct.getlist(k)} for k in dct.keys()]
+        tp = [{'room': k, 'participants': dct.getlist(k)} for k in dct.keys()]
         setattr(self.user, 'friends', tp)
         return self.render_to_response(self.user)
 
@@ -415,7 +411,7 @@ class FriendView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespo
             fn.delete()
 
 
-# 处理好友请求
+# 好友请求列表
 class RequestListView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, MultipleJsonResponseMixin, ListView):
     http_method_names = ['get']
     model = FriendRequest
@@ -527,6 +523,7 @@ class RoomView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespons
         if not self.wrap_check_token_result():
             return self.render_to_response(dict())
         rid = kwargs.get('room', None)
+        print kwargs
         if rid:
             room, created = Room.objects.get_or_create(room_id=rid)
             if not created:

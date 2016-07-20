@@ -90,7 +90,6 @@ class UserRegisterForm(forms.ModelForm):
 
     phone = forms.CharField(max_length=11, error_messages=phone_error_messages)
     nick = forms.CharField(max_length=20, error_messages=nick_error_messages)
-    avatar = forms.CharField(max_length=256)
     fullname = forms.CharField(max_length=100)
     password = forms.CharField(max_length=100, error_messages=password_error_messages)
 

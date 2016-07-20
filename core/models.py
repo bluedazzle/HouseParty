@@ -38,7 +38,7 @@ class PartyUser(BaseModel, AbstractBaseUser):
     nick = models.CharField(max_length=100, unique=True)
     phone = models.CharField(max_length=11, unique=True)
     fullname = models.CharField(max_length=64, default='')
-    avatar = models.CharField(max_length=256, default='/s/image/avatar.png')
+    avatar = models.CharField(max_length=256, default='/s/image/avatar.png', null=True, blank=True)
     friend_list = models.ManyToManyField('self', related_name='friend_by', blank=True)
     online = models.BooleanField(default=False)
     forbid = models.BooleanField(default=False)

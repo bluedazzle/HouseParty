@@ -13,4 +13,5 @@ urlpatterns = patterns('',
                        url(r'^requests', views.RequestListView.as_view()),
                        url(r'^match', views.FriendMatchView.as_view()),
                        url(r'^hi/(?P<phone>(\d)+)', views.HookView.as_view()),
+                       url(r'^room/(?P<room>(\w)+)', views.RoomView.as_view()),
                        )
