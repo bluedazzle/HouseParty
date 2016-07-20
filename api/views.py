@@ -6,7 +6,6 @@ import json
 import random
 import string
 
-
 # Create your views here.
 from django.utils.timezone import get_current_timezone
 from django.views.generic import CreateView, UpdateView, View, DetailView, DeleteView, ListView
@@ -302,7 +301,8 @@ class HeartView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespon
     http_method_names = ['get']
     model = PartyUser
     datetime_type = 'timestamp'
-    include_attr = ['id', 'nick', 'phone', 'online', 'friends', 'notify', 'message', 'modify_time', 'rooms']
+    include_attr = ['id', 'nick', 'phone', 'online', 'friends', 'notify', 'message', 'modify_time', 'rooms', 'room',
+                    'room_id']
     foreign = True
 
     def get(self, request, *args, **kwargs):
