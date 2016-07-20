@@ -13,6 +13,7 @@
                 <th>注册时间</th>
                 <th>联系方式</th>
                 <th>状态</th>
+                <th>在线</th>
                 <th>操作</th>
             </tr>
             </thead>
@@ -34,7 +35,8 @@
                 </td>
                 <td>${ user.create_time }}</td>
                 <td>${ user.phone }}</td>
-                <td>${ user.forbid == false ? '正常': '禁止' }}</h4>
+                <td>${ user.forbid == false ? '正常': '禁止' }}
+                <td>${ user.online == false ? '下线': '在线' }}
                 </td>
                 <td>
                     <button class="ui small blue button">详情</button>
@@ -45,7 +47,7 @@
             </tbody>
             <tfoot>
             <tr>
-                <th colspan="5">
+                <th colspan="6">
                     <div class="ui action left icon input">
                         <i class="search icon"></i>
                         <input type="text" v-model="query" placeholder="搜索用户...">
