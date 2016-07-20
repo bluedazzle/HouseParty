@@ -4,7 +4,7 @@
 
 ---
 
-**host: http://party.fibar.cn**
+**host: http://house.fibar.cn**
 
 **api_version: v1**
 
