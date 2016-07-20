@@ -6,6 +6,7 @@ import json
 import random
 import string
 
+from django.db.models import QuerySet
 from django.shortcuts import render
 
 # Create your views here.
@@ -17,13 +18,17 @@ from core.Mixin.CheckMixin import CheckSecurityMixin, CheckTokenMixin
 from core.Mixin.StatusWrapMixin import StatusWrapMixin, INFO_EXPIRE, ERROR_VERIFY, INFO_NO_VERIFY, ERROR_DATA, \
     ERROR_UNKNOWN, ERROR_PERMISSION_DENIED, ERROR_PASSWORD, INFO_NO_EXIST, INFO_EXISTED
 from core.dss.Mixin import JsonResponseMixin, MultipleJsonResponseMixin
-from core.models import Verify, PartyUser, FriendRequest, FriendNotify, Hook
+from core.models import Verify, PartyUser, FriendRequest, FriendNotify, Hook, Room
 from core.sms import send_sms
 from core.utils import upload_picture
+from django.utils.datastructures import MultiValueDict
+
+import time
 
 
 class VerifyCodeView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, CreateView):
     form_class = VerifyCodeForm
+    datetime_type = 'timestamp'
     http_method_names = ['post', 'get']
     success_url = 'localhost'
     count = 6
@@ -93,6 +98,7 @@ class VerifyCodeView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, Cre
 class UserRegisterView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, CreateView):
     form_class = UserRegisterForm
     http_method_names = ['post']
+    datetime_type = 'timestamp'
     success_url = 'localhost'
     datetime_type = 'timestamp'
     include_attr = ['token', 'id', 'create_time', 'nick', 'phone', 'avatar']
@@ -124,6 +130,7 @@ class UserRegisterView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, C
 class UserResetView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, UpdateView):
     form_class = UserResetForm
     model = PartyUser
+    datetime_type = 'timestamp'
     http_method_names = ['post']
     success_url = 'localhost'
     datetime_type = 'timestamp'
@@ -175,6 +182,7 @@ class UserResetView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, Upda
 class UserLoginView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, UpdateView):
     model = PartyUser
     form_class = UserLoginForm
+    datetime_type = 'timestamp'
     count = 64
     http_method_names = ['post']
     pk_url_kwarg = 'phone'
@@ -239,6 +247,7 @@ class UserLoginView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, Upda
 
 class UserLogoutView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonResponseMixin, View):
     http_method_names = ['get']
+    datetime_type = 'timestamp'
     count = 64
 
     def create_token(self):
@@ -280,6 +289,7 @@ class UserAvatarView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonR
 
 class AvatarView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, DetailView):
     http_method_names = ['post']
+    datetime_type = 'timestamp'
 
     def post(self, request, *args, **kwargs):
         avatar = request.FILES.get('avatar')
@@ -295,7 +305,9 @@ class AvatarView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, DetailV
 class HeartView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonResponseMixin, DetailView):
     http_method_names = ['get']
     model = PartyUser
-    include_attr = ['id', 'nick', 'phone', 'online', 'friends', 'notify', 'message', 'modify_time']
+    datetime_type = 'timestamp'
+    include_attr = ['id', 'nick', 'phone', 'online', 'friends', 'notify', 'message', 'modify_time', 'rooms']
+    foreign = True
 
     def get(self, request, *args, **kwargs):
         if not self.wrap_check_sign_result():
@@ -306,7 +318,14 @@ class HeartView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespon
         self.user.save()
         friend_list = self.user.friend_list.all().order_by('online')
         map(self.generate_notify_to_friends, friend_list)
-        setattr(self.user, 'friends', friend_list)
+        dct = MultiValueDict()
+        for obj in friend_list:
+            if obj.room:
+                dct.appendlist(obj.room.room_id, obj)
+            else:
+                dct.appendlist('free', obj)
+        tp = [{'room': k, 'parts': dct.getlist(k)} for k in dct.keys()]
+        setattr(self.user, 'friends', tp)
         return self.render_to_response(self.user)
 
     def generate_notify_to_friends(self, friend):
@@ -317,6 +336,7 @@ class HeartView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespon
 # 好友操作
 class FriendView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonResponseMixin, DeleteView):
     http_method_names = ['get', 'post', 'delete']
+    datetime_type = 'timestamp'
     model = PartyUser
 
     def dispatch(self, request, *args, **kwargs):
@@ -400,6 +420,7 @@ class RequestListView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, Mult
     http_method_names = ['get']
     model = FriendRequest
     foreign = True
+    datetime_type = 'timestamp'
     include_attr = ['id', 'nick', 'phone', 'requester', 'avatar']
 
     def get_queryset(self):
@@ -419,6 +440,7 @@ class RequestListView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, Mult
 class FriendMatchView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonResponseMixin, DetailView):
     http_method_names = ['post']
     model = PartyUser
+    datetime_type = 'timestamp'
     include_attr = ['id', 'nick', 'fullname', 'phone', 'friend']
 
     def post(self, request, *args, **kwargs):
@@ -452,6 +474,7 @@ class FriendMatchView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, Json
 class HookView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonResponseMixin, DetailView):
     http_method_names = ['get']
     model = Hook
+    datetime_type = 'timestamp'
 
     def get(self, request, *args, **kwargs):
         if not self.wrap_check_sign_result():
@@ -488,5 +511,39 @@ class HookView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespons
         fn, created = FriendNotify.objects.get_or_create(friend=self.user, belong=user)
         fn.message = '向你打招呼'
         fn.save()
+        fn, created = FriendNotify.objects.get_or_create(friend=user, belong=self.user)
+        fn.message = '向他打招呼'
+        fn.save()
 
 
+class RoomView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonResponseMixin, DetailView):
+    http_method_names = ['get']
+    model = Room
+    datetime_type = 'timestamp'
+
+    def get(self, request, *args, **kwargs):
+        if not self.wrap_check_sign_result():
+            return self.render_to_response(dict())
+        if not self.wrap_check_token_result():
+            return self.render_to_response(dict())
+        rid = kwargs.get('room', None)
+        if rid:
+            room, created = Room.objects.get_or_create(room_id=rid)
+            if not created:
+                room_members = self.user.friend_list.all().filter(room=room)
+                self.update_notify(room_members)
+        else:
+            rid = self.generate_room()
+            room = Room(room_id=rid).save()
+        self.user.room = room
+        self.user.save()
+        return self.render_to_response({'room_id': rid})
+
+    def generate_room(self):
+        return 'R{0}{1}'.format(unicode(time.time()).replace('.', '')[:13], random.randint(1000, 9999))
+
+    def update_notify(self, room_members):
+        for member in room_members:
+            fn, created = FriendNotify.objects.get_or_create(friend=self.user, belong=member)
+            fn.message = '见过面'
+            fn.save()

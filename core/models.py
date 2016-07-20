@@ -15,17 +15,40 @@ class BaseModel(models.Model):
         abstract = True
 
 
+class Room(BaseModel):
+    room_id = models.CharField(max_length=64, unique=True)
+
+    # participants = models.ManyToManyField(PartyUser, related_name='my_all_rooms', blank=True)
+
+    def number(self):
+        return self.room_participants.all().count()
+
+    def destroy(self):
+        if self.number() == 0:
+            self.delete()
+
+    def search(self, user):
+        return True if user in self.room_participants.all() else False
+
+    def __unicode__(self):
+        return self.room_id
+
+
 class PartyUser(BaseModel, AbstractBaseUser):
     nick = models.CharField(max_length=100, unique=True)
     phone = models.CharField(max_length=11, unique=True)
     fullname = models.CharField(max_length=64, default='')
     avatar = models.CharField(max_length=256, default='/s/image/avatar.png')
-    friend_list = models.ManyToManyField('self', related_name='friend_by', null=True, blank=True)
+    friend_list = models.ManyToManyField('self', related_name='friend_by', blank=True)
     online = models.BooleanField(default=False)
     forbid = models.BooleanField(default=False)
+    room = models.ForeignKey(Room, related_name='room_participants', null=True, blank=True, on_delete=models.SET_NULL)
     token = models.CharField(max_length=64, unique=True)
 
     USERNAME_FIELD = 'phone'
+
+    def chat(self):
+        return True if self.room else False
 
     def __unicode__(self):
         return '{0}-{1}'.format(self.nick, self.phone)

@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 
 from django.utils.timezone import get_current_timezone
 
-from core.models import PartyUser
+from core.models import PartyUser, Room
 
 import datetime
 
@@ -14,4 +14,8 @@ def check_online(*args, **kwargs):
     for user in PartyUser.objects.filter(online=True):
         if now_time - user.modify_time >= datetime.timedelta(seconds=20):
             user.online = False
+            user.room = None
             user.save()
+
+    for room in Room.objects.all():
+        room.destroy()
