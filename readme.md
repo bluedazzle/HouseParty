@@ -283,6 +283,21 @@ GET /heart
       }
     ],
     "id": 4
+    "deletes": [
+      {
+        "id": 1,
+        "deleter": {
+          "room": null,
+          "phone": "15608059733",
+          "nick": "11113333",
+          "room_id": null,
+          "modify_time": 1469005615,
+          "online": false,
+          "id": 2
+        },
+        "modify_time": 1469087761
+      }
+    ]
   },
   "status": 1,
   "msg": "success"
@@ -499,6 +514,28 @@ GET /room/<room_id>
   "body": {
     "room_id": "R33"
   },
+  "status": 1,
+  "msg": "success"
+}
+```
+其他
+```
+{
+  "body": {},
+  "status": 7,
+  "msg": "用户不存在"
+}
+```
+
+##**确认删除消息**
+```
+GET /confirm/<d_id>
+```
+###**Parameters**
+* token(_Required_|string)-用户令牌
+###**Return**
+```
+{
   "status": 1,
   "msg": "success"
 }
