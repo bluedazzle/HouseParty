@@ -15,7 +15,8 @@ from core.Mixin.CheckMixin import CheckSecurityMixin, CheckTokenMixin
 from core.Mixin.StatusWrapMixin import StatusWrapMixin, INFO_EXPIRE, ERROR_VERIFY, INFO_NO_VERIFY, ERROR_DATA, \
     ERROR_UNKNOWN, ERROR_PERMISSION_DENIED, ERROR_PASSWORD, INFO_NO_EXIST, INFO_EXISTED
 from core.dss.Mixin import JsonResponseMixin, MultipleJsonResponseMixin
-from core.models import Verify, PartyUser, FriendRequest, FriendNotify, Hook, Room
+from core.models import Verify, PartyUser, FriendRequest, FriendNotify, Hook, Room, DeleteNotify
+from core.push import push_to_friends, push_friend_request, push_friend_response, push_hook
 from core.sms import send_sms
 from core.utils import upload_picture
 from django.utils.datastructures import MultiValueDict
@@ -302,7 +303,7 @@ class HeartView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespon
     model = PartyUser
     datetime_type = 'timestamp'
     include_attr = ['id', 'nick', 'phone', 'online', 'friends', 'notify', 'message', 'modify_time', 'rooms', 'room',
-                    'room_id']
+                    'room_id', 'deleter', 'deletes']
     foreign = True
 
     def get(self, request, *args, **kwargs):
@@ -310,6 +311,9 @@ class HeartView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespon
             return self.render_to_response(dict())
         if not self.wrap_check_token_result():
             return self.render_to_response(dict())
+        if not self.user.online:
+            # 好友上线通知
+            push_to_friends(self.user.phone)
         self.user.online = True
         self.user.save()
         friend_list = self.user.friend_list.all().order_by('online')
@@ -321,6 +325,9 @@ class HeartView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespon
             else:
                 dct.appendlist('free', obj)
         tp = [{'room': k, 'participants': dct.getlist(k)} for k in dct.keys()]
+        dns = DeleteNotify.objects.filter(belong=self.user)
+        print dns
+        setattr(self.user, 'deletes', dns)
         setattr(self.user, 'friends', tp)
         return self.render_to_response(self.user)
 
@@ -351,6 +358,7 @@ class FriendView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespo
                 request = FriendRequest.objects.filter(requester=self.user, add=user)
                 if not request.exists():
                     FriendRequest(requester=self.user, add=user).save()
+                    push_friend_request(user.phone, self.user)
                 return self.render_to_response({})
             self.message = '用户不存在'
             self.status_code = INFO_NO_EXIST
@@ -367,6 +375,9 @@ class FriendView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespo
                 friend = friend[0]
                 self.user.friend_list.remove(friend)
                 self.delete(friend)
+
+                # 被删除好友通知
+                DeleteNotify(deleter=self.user, belong=friend).save()
                 return self.render_to_response({})
             self.message = '用户不存在'
             self.status_code = INFO_NO_EXIST
@@ -387,6 +398,9 @@ class FriendView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespo
                     if agree:
                         self.user.friend_list.add(user)
                         self.generate_notify(user)
+
+                        # 添加好友推送
+                        push_friend_response(phone, self.user)
                     request.delete()
                 return self.render_to_response({})
             self.message = '用户不存在'
@@ -467,6 +481,7 @@ class FriendMatchView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, Json
         return self.render_to_response({'address_book': book_list})
 
 
+# 打招呼
 class HookView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonResponseMixin, DetailView):
     http_method_names = ['get']
     model = Hook
@@ -490,6 +505,7 @@ class HookView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespons
                 now_time = datetime.datetime.now(tz=get_current_timezone())
                 if now_time - hook.modify_time > datetime.timedelta(seconds=10) or created:
                     # 推送到手机
+                    push_hook(phone, self.user)
                     hook.save()
                     self.update_notify(user)
                     return self.render_to_response({})
@@ -544,3 +560,21 @@ class RoomView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespons
             fn, created = FriendNotify.objects.get_or_create(friend=self.user, belong=member)
             fn.message = '见过面'
             fn.save()
+
+
+class DeleteVerifyView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonResponseMixin, DetailView):
+    http_method_names = ['get']
+    model = DeleteNotify
+    datetime_type = 'timestamp'
+
+    def get(self, request, *args, **kwargs):
+        did = kwargs.get('did', None)
+        if did:
+            dn = DeleteNotify.objects.filter(id=did)
+            if dn.exists():
+                dn = dn[0]
+                dn.delete()
+            return self.render_to_response({})
+        self.message = '参数缺失'
+        self.status_code = ERROR_DATA
+        return self.render_to_response({})

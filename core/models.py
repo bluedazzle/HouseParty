@@ -93,3 +93,11 @@ class Hook(BaseModel):
 
     def __unicode__(self):
         return "{0}->{1}".format(self.author.nick, self.hook_to.nick)
+
+
+class DeleteNotify(BaseModel):
+    belong = models.ForeignKey(PartyUser, related_name='deleted_by')
+    deleter = models.ForeignKey(PartyUser, related_name='delete_list')
+
+    def __unicode__(self):
+        return '{0} delete {1}'.format(self.deleter.nick, self.belong.nick)
