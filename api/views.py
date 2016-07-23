@@ -539,7 +539,6 @@ class RoomView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespons
         if not self.wrap_check_token_result():
             return self.render_to_response(dict())
         rid = kwargs.get('room', None)
-        print kwargs
         if rid:
             room, created = Room.objects.get_or_create(room_id=rid)
             if not created:

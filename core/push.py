@@ -33,7 +33,7 @@ def push_friend_response(rid, user):
     push = _jpush.create_push()
     ios_msg = jpush.ios(alert=msg)
     push.audience = jpush.audience(
-        jpush.registration_id(rid)
+        jpush.alias(rid)
     )
     push.notification = jpush.notification(alert=msg, ios=ios_msg)
     push.platform = jpush.all_
@@ -51,7 +51,7 @@ def push_friend_request(rid, user):
     push = _jpush.create_push()
     ios_msg = jpush.ios(alert=msg)
     push.audience = jpush.audience(
-        jpush.registration_id(rid)
+        jpush.alias(rid)
     )
     push.notification = jpush.notification(alert=msg, ios=ios_msg)
     push.platform = jpush.all_
@@ -69,7 +69,7 @@ def push_hook(rid, user):
     push = _jpush.create_push()
     ios_msg = jpush.ios(alert=msg, extras={'room_id': user.room.room_id})
     push.audience = jpush.audience(
-        jpush.registration_id(rid)
+        jpush.alias(rid)
     )
     push.notification = jpush.notification(alert=msg, ios=ios_msg)
     push.platform = jpush.all_
@@ -78,3 +78,13 @@ def push_hook(rid, user):
         push.send()
     except:
         pass
+
+
+class too(object):
+    pass
+
+
+user = too()
+setattr(user, 'fullname', 'test')
+
+push_friend_request('18310160189', user)
