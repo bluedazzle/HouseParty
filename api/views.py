@@ -476,8 +476,11 @@ class FriendMatchView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, Json
                         requester=match_user, add=self.user)
                     if fq.exists():
                         setattr(match_user, 'friend', 3)
-
-                book_list.append(match_user)
+            else:
+                match_user = PartyUser(phone=itm.get('phone', ''))
+                setattr(match_user, 'friend', 5)
+            book_list.append(match_user)
+            book_list.sort(key=lambda v: v.friend)
         return self.render_to_response({'address_book': book_list})
 
 
