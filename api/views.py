@@ -610,3 +610,27 @@ class SearchView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespo
             self.message = '搜索用户不存在'
             self.status_code = INFO_NO_EXIST
             return self.render_to_response({})
+
+
+class InfoView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonResponseMixin, DetailView):
+    http_method_names = ['post']
+    model = PartyUser
+    datetime_type = 'timestamp'
+    include_attr = ['id', 'phone', 'nick', 'fullname']
+
+    def post(self, request, *args, **kwargs):
+        nick = request.POST.get('nick')
+        fullname = request.POST.get('fullname')
+        if nick and fullname:
+            try:
+                self.user.nick = nick
+                self.user.fullname = fullname
+                self.user.save()
+                return self.render_to_response(self.user)
+            except:
+                self.message = '昵称已存在'
+                self.status_code = INFO_EXISTED
+                return self.render_to_response({})
+        self.message = '参数缺失'
+        self.status_code = ERROR_DATA
+        return self.render_to_response({})

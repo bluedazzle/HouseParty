@@ -18,4 +18,5 @@ urlpatterns = patterns('',
                        url(r'^confirm/(?P<did>(\d)+)', views.DeleteVerifyView.as_view()),
                        url(r'^friends', views.FriendListView.as_view()),
                        url(r'^search', views.SearchView.as_view()),
+                       url(r'^info', views.InfoView.as_view()),
                        )
