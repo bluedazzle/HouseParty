@@ -7,6 +7,7 @@ import random
 import string
 
 # Create your views here.
+from django.db.models import Q
 from django.utils.timezone import get_current_timezone
 from django.views.generic import CreateView, UpdateView, View, DetailView, DeleteView, ListView
 
@@ -580,3 +581,32 @@ class DeleteVerifyView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, Jso
         self.message = '参数缺失'
         self.status_code = ERROR_DATA
         return self.render_to_response({})
+
+
+class FriendListView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, MultipleJsonResponseMixin, ListView):
+    http_method_names = ['get']
+    model = PartyUser
+    datetime_type = 'timestamp'
+    include_attr = ['id', 'phone', 'nick', 'fullname']
+
+    def get_queryset(self):
+        queryset = self.user.friend_list.all()
+        return queryset
+
+
+class SearchView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonResponseMixin, DetailView):
+    http_method_names = ['get']
+    model = PartyUser
+    datetime_type = 'timestamp'
+    include_attr = ['id', 'phone', 'nick', 'fullname', 'create_time']
+
+    def get(self, request, *args, **kwargs):
+        query = request.GET.get('query', '')
+        user = PartyUser.objects.filter(Q(nick=query) | Q(fullname=query) | Q(phone=query))
+        if user.exists():
+            user = user[0]
+            return self.render_to_response(user)
+        else:
+            self.message = '搜索用户不存在'
+            self.status_code = INFO_NO_EXIST
+            return self.render_to_response({})

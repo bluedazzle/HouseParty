@@ -16,4 +16,6 @@ urlpatterns = patterns('',
                        url(r'^room/(?P<room>(\w)+)', views.RoomView.as_view()),
                        url(r'^room', views.RoomView.as_view()),
                        url(r'^confirm/(?P<did>(\d)+)', views.DeleteVerifyView.as_view()),
+                       url(r'^friends', views.FriendListView.as_view()),
+                       url(r'^search', views.SearchView.as_view()),
                        )
