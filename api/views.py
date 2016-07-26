@@ -626,6 +626,10 @@ class InfoView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespons
     include_attr = ['id', 'phone', 'nick', 'fullname']
 
     def post(self, request, *args, **kwargs):
+        if not self.wrap_check_sign_result():
+            return self.render_to_response(dict())
+        if not self.wrap_check_token_result():
+            return self.render_to_response(dict())
         nick = request.POST.get('nick')
         fullname = request.POST.get('fullname')
         if nick and fullname:
@@ -634,7 +638,7 @@ class InfoView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespons
                 self.user.fullname = fullname
                 self.user.save()
                 return self.render_to_response(self.user)
-            except:
+            except Exception, e:
                 self.message = '昵称已存在'
                 self.status_code = INFO_EXISTED
                 return self.render_to_response({})
