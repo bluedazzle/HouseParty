@@ -589,6 +589,13 @@ class FriendListView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, Multi
     datetime_type = 'timestamp'
     include_attr = ['id', 'phone', 'nick', 'fullname']
 
+    def get(self, request, *args, **kwargs):
+        if not self.wrap_check_sign_result():
+            return self.render_to_response(dict())
+        if not self.wrap_check_token_result():
+            return self.render_to_response(dict())
+        return super(FriendListView, self).get(request, *args, **kwargs)
+
     def get_queryset(self):
         queryset = self.user.friend_list.all()
         return queryset
