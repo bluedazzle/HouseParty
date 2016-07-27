@@ -452,7 +452,7 @@ class FriendMatchView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, Json
     http_method_names = ['post']
     model = PartyUser
     datetime_type = 'timestamp'
-    include_attr = ['id', 'nick', 'fullname', 'phone', 'friend']
+    include_attr = ['id', 'nick', 'fullname', 'phone', 'friend', 'remark']
 
     def post(self, request, *args, **kwargs):
         if not self.wrap_check_sign_result():
@@ -463,8 +463,10 @@ class FriendMatchView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, Json
         json_data = json.loads(request.body)
         for itm in json_data:
             match_user = PartyUser.objects.filter(phone=itm.get('phone', ''))
+            remark = itm.get('remark', '')
             if match_user.exists():
                 match_user = match_user[0]
+                setattr(match_user, 'remark', remark)
                 if match_user in self.user.friend_list.all():
                     setattr(match_user, 'friend', 1)
                 else:
@@ -479,6 +481,7 @@ class FriendMatchView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, Json
                         setattr(match_user, 'friend', 3)
             else:
                 match_user = PartyUser(phone=itm.get('phone', ''))
+                setattr(match_user, 'remark', remark)
                 setattr(match_user, 'friend', 5)
             book_list.append(match_user)
             book_list.sort(key=lambda v: v.friend)
