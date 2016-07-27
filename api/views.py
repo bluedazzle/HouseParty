@@ -99,7 +99,7 @@ class UserRegisterView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, C
     http_method_names = ['post']
     datetime_type = 'timestamp'
     success_url = 'localhost'
-    include_attr = ['token', 'id', 'create_time', 'nick', 'phone', 'avatar']
+    include_attr = ['token', 'id', 'create_time', 'nick', 'phone', 'avatar', 'fullname']
     count = 64
     token = ''
 
@@ -131,7 +131,7 @@ class UserResetView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, Upda
     datetime_type = 'timestamp'
     http_method_names = ['post']
     success_url = 'localhost'
-    include_attr = ['token', 'id', 'create_time', 'nick', 'phone', 'avatar']
+    include_attr = ['token', 'id', 'create_time', 'nick', 'phone', 'avatar', 'fullname']
     pk_url_kwarg = 'phone'
     count = 64
     token = ''
@@ -183,7 +183,7 @@ class UserLoginView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, Upda
     count = 64
     http_method_names = ['post']
     pk_url_kwarg = 'phone'
-    include_attr = ['token', 'id', 'create_time', 'nick', 'phone', 'avatar']
+    include_attr = ['token', 'id', 'create_time', 'nick', 'phone', 'avatar', 'fullname']
     success_url = 'localhost'
     token = ''
 
@@ -264,7 +264,7 @@ class UserLogoutView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonR
 
 class UserAvatarView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonResponseMixin, DetailView):
     http_method_names = ['post']
-    include_attr = ['id', 'create_time', 'nick', 'phone', 'avatar']
+    include_attr = ['id', 'create_time', 'nick', 'phone', 'avatar', 'fullname']
     datetime_type = 'timestamp'
     model = PartyUser
 
@@ -304,7 +304,7 @@ class HeartView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespon
     model = PartyUser
     datetime_type = 'timestamp'
     include_attr = ['id', 'nick', 'phone', 'online', 'friends', 'notify', 'message', 'modify_time', 'rooms', 'room',
-                    'room_id', 'deleter', 'deletes']
+                    'room_id', 'deleter', 'deletes', 'fullname']
     foreign = True
 
     def get(self, request, *args, **kwargs):
@@ -432,7 +432,7 @@ class RequestListView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, Mult
     model = FriendRequest
     foreign = True
     datetime_type = 'timestamp'
-    include_attr = ['id', 'nick', 'phone', 'requester', 'avatar']
+    include_attr = ['id', 'nick', 'phone', 'requester', 'avatar', 'fullname']
 
     def get_queryset(self):
         queryset = super(RequestListView, self).get_queryset()
