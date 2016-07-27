@@ -549,3 +549,121 @@ GET /confirm/<d_id>
   "msg": "用户不存在"
 }
 ```
+
+##**获取好友列表**
+```
+GET /friends
+```
+###**Parameters**
+* token(_Required_|string)-用户令牌
+###**Return**
+```
+{
+  "body": {
+    "page_obj": {},
+    "is_paginated": false,
+    "partyuser_list": [
+      {
+        "nick": "PP",
+        "fullname": "建奇 张",
+        "id": 6,
+        "phone": "15608059722"
+      },
+      {
+        "nick": "snoopy",
+        "fullname": "建奇 张",
+        "id": 5,
+        "phone": "15608059721"
+      },
+      {
+        "nick": "mitty",
+        "fullname": "asdf",
+        "id": 7,
+        "phone": "15608059730"
+      }
+    ]
+  },
+  "status": 1,
+  "msg": "success"
+}
+```
+其他
+```
+{
+  "body": {},
+  "status": 7,
+  "msg": "用户不存在"
+}
+```
+
+
+##**搜索**
+```
+GET /search
+```
+###**Parameters**
+* token(_Required_|string)-用户令牌
+* query(_Required_|string)-搜索字符串
+###**Return**
+
+friend 字段类型表：
+
+|结果码|含义|
+| --------------  | :---: |
+|0|不是好友|
+|1|互为好友|
+|2|已经向好友发送请求|
+|3|好友向你发送好友请求|
+
+```
+{
+  "body": {
+    "phone": "15608059730",
+    "nick": "mitty",
+    "create_time": 1468916238,
+    "fullname": "asdf",
+    "id": 7,
+    "friend": 1
+  },
+  "status": 1,
+  "msg": "success"
+}
+```
+其他
+```
+{
+  "body": {},
+  "status": 7,
+  "msg": "搜索用户不存在"
+}
+```
+
+##**修改个人信息**
+```
+POST /info
+```
+###**Parameters**
+* token(_Required_|string)-用户令牌
+* nick(_Required_|string)-用户昵称
+* fullname(_Required_|string)-用户姓名
+###**Return**
+```
+{
+  "body": {
+    "nick": "tstrr",
+    "fullname": "123",
+    "id": 4,
+    "phone": "15608059720"
+  },
+  "status": 1,
+  "msg": "success"
+}
+```
+其他
+```
+{
+  "body": {},
+  "status": 7,
+  "msg": "用户不存在"
+}
+```
