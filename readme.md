@@ -424,7 +424,7 @@ POST /match
 * token(_Required_|string)-用户令牌
 ###**Request**
 ```
-[{"phone": "15608059721"}, {"phone": "15608059722"}, {"phone": "15608059730"}, {"phone": "15608052720"}]
+[{"phone": "15608059721", "remark": "test"}, {"phone": "15608059722"}, {"phone": "15608059730", "remark": "test"}, {"phone": "15608052720", "remark": "test"}, {"phone": "15608054320", "remark": "test"}]
 ```
 ###**Return**
 
@@ -443,25 +443,44 @@ friend 字段类型表：
   "body": {
     "address_book": [
       {
+        "remark": "test",
+        "phone": "15608059721",
         "nick": "snoopy",
         "fullname": "建奇 张",
         "id": 5,
-        "friend": 1,
-        "phone": "15608059721"
+        "friend": 1
       },
       {
+        "remark": "",
+        "phone": "15608059722",
         "nick": "PP",
         "fullname": "建奇 张",
         "id": 6,
-        "friend": 1,
-        "phone": "15608059722"
+        "friend": 1
       },
       {
+        "remark": "test",
+        "phone": "15608059730",
         "nick": "mitty",
         "fullname": "asdf",
         "id": 7,
-        "friend": 1,
-        "phone": "15608059730"
+        "friend": 1
+      },
+      {
+        "remark": "test",
+        "phone": "15608052720",
+        "nick": "",
+        "fullname": "",
+        "id": null,
+        "friend": 5
+      },
+      {
+        "remark": "test",
+        "phone": "15608054320",
+        "nick": "",
+        "fullname": "",
+        "id": null,
+        "friend": 5
       }
     ]
   },
