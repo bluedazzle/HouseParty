@@ -325,9 +325,12 @@ class HeartView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespon
                 dct.appendlist(obj.room.room_id, obj)
             else:
                 dct.appendlist('free', obj)
+        if self.user.room:
+            dct.appendlist(self.user.room.room_id, self.user)
+        else:
+            dct.appendlist('free', self.user)
         tp = [{'room': k, 'participants': dct.getlist(k)} for k in dct.keys()]
         dns = DeleteNotify.objects.filter(belong=self.user)
-        print dns
         setattr(self.user, 'deletes', dns)
         setattr(self.user, 'friends', tp)
         return self.render_to_response(self.user)
