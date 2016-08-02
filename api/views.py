@@ -325,10 +325,15 @@ class HeartView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespon
                 dct.appendlist(obj.room.room_id, obj)
             else:
                 dct.appendlist('free', obj)
+        user = {'id': self.user.id,
+                'nick': self.user.nick,
+                'phone': self.user.phone,
+                'room': self.user.room,
+                'fullname': self.user.fullname}
         if self.user.room:
-            dct.appendlist(self.user.room.room_id, self.user)
+            dct.appendlist(self.user.room.room_id, user)
         else:
-            dct.appendlist('free', self.user)
+            dct.appendlist('free', user)
         tp = [{'room': k, 'participants': dct.getlist(k)} for k in dct.keys()]
         dns = DeleteNotify.objects.filter(belong=self.user)
         setattr(self.user, 'deletes', dns)
