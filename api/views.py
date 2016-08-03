@@ -559,10 +559,11 @@ class RoomView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespons
             if not created:
                 room_members = self.user.friend_list.all().filter(room=room)
                 self.update_notify(room_members)
+            self.user.room = room
         else:
             rid = self.generate_room()
-            room = Room(room_id=rid).save()
-        self.user.room = room
+            Room(room_id=rid).save()
+            self.user.room = Room.objects.get(room_id=rid)
         self.user.save()
         return self.render_to_response({'room_id': rid})
 
