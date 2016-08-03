@@ -460,7 +460,7 @@ class FriendMatchView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, Json
     http_method_names = ['post']
     model = PartyUser
     datetime_type = 'timestamp'
-    include_attr = ['id', 'nick', 'fullname', 'phone', 'friend', 'remark']
+    include_attr = ['id', 'nick', 'fullname', 'phone', 'friend', 'remark', 'common_friend']
 
     def post(self, request, *args, **kwargs):
         if not self.wrap_check_sign_result():
@@ -474,6 +474,8 @@ class FriendMatchView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, Json
             remark = itm.get('remark', '')
             if match_user.exists():
                 match_user = match_user[0]
+                num = self.get_common_friend_num(match_user)
+                setattr(match_user, 'common_friend', num)
                 setattr(match_user, 'remark', remark)
                 if match_user in self.user.friend_list.all():
                     setattr(match_user, 'friend', 1)
@@ -494,6 +496,14 @@ class FriendMatchView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, Json
             book_list.append(match_user)
             book_list.sort(key=lambda v: v.friend)
         return self.render_to_response({'address_book': book_list})
+
+    def get_common_friend_num(self, friend):
+        num = 0
+        for cf in friend.friend_list.all():
+            if cf in self.user.friend_list.all():
+                num += 1
+        return num
+
 
 
 # 打招呼
