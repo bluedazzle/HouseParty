@@ -420,8 +420,8 @@ class FriendView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespo
         return self.render_to_response({})
 
     def generate_notify(self, user):
-        FriendNotify(friend=user, belong=self.user, message='成为朋友').save()
-        FriendNotify(friend=self.user, belong=user, message='成为朋友').save()
+        FriendNotify.objects.get_or_create(friend=user, belong=self.user, message='成为朋友')
+        FriendNotify.objects.get_or_create(friend=self.user, belong=user, message='成为朋友')
 
     def del_notify(self, user):
         fn = FriendNotify.objects.filter(friend=user, belong=self.user)
