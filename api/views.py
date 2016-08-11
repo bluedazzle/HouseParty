@@ -304,7 +304,7 @@ class HeartView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespon
     model = PartyUser
     datetime_type = 'timestamp'
     include_attr = ['id', 'nick', 'phone', 'online', 'friends', 'notify', 'message', 'modify_time', 'rooms', 'room',
-                    'room_id', 'deleter', 'deletes', 'fullname']
+                    'room_id', 'deleter', 'deletes', 'fullname', 'is_friend']
     foreign = True
 
     def get(self, request, *args, **kwargs):
@@ -322,7 +322,13 @@ class HeartView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespon
         dct = MultiValueDict()
         for obj in friend_list:
             if obj.room:
-                dct.appendlist(obj.room.room_id, obj)
+                for itm in obj.room.room_participants.all():
+                    if itm != self.user:
+                        if itm in self.user.friend_list.all():
+                            setattr(itm, 'is_friend', True)
+                        else:
+                            setattr(itm, 'is_friend', False)
+                        dct.appendlist(obj.room.room_id, itm)
             else:
                 dct.appendlist('free', obj)
         user = {'id': self.user.id,
