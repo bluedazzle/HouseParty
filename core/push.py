@@ -7,10 +7,10 @@ APP_KEY = '8a3d8a574a0137f8e153ddf1'
 MASTER_SECRET = 'b593a0b85c902c0d2261b4d0'
 
 
-def push_to_friends(tag):
+def push_to_friends(tag, fullname):
     _jpush = jpush.JPush(APP_KEY, MASTER_SECRET)
     _jpush.set_logging("ERROR")
-    msg = "上线啦~".encode('utf-8')
+    msg = "好友{0}上线啦~".format(fullname).encode('utf-8')
     push = _jpush.create_push()
     ios_msg = jpush.ios(alert=msg)
     push.audience = jpush.audience(

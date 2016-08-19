@@ -314,7 +314,7 @@ class HeartView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespon
             return self.render_to_response(dict())
         if not self.user.online:
             # 好友上线通知
-            push_to_friends(self.user.phone)
+            push_to_friends(self.user.phone, self.user.fullname)
         self.user.online = True
         self.user.save()
         friend_list = self.user.friend_list.all().order_by('online')
@@ -426,8 +426,12 @@ class FriendView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespo
         return self.render_to_response({})
 
     def generate_notify(self, user):
-        FriendNotify.objects.get_or_create(friend=user, belong=self.user, message='成为朋友')
-        FriendNotify.objects.get_or_create(friend=self.user, belong=user, message='成为朋友')
+        fn, created = FriendNotify.objects.get_or_create(friend=user, belong=self.user, message='成为朋友')
+        fn.message = '成为朋友'
+        fn.save()
+        fn, created = FriendNotify.objects.get_or_create(friend=self.user, belong=user, message='成为朋友')
+        fn.message = '成为朋友'
+        fn.save()
 
     def del_notify(self, user):
         fn = FriendNotify.objects.filter(friend=user, belong=self.user)
@@ -509,7 +513,6 @@ class FriendMatchView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, Json
             if cf in self.user.friend_list.all():
                 num += 1
         return num
-
 
 
 # 打招呼
