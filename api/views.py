@@ -8,6 +8,7 @@ import string
 
 # Create your views here.
 from django.db.models import Q
+from django.http import HttpResponseRedirect
 from django.utils.timezone import get_current_timezone
 from django.views.generic import CreateView, UpdateView, View, DetailView, DeleteView, ListView
 
@@ -689,3 +690,10 @@ class InfoView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespons
         self.message = '参数缺失'
         self.status_code = ERROR_DATA
         return self.render_to_response({})
+
+
+class RedirectView(DetailView):
+    http_method_names = ['get']
+
+    def get(self, request, *args, **kwargs):
+        return HttpResponseRedirect('https://itunes.apple.com/cn/app/id1141350790')
