@@ -8,7 +8,7 @@
 
 **api_version: v1**
 
-#概要
+# 概要
 
  2. API请求格式：host + "api" + api_version + 请求地址。
  3. API返回格式：`json:{"status":1,"body":{}}`status返回操作结果码,body包含返回信息，如果无返回信息，body为空。
@@ -29,7 +29,7 @@
 |11|验证码错误| 
 
 
-#API安全
+# API安全
 
 为保证接口调用安全，所有接口都需要：`timestamp`与`sign`两个参数，用来验证接口请求的合法性。其中： 
 
@@ -38,17 +38,17 @@
  2. `sign` 是类型为字符串的32位验证字符串，具体生成方式为`MD5(timestamp + secret)`，其中`secret` 从系统申请后分配。请保证`secret` 的安全性，如果不慎泄露请及时更换。
  3. 验证合法性请均使用`get`方式构造参数请求，即在所有请求地址后构造类似`?timestamp=xx&sign=xx`的参数
 
-#文档
+# 文档
 
-#用户
-##**获取注册验证码**
+# 用户
+## **获取注册验证码**
 ```
 POST /verify
 ```
-###**Parameters**
+### **Parameters**
 * phone(_Required_|string)-手机号
 
-###**Return**
+### **Return**
 成功
 ```
 {
@@ -78,15 +78,15 @@ POST /verify
 }
 ```
 
-##**验证注册验证码**
+## **验证注册验证码**
 ```
 GET /verify
 ```
-###**Parameters**
+### **Parameters**
 * phone(_Required_|string)-手机号
 * code(_Required_|string)-验证码
 
-###**Return**
+### **Return**
 成功
 ```
 {
@@ -117,16 +117,16 @@ GET /verify
 
 ```
 
-##**用户注册**
+## **用户注册**
 ```
 POST /register
 ```
-###**Parameters**
+### **Parameters**
 * phone(_Required_|string)-手机号
 * fullname(_Required_|string)-全名
 * password(_Required_|string)-密码
 * nick(_Required_|string)-昵称
-###**Return**
+### **Return**
 成功
 ```
 {
@@ -150,14 +150,14 @@ POST /register
 }
 ```
 
-##**用户登陆**
+## **用户登陆**
 ```
 POST /login
 ```
-###**Parameters**
+### **Parameters**
 * phone(_Required_|string)-手机号
 * password(_Required_|string)-密码
-###**Return**
+### **Return**
 ```
 {
   "body": {
@@ -172,15 +172,15 @@ POST /login
 }
 ```
 
-##**用户忘记密码**
+##  **用户忘记密码**
 ```
 POST /reset
 ```
-###**Parameters**
+## **Parameters**
 * phone(_Required_|string)-电话号码
 * verify(_Required_|string)-验证码
 * new_password(_Required_|string)-新密码
-###**Return**
+### **Return**
 成功
 ```
 {
@@ -206,24 +206,24 @@ POST /reset
 ```
 
 
-##**用户登出**
+## **用户登出**
 ```
 GET /logout
 ```
-###**Parameters**
+### **Parameters**
 * token(_Required_|string)-用户识别码
-###**Return**
+### **Return**
 ```
 {"status":1,"body":{}, "msg": "success"}
 ```
 
-##**心跳包**
+## **心跳包**
 ```
 GET /heart
 ```
-###**Parameters**
+### **Parameters**
 * token(_Required_|string)-用户令牌
-###**Return**
+### **Return**
 成功
 ```
 {
@@ -304,14 +304,14 @@ GET /heart
 }
 ```
 
-##**发送好友请求**
+## **发送好友请求**
 ```
 POST /friend
 ```
-###**Parameters**
+### **Parameters**
 * token(_Required_|string)-用户令牌
 * phone(_Required_|string)-好友电话号码
-###**Return**
+### **Return**
 成功
 ```
 {
@@ -329,14 +329,14 @@ POST /friend
 }
 ```
 
-##**处理好友请求**
+## **处理好友请求**
 ```
 GET /friend/<phone>
 ```
-###**Parameters**
+### **Parameters**
 * token(_Required_|string)-用户令牌
 * agree(_Required_|integer)-是否同意 1 同意 0 拒绝
-###**Return**
+### **Return**
 成功
 ```
 {
@@ -354,13 +354,13 @@ GET /friend/<phone>
 }
 ```
 
-##**删除好友**
+## **删除好友**
 ```
 DELETE /friend/<phone>
 ```
-###**Parameters**
+### **Parameters**
 * token(_Required_|string)-用户令牌
-###**Return**
+### **Return**
 成功
 ```
 {
@@ -378,13 +378,13 @@ DELETE /friend/<phone>
 }
 ```
 
-##**获取好友请求列表**
+## **获取好友请求列表**
 ```
 GET /requests
 ```
-###**Parameters**
+### **Parameters**
 * token(_Required_|string)-用户令牌
-###**Return**
+### **Return**
 成功
 ```
 {
@@ -416,17 +416,17 @@ GET /requests
 }
 ```
 
-##**匹配通讯录**
+## **匹配通讯录**
 ```
 POST /match
 ```
-###**Parameters**
+### **Parameters**
 * token(_Required_|string)-用户令牌
-###**Request**
+### **Request**
 ```
 [{"phone": "15608059721", "remark": "test"}, {"phone": "15608059722"}, {"phone": "15608059730", "remark": "test"}, {"phone": "15608052720", "remark": "test"}, {"phone": "15608054320", "remark": "test"}]
 ```
-###**Return**
+### **Return**
 
 friend 字段类型表：
 
@@ -497,13 +497,13 @@ friend 字段类型表：
 }
 ```
 
-##**向好友打招呼**
+## **向好友打招呼**
 ```
 GET /hook/<phone>
 ```
-###**Parameters**
+### **Parameters**
 * token(_Required_|string)-用户令牌
-###**Return**
+### **Return**
 (10s 内重复打招呼会返回 6 限制打招呼次数)
 成功
 ```
@@ -522,13 +522,13 @@ GET /hook/<phone>
 }
 ```
 
-##**进入聊天室**
+## **进入聊天室**
 ```
 GET /room/<room_id>
 ```
-###**Parameters**
+### **Parameters**
 * token(_Required_|string)-用户令牌
-###**Return**
+### **Return**
 ```
 {
   "body": {
@@ -547,13 +547,13 @@ GET /room/<room_id>
 }
 ```
 
-##**确认删除消息**
+## **确认删除消息**
 ```
 GET /confirm/<d_id>
 ```
-###**Parameters**
+### **Parameters**
 * token(_Required_|string)-用户令牌
-###**Return**
+### **Return**
 ```
 {
   "status": 1,
@@ -569,13 +569,13 @@ GET /confirm/<d_id>
 }
 ```
 
-##**获取好友列表**
+## **获取好友列表**
 ```
 GET /friends
 ```
-###**Parameters**
+### **Parameters**
 * token(_Required_|string)-用户令牌
-###**Return**
+### **Return**
 ```
 {
   "body": {
@@ -616,14 +616,14 @@ GET /friends
 ```
 
 
-##**搜索**
+## **搜索**
 ```
 GET /search
 ```
-###**Parameters**
+### **Parameters**
 * token(_Required_|string)-用户令牌
 * query(_Required_|string)-搜索字符串
-###**Return**
+### **Return**
 
 friend 字段类型表：
 
@@ -657,15 +657,15 @@ friend 字段类型表：
 }
 ```
 
-##**修改个人信息**
+## **修改个人信息**
 ```
 POST /info
 ```
-###**Parameters**
+### **Parameters**
 * token(_Required_|string)-用户令牌
 * nick(_Required_|string)-用户昵称
 * fullname(_Required_|string)-用户姓名
-###**Return**
+### **Return**
 ```
 {
   "body": {

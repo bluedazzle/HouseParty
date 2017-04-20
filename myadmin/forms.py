@@ -2,7 +2,6 @@
 
 from __future__ import unicode_literals
 from django import forms
-from DjangoUeditor.forms import UEditorField
 
 
 class BaseForm(forms.Form):

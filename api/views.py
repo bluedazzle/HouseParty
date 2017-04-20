@@ -11,6 +11,7 @@ from django.db.models import Q
 from django.http import HttpResponseRedirect
 from django.utils.timezone import get_current_timezone
 from django.views.generic import CreateView, UpdateView, View, DetailView, DeleteView, ListView
+from django.core.cache import cache
 
 from api.forms import VerifyCodeForm, UserResetForm, UserLoginForm, UserRegisterForm
 from core.Mixin.CheckMixin import CheckSecurityMixin, CheckTokenMixin
@@ -488,18 +489,20 @@ class FriendMatchView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, Json
                 num = self.get_common_friend_num(match_user)
                 setattr(match_user, 'common_friend', num)
                 setattr(match_user, 'remark', remark)
-                if match_user in self.user.friend_list.all():
-                    setattr(match_user, 'friend', 1)
-                else:
-                    setattr(match_user, 'friend', 4)
-                    fq = FriendRequest.objects.filter(requester=self.user,
-                                                      add=match_user)
-                    if fq.exists():
-                        setattr(match_user, 'friend', 2)
-                    fq = FriendRequest.objects.filter(
-                        requester=match_user, add=self.user)
-                    if fq.exists():
-                        setattr(match_user, 'friend', 3)
+                if match_user not in self.user.friend_list.all():
+                    self.user.friend_list.add(match_user)
+                    match_user.friend_list.add(self.user)
+                setattr(match_user, 'friend', 1)
+                # else:
+                #     setattr(match_user, 'friend', 4)
+                #     fq = FriendRequest.objects.filter(requester=self.user,
+                #                                       add=match_user)
+                #     if fq.exists():
+                #         setattr(match_user, 'friend', 2)
+                #     fq = FriendRequest.objects.filter(
+                #         requester=match_user, add=self.user)
+                #     if fq.exists():
+                #         setattr(match_user, 'friend', 3)
             else:
                 match_user = PartyUser(phone=itm.get('phone', ''))
                 setattr(match_user, 'remark', remark)
@@ -697,3 +700,34 @@ class RedirectView(DetailView):
 
     def get(self, request, *args, **kwargs):
         return HttpResponseRedirect('https://itunes.apple.com/cn/app/id1141350790')
+
+
+class VideoRankListView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, ListView):
+    http_method_names = ['get']
+
+    def get_rank_list(self):
+        from bs4 import BeautifulSoup
+        import requests
+        rank_list = []
+        resp = requests.get('http://www.bilibili.com/ranking', timeout=5)
+        if resp.status_code != 200:
+            return False, rank_list
+        soup = BeautifulSoup(resp.content)
+        print resp.content
+        video_list = soup.findAll('ul', attrs={'id': 'rank-list'})[0].findAll('li')
+        for video in video_list:
+            video_dict = {'index': video.find('div', attr={'class': 'num'}).text()}
+            # 'title': video.find('div', attr={'class': 'content clearfix'}).find('div', attr={'class': 'info'})}
+            rank_list.append(video_dict)
+        return true, rank_list
+
+    def get(self, request, *args, **kwargs):
+        rank_json_data = cache.get("rank_list")
+        if rank_json_data:
+            return self.render_to_response({"rank_list": json.loads(rank_json_data)})
+        status, rank_data = self.get_rank_list()
+        if status:
+            return self.render_to_response({"rank_list": rank_data})
+        self.message = '信息爬取失败'
+        self.status_code = ERROR_DATA
+        return self.render_to_response({})
