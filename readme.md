@@ -686,3 +686,33 @@ POST /info
   "msg": "用户不存在"
 }
 ```
+
+## **修改头像**
+```
+POST /avatar?token={token}
+```
+### **Parameters**
+* avatar(_Required_|file)-图片
+### **Return**
+```
+{
+  "body": {
+    "phone": "15608059720",
+    "nick": "RaPoSpectre",
+    "create_time": 1469004454,
+    "avatar": "/s/image/upload/149266818996v2-dfbc73a036407c674277f1005d072d6f_l.jpg",
+    "fullname": "建奇 张",
+    "id": 1
+  },
+  "status": 1,
+  "msg": "success"
+}
+```
+其他
+```
+{
+  "body": {},
+  "status": 4,
+  "msg": "数据缺失"
+}
+```
