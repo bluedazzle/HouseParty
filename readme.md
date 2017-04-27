@@ -716,3 +716,48 @@ POST /avatar?token={token}
   "msg": "数据缺失"
 }
 ```
+
+## **进度上传**
+```
+GET /progress_control
+```
+### **Parameters**
+* rid(_Required_|string)-room id
+* index(_Required_|int)-index
+* progress(_Required_|int)-进度
+### **Return**
+
+说明：new 为 true 时表示你上传的是当前最新进度，反之不是
+```
+{
+    "body": {
+        "progress": 2,
+        "room_id": "123",
+        "modify_time": "2017-04-27 21:22:01",
+        "new": false,
+        "index": 2
+    },
+    "status": 1,
+    "msg": "success"
+}
+or
+{
+    "body": {
+        "progress": 2,
+        "room_id": "123",
+        "modify_time": "2017-04-27 21:22:01",
+        "new": true,
+        "index": 2
+    },
+    "status": 1,
+    "msg": "success"
+}
+```
+其他
+```
+{
+  "body": {},
+  "status": 4,
+  "msg": "数据缺失"
+}
+```

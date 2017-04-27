@@ -731,3 +731,40 @@ class VideoRankListView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, 
         self.message = '信息爬取失败'
         self.status_code = ERROR_DATA
         return self.render_to_response({})
+
+
+class ProgressControlView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonResponseMixin, DetailView):
+    model = Room
+    exclude_attr = ['create_time', 'id']
+
+    def get(self, request, *args, **kwargs):
+        rid = request.GET.get('rid', None)
+        if not rid:
+            self.message = '缺少房间 id'
+            self.status_code = ERROR_DATA
+            return self.render_to_response({})
+        room = Room.objects.filter(room_id=rid)
+        if not room.exists():
+            self.message = '房间不存在'
+            self.status_code = INFO_NO_EXIST
+            return self.render_to_response({})
+        room = room[0]
+        progress = int(request.GET.get('progress', 0))
+        index = int(request.GET.get('index', 0))
+        if index < room.index:
+            room.new = False
+            return self.render_to_response(room)
+        elif index > room.index:
+            room.index = index
+            room.progress = progress
+            room.save()
+            room.new = True
+            return self.render_to_response(room)
+        else:
+            if progress < room.progress:
+                room.new = False
+                return self.render_to_response(room)
+            room.progress = progress
+            room.save()
+            room.new = True
+            return self.render_to_response(room)

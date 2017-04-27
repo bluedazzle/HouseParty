@@ -3,8 +3,8 @@
 from __future__ import unicode_literals
 import jpush as jpush
 
-APP_KEY = '8a3d8a574a0137f8e153ddf1'
-MASTER_SECRET = 'b593a0b85c902c0d2261b4d0'
+APP_KEY = '232c73937806d859680f340f'
+MASTER_SECRET = '6730e7a54daf6f6daf64fa5a'
 
 
 def push_to_friends(tag, fullname):

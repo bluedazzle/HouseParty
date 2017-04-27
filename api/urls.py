@@ -21,4 +21,5 @@ urlpatterns = patterns('',
                        url(r'^info', views.InfoView.as_view()),
                        url(r'^videos', views.VideoRankListView.as_view()),
                        url(r'^avatar', views.UserAvatarView.as_view()),
+                       url(r'^progress_control', views.ProgressControlView.as_view()),
                        )
