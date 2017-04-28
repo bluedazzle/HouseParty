@@ -725,6 +725,7 @@ GET /progress_control
 * rid(_Required_|string)-room id
 * index(_Required_|int)-index
 * progress(_Required_|int)-进度
+* reset(_Optional_|int)-是否重置。 1 重置，0 或不带此参数为不重置
 ### **Return**
 
 说明：new 为 true 时表示你上传的是当前最新进度，反之不是
