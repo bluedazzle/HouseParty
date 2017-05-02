@@ -80,11 +80,11 @@ def push_hook(rid, user):
         pass
 
 
-class too(object):
-    pass
-
-
-user = too()
-setattr(user, 'fullname', 'test')
-
-push_friend_request('18310160189', user)
+# class too(object):
+#     pass
+#
+#
+# user = too()
+# setattr(user, 'fullname', 'test')
+#
+# push_friend_request('18310160189', user)

@@ -751,7 +751,7 @@ class ProgressControlView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, 
         room = room[0]
         progress = int(request.GET.get('progress', 0))
         index = int(request.GET.get('index', 0))
-        reset = request.GET.get('reset', 0)
+        reset = int(request.GET.get('reset', 0))
         if reset == 1:
             room.index = 0
             room.progress = 0
