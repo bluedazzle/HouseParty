@@ -306,7 +306,7 @@ class HeartView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespon
     model = PartyUser
     datetime_type = 'timestamp'
     include_attr = ['id', 'nick', 'phone', 'online', 'friends', 'notify', 'message', 'modify_time', 'rooms', 'room',
-                    'room_id', 'deleter', 'deletes', 'fullname', 'is_friend']
+                    'room_id', 'deleter', 'deletes', 'fullname', 'is_friend', 'avatar']
     foreign = True
 
     def get(self, request, *args, **kwargs):

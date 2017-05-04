@@ -18,6 +18,7 @@ def push_to_friends(tag, fullname):
     )
     # push.notification = jpush.notification(alert="上线啦~", ios=ios_msg)
     push.platform = jpush.all_
+    push.options = {"apns_production": False}
     # print (push.payload)
     push.message = jpush.message(msg_content=msg, title=msg)
     try:
@@ -37,6 +38,7 @@ def push_friend_response(rid, user):
     )
     push.notification = jpush.notification(alert=msg, ios=ios_msg)
     push.platform = jpush.all_
+    push.options = {"apns_production": False}
     # print (push.payload)
     try:
         push.send()
@@ -55,6 +57,7 @@ def push_friend_request(rid, user):
     )
     push.notification = jpush.notification(alert=msg, ios=ios_msg)
     push.platform = jpush.all_
+    push.options = {"apns_production": False}
     # print (push.payload)
     try:
         push.send()
@@ -73,18 +76,20 @@ def push_hook(rid, user):
     )
     push.notification = jpush.notification(alert=msg, ios=ios_msg)
     push.platform = jpush.all_
-    # print (push.payload)
+    push.options = {"apns_production": False}
     try:
         push.send()
     except:
         pass
-
-
+#
 # class too(object):
 #     pass
 #
 #
 # user = too()
+# room = too()
 # setattr(user, 'fullname', 'test')
+# setattr(room, 'room_id', '123')
+# setattr(user, 'room', room)
 #
-# push_friend_request('18310160189', user)
+# push_hook('18310160178', user)
