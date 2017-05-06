@@ -306,7 +306,7 @@ class HeartView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespon
     model = PartyUser
     datetime_type = 'timestamp'
     include_attr = ['id', 'nick', 'phone', 'online', 'friends', 'notify', 'message', 'modify_time', 'rooms', 'room',
-                    'room_id', 'deleter', 'deletes', 'fullname', 'is_friend']
+                    'room_id', 'deleter', 'deletes', 'fullname', 'is_friend', 'avatar', 'version']
     foreign = True
 
     def get(self, request, *args, **kwargs):
@@ -346,6 +346,7 @@ class HeartView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespon
         dns = DeleteNotify.objects.filter(belong=self.user)
         setattr(self.user, 'deletes', dns)
         setattr(self.user, 'friends', tp)
+        setattr(self.user, 'version', '1.0.1')
         return self.render_to_response(self.user)
 
     def generate_notify_to_friends(self, friend):
