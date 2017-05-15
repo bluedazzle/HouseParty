@@ -258,7 +258,6 @@ class UserLogoutView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonR
             return self.render_to_response(dict())
         if not self.wrap_check_token_result():
             return self.render_to_response(dict())
-        self.user.token = self.create_token()
         self.user.online = False
         self.user.save()
         return self.render_to_response(dict())
