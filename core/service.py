@@ -17,5 +17,5 @@ def check_online(*args, **kwargs):
             user.room = None
             user.save()
 
-    # for room in Room.objects.all():
-    #     room.destroy()
+    for room in Room.objects.all():
+        room.destroy()

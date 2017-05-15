@@ -68,7 +68,7 @@ def push_friend_request(rid, user):
 def push_hook(rid, user):
     msg = '{0} 向你打招呼, 点击加入聊天'.format(user.fullname).encode('utf-8')
     _jpush = jpush.JPush(APP_KEY, MASTER_SECRET)
-    _jpush.set_logging("DEBUG")
+    # _jpush.set_logging("DEBUG")
     push = _jpush.create_push()
     ios_msg = jpush.ios(alert=msg, extras={'room_id': user.room.room_id})
     push.audience = jpush.audience(
@@ -79,8 +79,22 @@ def push_hook(rid, user):
     push.options = {"apns_production": False}
     try:
         push.send()
-    except:
+    except Exception as e:
+        print e
         pass
+
+
+class too(object):
+    pass
+
+
+# user = too()
+# room = too()
+# setattr(room, 'room_id', '123')
+# setattr(user, 'fullname', 'testserver')
+# setattr(user, 'room', room)
+#
+# push_hook('18310160177', user)
 #
 # class too(object):
 #     pass
