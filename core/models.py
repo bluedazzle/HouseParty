@@ -103,3 +103,32 @@ class DeleteNotify(BaseModel):
 
     def __unicode__(self):
         return '{0} delete {1}'.format(self.deleter.nick, self.belong.nick)
+
+
+class Video(BaseModel):
+    address = models.CharField(max_length=512, default='')
+    title = models.CharField(max_length=100, default='', null=True, blank=True)
+    thumbnail = models.CharField(max_length=256, default='', null=True, blank=True)
+    link = models.CharField(max_length=256, default='', null=True, blank=True)
+    view_count = models.IntegerField(default=0)
+    yid = models.CharField(max_length=100, default='', null=True, blank=True)
+    duration = models.FloatField(default=0)
+
+    def __unicode__(self):
+        return self.title
+
+    def save(self, force_insert=False, force_update=False, using=None,
+             update_fields=None):
+        import re
+        from youku import YoukuVideos
+
+        video_id = re.findall(r'id_(.*)==.html', self.address)[0]
+        youku = YoukuVideos('d124ea671a7616d5')
+        video = youku.find_video_by_id(video_id)
+        self.title = video.get('title')
+        self.yid = video_id
+        self.thumbnail = video.get('thumbnail', '')
+        self.link = video.get('link', '')
+        self.duration = video.get('duration', 0)
+        self.view_count = video.get('view_count', 0)
+        return super(Video, self).save(force_insert, force_update, using, update_fields)

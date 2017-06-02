@@ -121,18 +121,18 @@ class UserResetForm(forms.ModelForm):
         'min_length': '请至少输入6位以上密码',
     }
     password = forms.CharField(max_length=100, error_messages=password_error_messages)
-    code = forms.CharField(max_length=6, min_length=6)
+    # code = forms.CharField(max_length=6, min_length=6)
     phone = forms.CharField(max_length=11, min_length=11)
 
-    def clean_code(self):
-        phone = self.cleaned_data.get('phone')
-        code = self.cleaned_data.get('code')
-        verify = Verify.objects.filter(phone=phone, code=code)
-        if verify.exists():
-            verify = verify[0]
-            verify.delete()
-            return code
-        raise forms.ValidationError(message='验证码错误', code='verify_error')
+    # def clean_code(self):
+    #     phone = self.cleaned_data.get('phone')
+    #     code = self.cleaned_data.get('code')
+    #     verify = Verify.objects.filter(phone=phone, code=code)
+    #     if verify.exists():
+    #         verify = verify[0]
+    #         verify.delete()
+    #         return code
+    #     raise forms.ValidationError(message='验证码错误', code='verify_error')
 
     def clean_password(self):
         password = unicode(self.cleaned_data.get('password'))
