@@ -640,7 +640,7 @@ class SearchView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespo
     http_method_names = ['get']
     model = PartyUser
     datetime_type = 'timestamp'
-    include_attr = ['id', 'phone', 'nick', 'fullname', 'create_time', 'friend']
+    include_attr = ['id', 'phone', 'nick', 'fullname', 'create_time', 'friend', 'avatar']
 
     def get(self, request, *args, **kwargs):
         if not self.wrap_check_sign_result():
