@@ -775,7 +775,7 @@ class ProgressControlView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, 
             return self.render_to_response(room)
 
 
-class YoukuVideoList(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, ListView):
+class YoukuVideoList(CheckSecurityMixin, StatusWrapMixin, MultipleJsonResponseMixin, ListView):
     model = Video
     datetime_type = 'timestamp'
     http_method_names = ['get']
