@@ -18,7 +18,7 @@ from core.Mixin.CheckMixin import CheckSecurityMixin, CheckTokenMixin
 from core.Mixin.StatusWrapMixin import StatusWrapMixin, INFO_EXPIRE, ERROR_VERIFY, INFO_NO_VERIFY, ERROR_DATA, \
     ERROR_UNKNOWN, ERROR_PERMISSION_DENIED, ERROR_PASSWORD, INFO_NO_EXIST, INFO_EXISTED
 from core.dss.Mixin import JsonResponseMixin, MultipleJsonResponseMixin
-from core.models import Verify, PartyUser, FriendRequest, FriendNotify, Hook, Room, DeleteNotify
+from core.models import Verify, PartyUser, FriendRequest, FriendNotify, Hook, Room, DeleteNotify, Video
 from core.push import push_to_friends, push_friend_request, push_friend_response, push_hook
 from core.sms import send_sms
 from core.utils import upload_picture
@@ -773,3 +773,11 @@ class ProgressControlView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, 
             room.save()
             room.new = True
             return self.render_to_response(room)
+
+
+class YoukuVideoList(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, ListView):
+    model = Video
+    datetime_type = 'timestamp'
+    http_method_names = ['get']
+    paginate_by = 40
+
