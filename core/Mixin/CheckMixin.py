@@ -80,7 +80,8 @@ class CheckTokenMixin(object):
     user = None
 
     def get_current_token(self):
-        self.token = self.request.GET.get('token') or self.request.session.get('token', '')
+        self.token = self.request.GET.get('token') or self.request.POST.get('token') or self.request.session.get(
+            'token', '')
         return self.token
 
     def check_token(self):
