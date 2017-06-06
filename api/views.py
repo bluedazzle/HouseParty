@@ -341,7 +341,7 @@ class HeartView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespon
             dct.appendlist(self.user.room.room_id, user)
         else:
             dct.appendlist('free', user)
-        tp = [{'room': k, 'participants': dct.getlist(k)} for k in dct.keys()]
+        tp = [{'room': k, 'participants': self.ensure_unique(dct.getlist(k))} for k in dct.keys()]
         dns = DeleteNotify.objects.filter(belong=self.user)
         setattr(self.user, 'deletes', dns)
         setattr(self.user, 'friends', tp)
@@ -351,6 +351,16 @@ class HeartView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespon
     def generate_notify_to_friends(self, friend):
         fn, created = FriendNotify.objects.get_or_create(friend=friend, belong=self.user)
         setattr(friend, 'notify', {'message': fn.message, 'modify_time': fn.modify_time})
+
+    @staticmethod
+    def ensure_unique(dict_list):
+        ids = []
+        new_list = []
+        for itm in dict_list:
+            if itm.get('id') not in ids:
+                new_list.append(itm)
+                ids.append(itm.get('id'))
+        return new_list
 
 
 # 好友操作
@@ -780,4 +790,3 @@ class YoukuVideoList(CheckSecurityMixin, StatusWrapMixin, MultipleJsonResponseMi
     datetime_type = 'timestamp'
     http_method_names = ['get']
     paginate_by = 40
-
