@@ -357,9 +357,14 @@ class HeartView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespon
         ids = []
         new_list = []
         for itm in dict_list:
-            if itm.get('id') not in ids:
-                new_list.append(itm)
-                ids.append(itm.get('id'))
+            if isinstance(itm, dict):
+                if itm.get('id') not in ids:
+                    new_list.append(itm)
+                    ids.append(itm.get('id'))
+            else:
+                if itm.id not in ids:
+                    new_list.append(itm)
+                    ids.append(itm.id)
         return new_list
 
 
