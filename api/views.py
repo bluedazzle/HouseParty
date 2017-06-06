@@ -428,10 +428,10 @@ class FriendView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespo
         return self.render_to_response({})
 
     def generate_notify(self, user):
-        fn, created = FriendNotify.objects.get_or_create(friend=user, belong=self.user, message='成为朋友')
+        fn, created = FriendNotify.objects.get_or_create(friend=user, belong=self.user)
         fn.message = '成为朋友'
         fn.save()
-        fn, created = FriendNotify.objects.get_or_create(friend=self.user, belong=user, message='成为朋友')
+        fn, created = FriendNotify.objects.get_or_create(friend=self.user, belong=user)
         fn.message = '成为朋友'
         fn.save()
 

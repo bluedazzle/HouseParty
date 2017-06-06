@@ -10,7 +10,7 @@ import time
 from PIL import Image
 
 from HouseParty.settings import BASE_DIR
-from core.models import Secret
+from core.models import Secret, FriendNotify
 
 import random
 import string
