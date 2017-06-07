@@ -504,11 +504,11 @@ class FriendMatchView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, Json
                 num = self.get_common_friend_num(match_user)
                 setattr(match_user, 'common_friend', num)
                 setattr(match_user, 'remark', remark)
-                if match_user not in self.user.friend_list.all():
+                if match_user in self.user.friend_list.all():
                 #     self.user.friend_list.add(match_user)
                 #     match_user.friend_list.add(self.user)
-                # setattr(match_user, 'friend', 1)
-                # else:
+                    setattr(match_user, 'friend', 1)
+                else:
                     setattr(match_user, 'friend', 4)
                     fq = FriendRequest.objects.filter(requester=self.user,
                                                       add=match_user)
