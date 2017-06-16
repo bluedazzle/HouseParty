@@ -345,7 +345,7 @@ class HeartView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespon
         dns = DeleteNotify.objects.filter(belong=self.user)
         setattr(self.user, 'deletes', dns)
         setattr(self.user, 'friends', tp)
-        setattr(self.user, 'version', '1.0.1')
+        setattr(self.user, 'version', '1.0.2')
         return self.render_to_response(self.user)
 
     def generate_notify_to_friends(self, friend):
