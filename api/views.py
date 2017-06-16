@@ -505,8 +505,8 @@ class FriendMatchView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, Json
                 setattr(match_user, 'common_friend', num)
                 setattr(match_user, 'remark', remark)
                 if match_user in self.user.friend_list.all():
-                #     self.user.friend_list.add(match_user)
-                #     match_user.friend_list.add(self.user)
+                    #     self.user.friend_list.add(match_user)
+                    #     match_user.friend_list.add(self.user)
                     setattr(match_user, 'friend', 1)
                 else:
                     setattr(match_user, 'friend', 4)
@@ -701,7 +701,7 @@ class InfoView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespons
                 self.user.fullname = fullname
                 self.user.save()
                 return self.render_to_response(self.user)
-            except Exception, e:
+            except Exception as e:
                 self.message = '昵称已存在'
                 self.status_code = INFO_EXISTED
                 return self.render_to_response({})
@@ -728,7 +728,6 @@ class VideoRankListView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, 
         if resp.status_code != 200:
             return False, rank_list
         soup = BeautifulSoup(resp.content)
-        print resp.content
         video_list = soup.findAll('ul', attrs={'id': 'rank-list'})[0].findAll('li')
         for video in video_list:
             video_dict = {'index': video.find('div', attr={'class': 'num'}).text()}
@@ -795,3 +794,11 @@ class YoukuVideoList(CheckSecurityMixin, StatusWrapMixin, MultipleJsonResponseMi
     datetime_type = 'timestamp'
     http_method_names = ['get']
     paginate_by = 40
+
+    def get_queryset(self):
+        queryset = super(YoukuVideoList, self).get_queryset()
+        video_type = int(self.request.GET.get('type', 1))
+        search = self.request.GET.get('search', None)
+        if search:
+            return queryset.filter(video_type=2).filter(title__icontains=search)
+        return queryset.filter(video_type=video_type)
