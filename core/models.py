@@ -67,6 +67,7 @@ class Verify(BaseModel):
 class Secret(BaseModel):
     secret = models.CharField(max_length=64)
     info = models.CharField(max_length=20, default='system')
+    version = models.CharField(max_length=20, default='1.0.3')
 
     def __unicode__(self):
         return self.info
