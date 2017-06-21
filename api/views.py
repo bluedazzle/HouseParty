@@ -797,7 +797,7 @@ class YoukuVideoList(CheckSecurityMixin, StatusWrapMixin, MultipleJsonResponseMi
     paginate_by = 40
 
     def get_queryset(self):
-        queryset = super(YoukuVideoList, self).get_queryset()
+        queryset = super(YoukuVideoList, self).get_queryset().order_by('-create_time')
         video_type = int(self.request.GET.get('type', 1))
         search = self.request.GET.get('search', None)
         if search:
