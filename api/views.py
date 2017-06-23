@@ -400,24 +400,24 @@ class FriendView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespo
         self.status_code = ERROR_DATA
         return self.render_to_response({})
 
-    def delete(self, request, *args, **kwargs):
-        phone = kwargs.get('phone', None)
-        if phone:
-            friend = PartyUser.objects.filter(phone=phone)
-            if friend.exists():
-                friend = friend[0]
-                self.user.friend_list.remove(friend)
-                self.delete(friend)
-
-                # 被删除好友通知
-                DeleteNotify(deleter=self.user, belong=friend).save()
-                return self.render_to_response({})
-            self.message = '用户不存在'
-            self.status_code = INFO_NO_EXIST
-            return self.render_to_response({})
-        self.message = '数据缺失'
-        self.status_code = ERROR_DATA
-        return self.render_to_response({})
+    # def delete(self, request, *args, **kwargs):
+    #     phone = kwargs.get('phone', None)
+    #     if phone:
+    #         friend = PartyUser.objects.filter(phone=phone)
+    #         if friend.exists():
+    #             friend = friend[0]
+    #             self.user.friend_list.remove(friend)
+    #             self.delete(friend)
+    #
+    #             # 被删除好友通知
+    #             DeleteNotify(deleter=self.user, belong=friend).save()
+    #             return self.render_to_response({})
+    #         self.message = '用户不存在'
+    #         self.status_code = INFO_NO_EXIST
+    #         return self.render_to_response({})
+    #     self.message = '数据缺失'
+    #     self.status_code = ERROR_DATA
+    #     return self.render_to_response({})
 
     def get(self, request, *args, **kwargs):
         phone = kwargs.get('phone', None)
