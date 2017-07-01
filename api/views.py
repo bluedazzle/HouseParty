@@ -18,7 +18,7 @@ from core.Mixin.CheckMixin import CheckSecurityMixin, CheckTokenMixin
 from core.Mixin.StatusWrapMixin import StatusWrapMixin, INFO_EXPIRE, ERROR_VERIFY, INFO_NO_VERIFY, ERROR_DATA, \
     ERROR_UNKNOWN, ERROR_PERMISSION_DENIED, ERROR_PASSWORD, INFO_NO_EXIST, INFO_EXISTED
 from core.dss.Mixin import JsonResponseMixin, MultipleJsonResponseMixin
-from core.models import Verify, PartyUser, FriendRequest, FriendNotify, Hook, Room, DeleteNotify, Video
+from core.models import Verify, PartyUser, FriendRequest, FriendNotify, Hook, Room, DeleteNotify, Video, Secret
 from core.push import push_to_friends, push_friend_request, push_friend_response, push_hook
 from core.sms import send_sms
 from core.utils import upload_picture
@@ -341,16 +341,32 @@ class HeartView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespon
             dct.appendlist(self.user.room.room_id, user)
         else:
             dct.appendlist('free', user)
-        tp = [{'room': k, 'participants': dct.getlist(k)} for k in dct.keys()]
+        tp = [{'room': k, 'participants': self.ensure_unique(dct.getlist(k))} for k in dct.keys()]
         dns = DeleteNotify.objects.filter(belong=self.user)
         setattr(self.user, 'deletes', dns)
         setattr(self.user, 'friends', tp)
-        setattr(self.user, 'version', '1.0.1')
+        secret = Secret.objects.all()[0]
+        setattr(self.user, 'version', secret.version)
         return self.render_to_response(self.user)
 
     def generate_notify_to_friends(self, friend):
         fn, created = FriendNotify.objects.get_or_create(friend=friend, belong=self.user)
         setattr(friend, 'notify', {'message': fn.message, 'modify_time': fn.modify_time})
+
+    @staticmethod
+    def ensure_unique(dict_list):
+        ids = []
+        new_list = []
+        for itm in dict_list:
+            if isinstance(itm, dict):
+                if itm.get('id') not in ids:
+                    new_list.append(itm)
+                    ids.append(itm.get('id'))
+            else:
+                if itm.id not in ids:
+                    new_list.append(itm)
+                    ids.append(itm.id)
+        return new_list
 
 
 # 好友操作
@@ -384,24 +400,24 @@ class FriendView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespo
         self.status_code = ERROR_DATA
         return self.render_to_response({})
 
-    def delete(self, request, *args, **kwargs):
-        phone = kwargs.get('phone', None)
-        if phone:
-            friend = PartyUser.objects.filter(phone=phone)
-            if friend.exists():
-                friend = friend[0]
-                self.user.friend_list.remove(friend)
-                self.delete(friend)
-
-                # 被删除好友通知
-                DeleteNotify(deleter=self.user, belong=friend).save()
-                return self.render_to_response({})
-            self.message = '用户不存在'
-            self.status_code = INFO_NO_EXIST
-            return self.render_to_response({})
-        self.message = '数据缺失'
-        self.status_code = ERROR_DATA
-        return self.render_to_response({})
+    # def delete(self, request, *args, **kwargs):
+    #     phone = kwargs.get('phone', None)
+    #     if phone:
+    #         friend = PartyUser.objects.filter(phone=phone)
+    #         if friend.exists():
+    #             friend = friend[0]
+    #             self.user.friend_list.remove(friend)
+    #             self.delete(friend)
+    #
+    #             # 被删除好友通知
+    #             DeleteNotify(deleter=self.user, belong=friend).save()
+    #             return self.render_to_response({})
+    #         self.message = '用户不存在'
+    #         self.status_code = INFO_NO_EXIST
+    #         return self.render_to_response({})
+    #     self.message = '数据缺失'
+    #     self.status_code = ERROR_DATA
+    #     return self.render_to_response({})
 
     def get(self, request, *args, **kwargs):
         phone = kwargs.get('phone', None)
@@ -428,10 +444,10 @@ class FriendView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespo
         return self.render_to_response({})
 
     def generate_notify(self, user):
-        fn, created = FriendNotify.objects.get_or_create(friend=user, belong=self.user, message='成为朋友')
+        fn, created = FriendNotify.objects.get_or_create(friend=user, belong=self.user)
         fn.message = '成为朋友'
         fn.save()
-        fn, created = FriendNotify.objects.get_or_create(friend=self.user, belong=user, message='成为朋友')
+        fn, created = FriendNotify.objects.get_or_create(friend=self.user, belong=user)
         fn.message = '成为朋友'
         fn.save()
 
@@ -489,20 +505,20 @@ class FriendMatchView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, Json
                 num = self.get_common_friend_num(match_user)
                 setattr(match_user, 'common_friend', num)
                 setattr(match_user, 'remark', remark)
-                if match_user not in self.user.friend_list.all():
-                    self.user.friend_list.add(match_user)
-                    match_user.friend_list.add(self.user)
-                setattr(match_user, 'friend', 1)
-                # else:
-                #     setattr(match_user, 'friend', 4)
-                #     fq = FriendRequest.objects.filter(requester=self.user,
-                #                                       add=match_user)
-                #     if fq.exists():
-                #         setattr(match_user, 'friend', 2)
-                #     fq = FriendRequest.objects.filter(
-                #         requester=match_user, add=self.user)
-                #     if fq.exists():
-                #         setattr(match_user, 'friend', 3)
+                if match_user in self.user.friend_list.all():
+                    #     self.user.friend_list.add(match_user)
+                    #     match_user.friend_list.add(self.user)
+                    setattr(match_user, 'friend', 1)
+                else:
+                    setattr(match_user, 'friend', 4)
+                    fq = FriendRequest.objects.filter(requester=self.user,
+                                                      add=match_user)
+                    if fq.exists():
+                        setattr(match_user, 'friend', 2)
+                    fq = FriendRequest.objects.filter(
+                        requester=match_user, add=self.user)
+                    if fq.exists():
+                        setattr(match_user, 'friend', 3)
             else:
                 match_user = PartyUser(phone=itm.get('phone', ''))
                 setattr(match_user, 'remark', remark)
@@ -686,7 +702,7 @@ class InfoView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespons
                 self.user.fullname = fullname
                 self.user.save()
                 return self.render_to_response(self.user)
-            except Exception, e:
+            except Exception as e:
                 self.message = '昵称已存在'
                 self.status_code = INFO_EXISTED
                 return self.render_to_response({})
@@ -713,7 +729,6 @@ class VideoRankListView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, 
         if resp.status_code != 200:
             return False, rank_list
         soup = BeautifulSoup(resp.content)
-        print resp.content
         video_list = soup.findAll('ul', attrs={'id': 'rank-list'})[0].findAll('li')
         for video in video_list:
             video_dict = {'index': video.find('div', attr={'class': 'num'}).text()}
@@ -781,3 +796,10 @@ class YoukuVideoList(CheckSecurityMixin, StatusWrapMixin, MultipleJsonResponseMi
     http_method_names = ['get']
     paginate_by = 40
 
+    def get_queryset(self):
+        queryset = super(YoukuVideoList, self).get_queryset().order_by('-create_time')
+        video_type = int(self.request.GET.get('type', 1))
+        search = self.request.GET.get('search', None)
+        if search:
+            return queryset.filter(video_type=2).filter(title__icontains=search)
+        return queryset.filter(video_type=video_type)
