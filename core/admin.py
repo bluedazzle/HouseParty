@@ -1,8 +1,14 @@
 from django.contrib import admin
 from core.models import *
 
+
 # Register your models here.
-admin.site.register(PartyUser)
+
+class UserAdmin(admin.ModelAdmin):
+    search_fields = ['fullname', ]
+
+
+admin.site.register(PartyUser, UserAdmin)
 admin.site.register(Secret)
 admin.site.register(Verify)
 admin.site.register(FriendRequest)
