@@ -18,7 +18,7 @@ def push_to_friends(tag, fullname):
     )
     # push.notification = jpush.notification(alert="上线啦~", ios=ios_msg)
     push.platform = jpush.all_
-    push.options = {"apns_production": False}
+    push.options = {"apns_production": True}
     # print (push.payload)
     push.message = jpush.message(msg_content=msg, title=msg)
     try:
@@ -38,7 +38,7 @@ def push_friend_response(rid, user):
     )
     push.notification = jpush.notification(alert=msg, ios=ios_msg)
     push.platform = jpush.all_
-    push.options = {"apns_production": False}
+    push.options = {"apns_production": True}
     # print (push.payload)
     try:
         push.send()
@@ -57,7 +57,7 @@ def push_friend_request(rid, user):
     )
     push.notification = jpush.notification(alert=msg, ios=ios_msg)
     push.platform = jpush.all_
-    push.options = {"apns_production": False}
+    push.options = {"apns_production": True}
     # print (push.payload)
     try:
         push.send()
@@ -76,7 +76,7 @@ def push_hook(rid, user):
     )
     push.notification = jpush.notification(alert=msg, ios=ios_msg)
     push.platform = jpush.all_
-    push.options = {"apns_production": False}
+    push.options = {"apns_production": True}
     try:
         push.send()
     except Exception as e:
