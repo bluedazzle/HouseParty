@@ -50,7 +50,7 @@ def send_sms(code, mobile, apikey=API_KEY):
     """
     通用接口发短信
     """
-    text = '【pipi应用】您的验证码是{0}'.format(code).encode('utf-8')
+    text = '【Bolo应用】您的验证码是{0}'.format(code).encode('utf-8')
     params = urllib.urlencode({'apikey': apikey, 'text': text, 'mobile': mobile})
     headers = {"Content-type": "application/x-www-form-urlencoded", "Accept": "text/plain"}
     conn = httplib.HTTPSConnection(sms_host, port=port, timeout=30)
@@ -59,7 +59,6 @@ def send_sms(code, mobile, apikey=API_KEY):
     response_str = response.read()
     conn.close()
     json_res = json.loads(response_str)
-    print json_res
     if json_res.get('code') == 0:
         return True
     return False
