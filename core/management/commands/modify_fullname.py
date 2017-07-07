@@ -11,5 +11,5 @@ class Command(BaseCommand):
         for itm in PartyUser.objects.all():
             exist = PartyUser.objects.filter(fullname=itm.fullname)
             if exist.exists():
-                itm.fullname = '{0}1'.format(itm.fullname)
+                itm.fullname = itm.nick
                 itm.save()
