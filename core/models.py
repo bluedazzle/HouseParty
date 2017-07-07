@@ -110,6 +110,7 @@ class Video(BaseModel):
     type_choices = (
         (1, '优酷'),
         (2, '自建'),
+        (3, '电视直播'),
     )
     address = models.CharField(max_length=512, default='')
     title = models.CharField(max_length=100, default='', null=True, blank=True)
@@ -137,7 +138,9 @@ class Video(BaseModel):
             self.link = video.get('link', '')
             self.duration = video.get('duration', 0)
             self.view_count = video.get('view_count', 0)
-        else:
+        elif self.video_type == 2:
             self.link = self.address
             self.thumbnail = '{0}?vframe/jpg/offset/0/w/200/h/112/'.format(self.address)
+        else:
+            self.link = self.address
         return super(Video, self).save(force_insert, force_update, using, update_fields)

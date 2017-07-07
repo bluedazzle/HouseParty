@@ -664,19 +664,32 @@ class SearchView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespo
         if not self.wrap_check_token_result():
             return self.render_to_response(dict())
         query = request.GET.get('query', '')
-        user = PartyUser.objects.filter(Q(nick=query) | Q(fullname=query) | Q(phone=query))
-        if user.exists():
-            user = user[0]
-            setattr(user, 'friend', 0)
-            fr = FriendRequest.objects.filter(requester=self.user, add=user)
-            if fr.exists():
-                setattr(user, 'friend', 2)
-            fr = FriendRequest.objects.filter(requester=user, add=self.user)
-            if fr.exists():
-                setattr(user, 'friend', 3)
-            if user in self.user.friend_list.all():
-                setattr(user, 'friend', 1)
-            return self.render_to_response(user)
+        new = request.GET.get('new', None)
+        users = PartyUser.objects.filter(Q(nick=query) | Q(fullname=query) | Q(phone=query))
+        if users.exists():
+            if not new:
+                user = users[0]
+                setattr(user, 'friend', 0)
+                fr = FriendRequest.objects.filter(requester=self.user, add=user)
+                if fr.exists():
+                    setattr(user, 'friend', 2)
+                fr = FriendRequest.objects.filter(requester=user, add=self.user)
+                if fr.exists():
+                    setattr(user, 'friend', 3)
+                if user in self.user.friend_list.all():
+                    setattr(user, 'friend', 1)
+                return self.render_to_response(user)
+            for user in users:
+                setattr(user, 'friend', 0)
+                fr = FriendRequest.objects.filter(requester=self.user, add=user)
+                if fr.exists():
+                    setattr(user, 'friend', 2)
+                fr = FriendRequest.objects.filter(requester=user, add=self.user)
+                if fr.exists():
+                    setattr(user, 'friend', 3)
+                if user in self.user.friend_list.all():
+                    setattr(user, 'friend', 1)
+            return self.render_to_response(users)
         else:
             self.message = '搜索用户不存在'
             self.status_code = INFO_NO_EXIST
