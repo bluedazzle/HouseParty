@@ -45,6 +45,8 @@ class PartyUser(BaseModel, AbstractBaseUser):
     online = models.BooleanField(default=False)
     forbid = models.BooleanField(default=False)
     room = models.ForeignKey(Room, related_name='room_participants', null=True, blank=True, on_delete=models.SET_NULL)
+    qq_open_id = models.CharField(max_length=128, default='')
+    wx_open_id = models.CharField(max_length=128, default='')
     token = models.CharField(max_length=64, unique=True)
 
     USERNAME_FIELD = 'phone'
@@ -68,6 +70,7 @@ class Secret(BaseModel):
     secret = models.CharField(max_length=64)
     info = models.CharField(max_length=20, default='system')
     version = models.CharField(max_length=20, default='1.0.3')
+    num = models.IntegerField(default=324823)
 
     def __unicode__(self):
         return self.info

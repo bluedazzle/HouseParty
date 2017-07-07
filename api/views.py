@@ -178,6 +178,150 @@ class UserResetView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, Upda
         return obj
 
 
+class BindPhoneView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonResponseMixin, DetailView):
+    model = PartyUser
+    http_method_names = ['get']
+
+    def get(self, request, *args, **kwargs):
+        if not self.wrap_check_sign_result():
+            return self.render_to_response({})
+        if not self.wrap_check_token_result():
+            return self.render_to_response({})
+        phone = request.GET.get('phone')
+        if not phone:
+            self.message = 'missgin param'
+            self.status_code = ERROR_DATA
+            self.render_to_response({})
+        phone_users = PartyUser.objects.filter(phone=phone)
+        if not phone_users.exists():
+            self.user.phone = phone
+            self.user.save()
+            return self.render_to_response({})
+        phone_user = phone_users[0]
+        if not phone_user.avatar:
+            phone_user.avatar = self.user.avatar
+        phone_user.qq_open_id = self.user.qq_open_id
+        phone_user.wx_open_id = self.user.wx_open_id
+        phone_user.token = self.user.token
+        self.user.delete()
+        phone_user.save()
+        return self.render_to_response({})
+
+
+class SMSLoginView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, DetailView):
+    model = PartyUser
+    http_method_names = ['post', 'get']
+    count = 64
+    token = ''
+
+    def create_verify_code(self):
+        return string.join(
+            random.sample('1234567890', self.count)).replace(" ", "")
+
+    def get(self, request, *args, **kwargs):
+        phone = request.GET.get('phone', None)
+        if not phone:
+            self.message = 'missing param'
+            self.status_code = ERROR_DATA
+            return self.render_to_response({})
+        user = PartyUser.objects.filter(phone=phone)
+        if not user.exists():
+            self.message = 'user not exist'
+            self.status_code = INFO_NO_EXIST
+            return self.render_to_response({})
+        verify = self.create_verify_code()
+        if send_sms(verify, phone):
+            Verify(phone=phone, code=verify).save()
+            return self.render_to_response(dict())
+        self.status_code = ERROR_UNKNOWN
+        self.message = '短信发送失败,请重试'
+        return self.render_to_response(dict())
+
+    def create_token(self):
+        self.token = string.join(
+            random.sample('ZYXWVUTSRQPONMLKJIHGFEDCBA1234567890zyxwvutsrqponmlkjihgfedcbazyxwvutsrqponmlkjihgfedcba',
+                          self.count)).replace(" ", "")
+        return self.token
+
+    def post(self, request, *args, **kwargs):
+        code = request.POST.get('code', None)
+        phone = request.POST.get('phone', None)
+        if code and phone:
+            verify = Verify.objects.filter(code=code, phone=phone)
+            if not verify.exists():
+                self.message = 'verify not exist'
+                self.status_code = INFO_NO_VERIFY
+                return self.render_to_response({})
+            verify = verify[0]
+            verify.delete()
+            users = PartyUser.objects.filter(phone=phone)
+            if not users.exists():
+                self.message = 'user not exist'
+                self.status_code = INFO_NO_EXIST
+                return self.render_to_response({})
+            user = users[0]
+            user.token = self.create_token()
+            user.online = True
+            user.save()
+            return self.render_to_response(user)
+        self.message = 'missing params'
+        self.status_code = ERROR_DATA
+        return self.render_to_response({})
+
+
+class ThirdLoginView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, DetailView):
+    model = PartyUser
+    http_method_names = ['post']
+    count = 64
+    token = ''
+
+    def get_fullname(self):
+        s = Secret.objects.all()[0]
+        s.num += 1
+        s.save()
+        return s.num
+
+    def post(self, request, *args, **kwargs):
+        nick = request.POST.get('nickname')
+        avatar = request.POST.get('avatar')
+        qq_open_id = request.POST.get('qq_open_id')
+        wx_open_id = request.POST.get('wx_open_id')
+        source = request.POST.get('source', 1)
+        openid = qq_open_id if source == 1 else wx_open_id
+        user = self.search_user_by_open_id(openid, source)
+        if not user:
+            self.create_user(nick, avatar, openid, source)
+            user = self.search_user_by_open_id(openid, source)
+        user.token = self.create_token()
+        user.online = True
+        user.save()
+        return self.render_to_response(user)
+
+    def create_token(self):
+        self.token = string.join(
+            random.sample('ZYXWVUTSRQPONMLKJIHGFEDCBA1234567890zyxwvutsrqponmlkjihgfedcbazyxwvutsrqponmlkjihgfedcba',
+                          self.count)).replace(" ", "")
+        return self.token
+
+    def create_user(self, nick, avatar, open_id, source):
+        user = PartyUser(nick=nick, avatar=avatar, fullname=self.get_fullname())
+        if source == 1:
+            user.qq_open_id = open_id
+        else:
+            user.wx_open_id = open_id
+        user.save()
+        return user
+
+    def search_user_by_open_id(self, openid, source):
+        if source == 1:
+            user = PartyUser.objects.filter(qq_open_id=openid)
+        else:
+            user = PartyUser.objects.filter(wx_open_id=openid)
+        if user.exists():
+            return user[0]
+        return None
+
+
 class UserLoginView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, UpdateView):
     model = PartyUser
     form_class = UserLoginForm
@@ -665,7 +809,8 @@ class SearchView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespo
             return self.render_to_response(dict())
         query = request.GET.get('query', '')
         new = request.GET.get('new', None)
-        users = PartyUser.objects.filter(Q(nick=query) | Q(fullname=query) | Q(phone=query))
+        users = PartyUser.objects.filter(
+            Q(nick__icontains=query) | Q(fullname__icontains=query) | Q(phone__icontains=query))
         if users.exists():
             if not new:
                 user = users[0]
