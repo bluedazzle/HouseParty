@@ -39,7 +39,7 @@ class Room(BaseModel):
 class PartyUser(BaseModel, AbstractBaseUser):
     nick = models.CharField(max_length=100, default='')
     phone = models.CharField(max_length=11, unique=True)
-    fullname = models.CharField(max_length=64, default='')
+    fullname = models.CharField(max_length=64, unique=True)
     avatar = models.CharField(max_length=256, null=True, blank=True)
     friend_list = models.ManyToManyField('self', related_name='friend_by', blank=True)
     online = models.BooleanField(default=False)
