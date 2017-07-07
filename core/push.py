@@ -14,13 +14,14 @@ def push_to_friends(tag, fullname):
     push = _jpush.create_push()
     ios_msg = jpush.ios(alert=msg)
     push.audience = jpush.audience(
-        jpush.tag(tag, )
+        jpush.alias(tag)
     )
     # push.notification = jpush.notification(alert="上线啦~", ios=ios_msg)
     push.platform = jpush.all_
     push.options = {"apns_production": True}
     # print (push.payload)
-    push.message = jpush.message(msg_content=msg, title=msg)
+    # push.message = jpush.message(msg_content=msg, title=msg)
+    push.notification = jpush.notification(alert=msg, ios=ios_msg)
     try:
         push.send()
     except:
