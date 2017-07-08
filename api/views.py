@@ -627,6 +627,40 @@ class RequestListView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, Mult
         return super(RequestListView, self).get(request, *args, **kwargs)
 
 
+class InviteView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonResponseMixin, DetailView):
+    http_method_names = ['get']
+
+    def generate_notify(self, user):
+        fn, created = FriendNotify.objects.get_or_create(friend=user, belong=self.user)
+        fn.message = '成为朋友'
+        fn.save()
+        fn, created = FriendNotify.objects.get_or_create(friend=self.user, belong=user)
+        fn.message = '成为朋友'
+        fn.save()
+
+    def get(self, request, *args, **kwargs):
+        if not self.wrap_check_sign_result():
+            return self.render_to_response(dict())
+        if not self.wrap_check_token_result():
+            return self.render_to_response(dict())
+        phone = request.GET.get('phone')
+        users = PartyUser.objects.filter(phone=phone)
+        if users.exists():
+            user = users[0]
+            if user.phone != self.user.phone:
+                if user not in self.user.friend_list:
+                    self.user.friend_list.add(user)
+                if self.user not in user.friend_list.add(self.user):
+                    user.friend_list.add(self.user)
+                self.generate_notify(user)
+                push_friend_response(phone, self.user)
+                push_friend_response(self.user.phone, user)
+                return self.render_to_response({})
+        self.message = 'error'
+        self.status_code = ERROR_DATA
+        return self.render_to_response({})
+
+
 # 匹配通讯录
 class FriendMatchView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonResponseMixin, DetailView):
     http_method_names = ['post']

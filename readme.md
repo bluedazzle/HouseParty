@@ -878,3 +878,31 @@ or
   "msg": "数据缺失"
 }
 ```
+
+## **要请添加好友**
+```
+GET /invite
+```
+### **Parameters**
+* phone(_Optional_|string)- 手机
+
+### **Return**
+
+```
+{
+    "body": {
+        user object
+    },
+    "status": 1,
+    "msg": "success"
+}
+or
+```
+其他
+```
+{
+  "body": {},
+  "status": 4,
+  "msg": "数据缺失"
+}
+```
