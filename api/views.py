@@ -272,6 +272,7 @@ class SMSLoginView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, Detai
 class ThirdLoginView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, DetailView):
     model = PartyUser
     http_method_names = ['post']
+    exclude_attr = ['password']
     count = 64
     token = ''
 
@@ -286,8 +287,10 @@ class ThirdLoginView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, Det
         avatar = request.POST.get('avatar')
         qq_open_id = request.POST.get('qq_open_id')
         wx_open_id = request.POST.get('wx_open_id')
-        source = request.POST.get('source', 1)
+        source = int(request.POST.get('source', 1))
+        print source
         openid = qq_open_id if source == 1 else wx_open_id
+        print openid
         user = self.search_user_by_open_id(openid, source)
         if not user:
             self.create_user(nick, avatar, openid, source)
