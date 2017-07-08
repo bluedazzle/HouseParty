@@ -203,7 +203,7 @@ class BindPhoneView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRe
         if not phone_users.exists():
             self.user.phone = phone
             self.user.save()
-            return self.render_to_response({})
+            return self.render_to_response(self.user)
         phone_user = phone_users[0]
         if not phone_user.avatar:
             phone_user.avatar = self.user.avatar
