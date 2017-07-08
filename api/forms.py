@@ -42,8 +42,6 @@ class VerifyCodeForm(forms.ModelForm):
                 now_time = datetime.datetime.now(tz=get_current_timezone())
                 if now_time - phone_obj.create_time < datetime.timedelta(seconds=30):
                     raise forms.ValidationError(message=self.error_messages['min_time'], code='min_time')
-                else:
-                    return phone
             user = PartyUser.objects.filter(phone=phone)
             if user.exists():
                 raise forms.ValidationError(message=self.error_messages['user_exist'], code='user_exist')

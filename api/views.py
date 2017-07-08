@@ -65,7 +65,7 @@ class VerifyCodeView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, Cre
         reg = request.POST.get('reg', True)
         if reg == 'false':
             reg = False
-        if not reg:
+        if reg:
             return super(VerifyCodeView, self).post(request, *args, **kwargs)
         form = Verify()
         setattr(form, 'cleaned_data', {'phone': request.POST.get('phone')})
