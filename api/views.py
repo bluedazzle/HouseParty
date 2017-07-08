@@ -109,11 +109,18 @@ class UserRegisterView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, C
         super(UserRegisterView, self).form_valid(form)
         self.token = self.create_token()
         self.object.token = self.token
-        self.object.avatar = form.cleaned_data.get('avatar')
+        self.object.avatar = self.request.POST.get('avatar')
         self.object.online = True
-        self.object.set_password(form.cleaned_data.get('password'))
+        # self.object.set_password(form.cleaned_data.get('123456qq'))
+        self.object.fullname = self.get_fullname()
         self.object.save()
         return self.render_to_response(self.object)
+
+    def get_fullname(self):
+        s = Secret.objects.all()[0]
+        s.num += 1
+        s.save()
+        return s.num
 
     def form_invalid(self, form):
         super(UserRegisterView, self).form_invalid(form)

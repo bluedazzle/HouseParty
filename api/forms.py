@@ -78,28 +78,28 @@ class UserRegisterForm(forms.ModelForm):
         'phone_format': '请输入11位手机号',
     }
 
-    nick_error_messages = {
-        'required': '请输入昵称',
-        'unique': '昵称已存在',
-    }
-
-    password_error_messages = {
-        'required': '请输入密码',
-        'min_length': '请至少输入6位以上密码',
-    }
+    # nick_error_messages = {
+    #     'required': '请输入昵称',
+    #     'unique': '昵称已存在',
+    # }
+    #
+    # password_error_messages = {
+    #     'required': '请输入密码',
+    #     'min_length': '请至少输入6位以上密码',
+    # }
 
     phone = forms.CharField(max_length=11, error_messages=phone_error_messages)
-    nick = forms.CharField(max_length=20, error_messages=nick_error_messages)
-    fullname = forms.CharField(max_length=100)
-    password = forms.CharField(max_length=100, error_messages=password_error_messages)
+    nick = forms.CharField(max_length=20)
+    # fullname = forms.CharField(max_length=100)
+    # password = forms.CharField(max_length=100)
 
     # code = forms.CharField(max_length=6)
 
-    def clean_password(self):
-        password = unicode(self.cleaned_data.get('password'))
-        if len(password) < 6:
-            raise forms.ValidationError(message=self.password_error_messages['min_length'], code='min_length')
-        return password
+    # def clean_password(self):
+    #     password = unicode(self.cleaned_data.get('password'))
+    #     if len(password) < 6:
+    #         raise forms.ValidationError(message=self.password_error_messages['min_length'], code='min_length')
+    #     return password
 
     def clean_phone(self):
         phone = unicode(self.cleaned_data.get('phone', None))
@@ -112,7 +112,7 @@ class UserRegisterForm(forms.ModelForm):
 
     class Meta:
         model = PartyUser
-        fields = ['phone', 'nick', 'fullname']
+        fields = ['phone', 'nick']
 
 
 class UserResetForm(forms.ModelForm):
