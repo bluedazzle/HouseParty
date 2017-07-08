@@ -214,7 +214,7 @@ class BindPhoneView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRe
         phone_user.token = self.user.token
         self.user.delete()
         phone_user.save()
-        return self.render_to_response({})
+        return self.render_to_response(phone_user)
 
 
 class SMSLoginView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, DetailView):
