@@ -207,8 +207,10 @@ class BindPhoneView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRe
         phone_user = phone_users[0]
         if not phone_user.avatar:
             phone_user.avatar = self.user.avatar
-        phone_user.qq_open_id = self.user.qq_open_id
-        phone_user.wx_open_id = self.user.wx_open_id
+        if not phone.qq_open_id:
+            phone_user.qq_open_id = self.user.qq_open_id
+        if not phone.wx_open_id:
+            phone_user.wx_open_id = self.user.wx_open_id
         phone_user.token = self.user.token
         self.user.delete()
         phone_user.save()
