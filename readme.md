@@ -762,3 +762,119 @@ or
   "msg": "数据缺失"
 }
 ```
+
+## **三方登陆**
+```
+POST /third_login
+```
+### **Parameters**
+* nick(_Required_|string)- nickname
+* avatar(_Required_|string)- 头像
+* source(_Required_|int)-来源 1 qq 2 微信
+* qq_open_id(_Optional_|string)- qq open id
+* wx_open_id(_Optional_|string)- wx open id
+### **Return**
+
+```
+{
+    "body": {
+        user object
+    },
+    "status": 1,
+    "msg": "success"
+}
+or
+```
+其他
+```
+{
+  "body": {},
+  "status": 4,
+  "msg": "数据缺失"
+}
+```
+
+## **绑定手机**
+```
+GET /bind
+```
+### **Parameters**
+* phone(_Optional_|string)- 待绑定手机
+### **Return**
+
+```
+{
+    "body": {
+        user object
+    },
+    "status": 1,
+    "msg": "success"
+}
+or
+```
+其他
+```
+{
+  "body": {},
+  "status": 4,
+  "msg": "数据缺失"
+}
+```
+
+## **短信登陆**
+```
+POST /sms_login
+```
+### **Parameters**
+* phone(_Optional_|string)- 手机
+* code(_Optional_|string)- 验证码
+
+### **Return**
+
+```
+{
+    "body": {
+        user object
+    },
+    "status": 1,
+    "msg": "success"
+}
+or
+```
+其他
+```
+{
+  "body": {},
+  "status": 4,
+  "msg": "数据缺失"
+}
+```
+
+发送登陆短信 
+
+```
+GET /sms_login
+```
+### **Parameters**
+* phone(_Optional_|string)- 手机
+
+### **Return**
+
+```
+{
+    "body": {
+        user object
+    },
+    "status": 1,
+    "msg": "success"
+}
+or
+```
+其他
+```
+{
+  "body": {},
+  "status": 4,
+  "msg": "数据缺失"
+}
+```
