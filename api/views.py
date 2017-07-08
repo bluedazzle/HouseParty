@@ -216,7 +216,7 @@ class SMSLoginView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, Detai
 
     def create_verify_code(self):
         return string.join(
-            random.sample('1234567890', self.count)).replace(" ", "")
+            random.sample('1234567890', 6)).replace(" ", "")
 
     def get(self, request, *args, **kwargs):
         phone = request.GET.get('phone', None)
@@ -288,9 +288,7 @@ class ThirdLoginView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, Det
         qq_open_id = request.POST.get('qq_open_id')
         wx_open_id = request.POST.get('wx_open_id')
         source = int(request.POST.get('source', 1))
-        print source
         openid = qq_open_id if source == 1 else wx_open_id
-        print openid
         user = self.search_user_by_open_id(openid, source)
         if not user:
             self.create_user(nick, avatar, openid, source)
