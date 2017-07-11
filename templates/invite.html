@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link href="//cdn.bootcss.com/FrozenUI/1.3.0/css/frozen-min.css" rel="stylesheet">
+
+    <title>Bolo</title>
+</head>
+<body>
+{{ partyuser.nick }}
+<script src="//cdn.bootcss.com/FrozenUI/1.3.0/js/frozen.js"></script>
+<script src="//cdn.bootcss.com/FrozenUI/1.3.0/lib/zepto.min.js"></script>
+<script src="//cdn.bootcss.com/jquery/3.1.1/jquery.min.js"></script>
+<script>
+    function is_weixn() {
+        count(1);
+        var ua = navigator.userAgent.toLowerCase();
+        if (ua.match(/MicroMessenger/i) == "micromessenger" || ua.match(/meipai/i) == "meipai") {
+            window.location.href = "/page/guide?from=ios";
+        } else {
+            setTimeout(function () {
+                window.location = "https://itunes.apple.com/cn/app/id1156043950";
+            }, 25);
+            window.location = "Star://star";
+        }
+    }
+        function is_weixn_a() {
+        count(2);
+        var ua = navigator.userAgent.toLowerCase();
+        if (ua.match(/MicroMessenger/i) == "micromessenger" || ua.match(/meipai/i) == "meipai") {
+            window.location = "http://static.fibar.cn/datoushow-1-1-6.apk";
+            window.location.href = "/page/guide?from=android";
+        } else {
+            setTimeout(function () {
+                window.location = "http://static.fibar.cn/datoushow-1-1-6.apk";
+            }, 25);
+            window.location = "Star://star";
+        }
+    }
+</script>
+</body>
+</html>
