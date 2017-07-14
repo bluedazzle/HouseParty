@@ -123,6 +123,7 @@ class Video(BaseModel):
     yid = models.CharField(max_length=100, default='', null=True, blank=True)
     duration = models.FloatField(default=0)
     video_type = models.IntegerField(default=1, choices=type_choices)
+    hidden = models.BooleanField(default=False)
 
     def __unicode__(self):
         return self.title
