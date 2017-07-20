@@ -1,7 +1,7 @@
 from django.shortcuts import render
 
 # Create your views here.
-from django.views.generic import DetailView
+from django.views.generic import DetailView, TemplateView
 
 from core.models import PartyUser
 
@@ -18,3 +18,8 @@ class InviteView(DetailView):
             if users.exists():
                 return users[0]
         return None
+
+
+class GuideView(TemplateView):
+    template_name = 'guide.html'
+    http_method_names = ['get']

@@ -2,39 +2,54 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no">
     <link href="//cdn.bootcss.com/FrozenUI/1.3.0/css/frozen-min.css" rel="stylesheet">
+    <link href="/s/css/invite.css" rel="stylesheet">
 
     <title>Bolo</title>
 </head>
-<body>
-{{ partyuser.nick }}
+<body style="padding-left: 10%; padding-right: 10%; padding-top: 30px; background-color: white;">
+<ul class="ui-row">
+    <li class="ui-col ui-col-50">
+        <div class="nav-left">
+            <div style="font-weight: 700; font-size: larger">{{ object.nick }}</div>
+            <div style="font-size: small; color: grey;">Bolo号: {{ object.fullname }}</div>
+        </div>
+    </li>
+    <li class="ui-col ui-col-50">
+        <div class="" style="float: right;">
+            <button style="background-color: black; height: 35px; border-radius: 5px;color: white; width: 90px;" onclick="is_weixn()">添加好友
+            </button>
+        </div>
+    </li>
+</ul>
+<div class="ui-container ui-center" style="margin-top: 100px;">
+    <img src="/s/image/rainbow-shades.png" width="100px" alt="">
+    <div style="font-size: larger; font-weight: 500;margin-top: 10px;">Bolo</div>
+    <div style="font-size: 25px; margin-top: 20px;">一起看视频</div>
+</div>
+<div class="ui-container ui-center" style="margin-top: 80px;">
+    <button style="background-color: black; height: 60px; border-radius: 5px; color: white; width: 230px; display: block; font-size: 18px; font-family: 'Microsoft YaHei'; font-weight: 200;">
+        <img src="/s/image/pz.png" alt="" height="30px" style="margin-right: 10px; display: inline;">
+    </button>
+    <button style="background-color: white; height: 60px; border-radius: 5px; color: grey; width: 230px; display: block;  font-size: 18px; font-family: 'Microsoft YaHei'; font-weight: 200;">
+        <img src="/s/image/az.png" alt="" height="30px" style="margin-right: 10px; display: inline;padding-left: 23px;">
+    </button>
+</div>
 <script src="//cdn.bootcss.com/FrozenUI/1.3.0/js/frozen.js"></script>
 <script src="//cdn.bootcss.com/FrozenUI/1.3.0/lib/zepto.min.js"></script>
 <script src="//cdn.bootcss.com/jquery/3.1.1/jquery.min.js"></script>
 <script>
     function is_weixn() {
-        count(1);
         var ua = navigator.userAgent.toLowerCase();
         if (ua.match(/MicroMessenger/i) == "micromessenger" || ua.match(/meipai/i) == "meipai") {
-            window.location.href = "/page/guide?from=ios";
+            window.location.href = "/page/guide?phone={{ object.phone }}&nick={{ object.nick }}";
         } else {
             setTimeout(function () {
-                window.location = "https://itunes.apple.com/cn/app/id1156043950";
+                window.location = "https://itunes.apple.com/cn/app/id1248148762";
             }, 25);
-            window.location = "Star://star";
-        }
-    }
-        function is_weixn_a() {
-        count(2);
-        var ua = navigator.userAgent.toLowerCase();
-        if (ua.match(/MicroMessenger/i) == "micromessenger" || ua.match(/meipai/i) == "meipai") {
-            window.location = "http://static.fibar.cn/datoushow-1-1-6.apk";
-            window.location.href = "/page/guide?from=android";
-        } else {
-            setTimeout(function () {
-                window.location = "http://static.fibar.cn/datoushow-1-1-6.apk";
-            }, 25);
-            window.location = "Star://star";
+            window.location = "bolo://{{ object.phone }}:{{ object.nick }}";
         }
     }
 </script>
