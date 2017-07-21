@@ -658,9 +658,9 @@ class InviteView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespo
         if users.exists():
             user = users[0]
             if user.phone != self.user.phone:
-                if user not in self.user.friend_list:
+                if user not in self.user.friend_list.all():
                     self.user.friend_list.add(user)
-                if self.user not in user.friend_list.add(self.user):
+                if self.user not in user.friend_list.all():
                     user.friend_list.add(self.user)
                 self.generate_notify(user)
                 push_friend_response(phone, self.user)
