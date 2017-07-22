@@ -151,8 +151,8 @@ class DeleteNotify(BaseModel):
 
 
 class Song(BaseModel):
-    name = models.CharField(max_length=50, default='')
-    author = models.CharField(max_length=50, default='')
+    name = models.CharField(max_length=150, default='')
+    author = models.CharField(max_length=150, default='')
     link = models.CharField(max_length=256)
     hidden = models.BooleanField(default=False)
 

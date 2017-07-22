@@ -36,6 +36,8 @@ class DataStorePipelineBase(object):
         except Exception as e:
             logging.exception(e)
             self.session.rollback()
+            self.session.close()
+            self.session = DBSession()
         finally:
             self.session.close()
 
@@ -62,10 +64,14 @@ class LinkSavePipeline(object):
 
 
 class SongSavePipeline(DataStorePipelineBase):
-
     def process_item(self, item, spider):
         self.get_now()
         song = Song(create_time=self.now, modify_time=self.now, name=item['name'], author=item['author'],
                     link=item['link'])
-        self.session.merge(song)
-        self.periodic_commit()
+        try:
+            self.session.merge(song)
+            self.periodic_commit()
+        except Exception as e:
+            self.session.rollback()
+            self.session.close()
+            self.session = DBSession()
