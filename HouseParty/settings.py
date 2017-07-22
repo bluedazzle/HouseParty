@@ -63,7 +63,7 @@ WSGI_APPLICATION = 'HouseParty.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'houseparty',
+        'NAME': 'ktv',
         'USER': 'postgres',  # Not used with sqlite3.
         'PASSWORD': '',  # Not used with sqlite3.
         'HOST': 'localhost',  # Set to empty string for localhost. Not used with sqlite3.

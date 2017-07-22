@@ -24,7 +24,6 @@ urlpatterns = patterns('',
                        url(r'^confirm/(?P<did>(\d)+)', views.DeleteVerifyView.as_view()),
                        url(r'^search', views.SearchView.as_view()),
                        url(r'^info', views.InfoView.as_view()),
-                       url(r'^videos', views.YoukuVideoList.as_view()),
                        url(r'^avatar', views.UserAvatarView.as_view()),
                        url(r'^progress_control', views.ProgressControlView.as_view()),
                        )
