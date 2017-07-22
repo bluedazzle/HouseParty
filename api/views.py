@@ -18,7 +18,7 @@ from core.Mixin.CheckMixin import CheckSecurityMixin, CheckTokenMixin
 from core.Mixin.StatusWrapMixin import StatusWrapMixin, INFO_EXPIRE, ERROR_VERIFY, INFO_NO_VERIFY, ERROR_DATA, \
     ERROR_UNKNOWN, ERROR_PERMISSION_DENIED, ERROR_PASSWORD, INFO_NO_EXIST, INFO_EXISTED
 from core.dss.Mixin import JsonResponseMixin, MultipleJsonResponseMixin
-from core.models import Verify, PartyUser, FriendRequest, FriendNotify, Hook, Room, DeleteNotify, Video, Secret
+from core.models import Verify, PartyUser, FriendRequest, FriendNotify, Hook, Room, DeleteNotify, Secret
 from core.push import push_to_friends, push_friend_request, push_friend_response, push_hook
 from core.sms import send_sms
 from core.utils import upload_picture
@@ -920,34 +920,34 @@ class RedirectView(DetailView):
         return HttpResponseRedirect('https://itunes.apple.com/cn/app/id1141350790')
 
 
-class VideoRankListView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, ListView):
-    http_method_names = ['get']
-
-    def get_rank_list(self):
-        from bs4 import BeautifulSoup
-        import requests
-        rank_list = []
-        resp = requests.get('http://www.bilibili.com/ranking', timeout=5)
-        if resp.status_code != 200:
-            return False, rank_list
-        soup = BeautifulSoup(resp.content)
-        video_list = soup.findAll('ul', attrs={'id': 'rank-list'})[0].findAll('li')
-        for video in video_list:
-            video_dict = {'index': video.find('div', attr={'class': 'num'}).text()}
-            # 'title': video.find('div', attr={'class': 'content clearfix'}).find('div', attr={'class': 'info'})}
-            rank_list.append(video_dict)
-        return true, rank_list
-
-    def get(self, request, *args, **kwargs):
-        rank_json_data = cache.get("rank_list")
-        if rank_json_data:
-            return self.render_to_response({"rank_list": json.loads(rank_json_data)})
-        status, rank_data = self.get_rank_list()
-        if status:
-            return self.render_to_response({"rank_list": rank_data})
-        self.message = '信息爬取失败'
-        self.status_code = ERROR_DATA
-        return self.render_to_response({})
+# class VideoRankListView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, ListView):
+#     http_method_names = ['get']
+#
+#     def get_rank_list(self):
+#         from bs4 import BeautifulSoup
+#         import requests
+#         rank_list = []
+#         resp = requests.get('http://www.bilibili.com/ranking', timeout=5)
+#         if resp.status_code != 200:
+#             return False, rank_list
+#         soup = BeautifulSoup(resp.content)
+#         video_list = soup.findAll('ul', attrs={'id': 'rank-list'})[0].findAll('li')
+#         for video in video_list:
+#             video_dict = {'index': video.find('div', attr={'class': 'num'}).text()}
+#             # 'title': video.find('div', attr={'class': 'content clearfix'}).find('div', attr={'class': 'info'})}
+#             rank_list.append(video_dict)
+#         return true, rank_list
+#
+#     def get(self, request, *args, **kwargs):
+#         rank_json_data = cache.get("rank_list")
+#         if rank_json_data:
+#             return self.render_to_response({"rank_list": json.loads(rank_json_data)})
+#         status, rank_data = self.get_rank_list()
+#         if status:
+#             return self.render_to_response({"rank_list": rank_data})
+#         self.message = '信息爬取失败'
+#         self.status_code = ERROR_DATA
+#         return self.render_to_response({})
 
 
 class ProgressControlView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonResponseMixin, DetailView):
@@ -992,16 +992,16 @@ class ProgressControlView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, 
             return self.render_to_response(room)
 
 
-class YoukuVideoList(CheckSecurityMixin, StatusWrapMixin, MultipleJsonResponseMixin, ListView):
-    model = Video
-    datetime_type = 'timestamp'
-    http_method_names = ['get']
-    paginate_by = 40
-
-    def get_queryset(self):
-        queryset = super(YoukuVideoList, self).get_queryset().filter(hidden=False).order_by('-create_time')
-        video_type = int(self.request.GET.get('type', 1))
-        search = self.request.GET.get('search', None)
-        if search:
-            return queryset.filter(video_type=2).filter(title__icontains=search)
-        return queryset.filter(video_type=video_type)
+# class YoukuVideoList(CheckSecurityMixin, StatusWrapMixin, MultipleJsonResponseMixin, ListView):
+#     model = Video
+#     datetime_type = 'timestamp'
+#     http_method_names = ['get']
+#     paginate_by = 40
+#
+#     def get_queryset(self):
+#         queryset = super(YoukuVideoList, self).get_queryset().filter(hidden=False).order_by('-create_time')
+#         video_type = int(self.request.GET.get('type', 1))
+#         search = self.request.GET.get('search', None)
+#         if search:
+#             return queryset.filter(video_type=2).filter(title__icontains=search)
+#         return queryset.filter(video_type=video_type)
