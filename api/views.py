@@ -19,6 +19,7 @@ from core.Mixin.StatusWrapMixin import StatusWrapMixin, INFO_EXPIRE, ERROR_VERIF
     ERROR_UNKNOWN, ERROR_PERMISSION_DENIED, ERROR_PASSWORD, INFO_NO_EXIST, INFO_EXISTED
 from core.dss.Mixin import JsonResponseMixin, MultipleJsonResponseMixin
 from core.models import Verify, PartyUser, FriendRequest, FriendNotify, Hook, Room, DeleteNotify, Secret
+from core.ntim import netease
 from core.push import push_to_friends, push_friend_request, push_friend_response, push_hook
 from core.sms import send_sms
 from core.utils import upload_picture
@@ -114,6 +115,7 @@ class UserRegisterView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, C
         # self.object.set_password(form.cleaned_data.get('123456qq'))
         self.object.fullname = self.get_fullname()
         self.object.save()
+        netease.create_user(self.object.id, self.object.nick, icon=self.object.avatar, token=self.token)
         return self.render_to_response(self.object)
 
     def get_fullname(self):
@@ -272,6 +274,7 @@ class SMSLoginView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, Detai
             user.token = self.create_token()
             user.online = True
             user.save()
+            netease.update_user(user.id, user.token)
             return self.render_to_response(user)
         self.message = 'missing params'
         self.status_code = ERROR_DATA
@@ -297,14 +300,20 @@ class ThirdLoginView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, Det
         qq_open_id = request.POST.get('qq_open_id')
         wx_open_id = request.POST.get('wx_open_id')
         source = int(request.POST.get('source', 1))
+        flag = False
         openid = qq_open_id if source == 1 else wx_open_id
         user = self.search_user_by_open_id(openid, source)
         if not user:
+            flag = True
             self.create_user(nick, avatar, openid, source)
             user = self.search_user_by_open_id(openid, source)
         user.token = self.create_token()
         user.online = True
         user.save()
+        if flag:
+            netease.create_user(user.id, user.nick, icon=user.avatar, token=user.token)
+        else:
+            netease.update_user(user.id, user.token)
         return self.render_to_response(user)
 
     def create_token(self):
@@ -374,6 +383,7 @@ class UserLoginView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, Upda
         self.object.online = True
         self.object.save()
         self.update_notify()
+        netease.update_user(self.object.id, self.token)
         return self.render_to_response(self.object)
 
     def get_object(self, queryset=None):
@@ -789,7 +799,7 @@ class RoomView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespons
             self.user.room = room
         else:
             rid = self.generate_room()
-            Room(room_id=rid).save()
+            Room(room_id=rid, creator_id=self.user.id, cover=self.user.avatar).save()
             self.user.room = Room.objects.get(room_id=rid)
         self.user.save()
         return self.render_to_response({'room_id': rid})
@@ -991,6 +1001,18 @@ class ProgressControlView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, 
             room.new = True
             return self.render_to_response(room)
 
+
+class RoomListView(CheckSecurityMixin, StatusWrapMixin, MultipleJsonResponseMixin, ListView):
+    model = Room
+    paginate_by = 10
+
+    def get_queryset(self):
+        queryset = self.get_queryset()
+        map(self.get_numbers, queryset)
+        return queryset
+
+    def get_numbers(self, obj):
+        setattr(obj, 'numbers', obj.number())
 
 # class YoukuVideoList(CheckSecurityMixin, StatusWrapMixin, MultipleJsonResponseMixin, ListView):
 #     model = Video

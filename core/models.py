@@ -19,6 +19,8 @@ class Room(BaseModel):
     room_id = models.CharField(max_length=64, unique=True)
     progress = models.IntegerField(default=0)
     index = models.IntegerField(default=0)
+    creator_id = models.IntegerField(default=0)
+    cover = models.CharField(max_length=256, default='')
 
     # participants = models.ManyToManyField(PartyUser, related_name='my_all_rooms', blank=True)
 
