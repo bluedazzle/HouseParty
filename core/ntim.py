@@ -21,13 +21,12 @@ class Netease(object):
         self.req_headers['CheckSum'] = hashlib.sha1(
             '{0}{1}{2}'.format(self.secret, self.req_headers.get('Nonce'),
                                self.req_headers.get('CurTime'))).hexdigest()
-        print self.req_headers
         return self.req_headers
 
     @staticmethod
     def handle_response(req):
         resp = json.loads(req.content)
-        print resp
+        logging.info(resp)
         if resp.get('code') == 200:
             return True
         return False
@@ -36,7 +35,6 @@ class Netease(object):
         url = 'https://api.netease.im/nimserver/user/create.action'
         data = {'accid': account_id,
                 'name': name,
-                'icon': icon,
                 'token': token}
         try:
             req = requests.post(url, headers=self.headers, data=data)
@@ -57,4 +55,4 @@ class Netease(object):
             return False
 
 
-netease = Netease('569b7eade53ddc224f5125b382cdec60', '5b54d70e5674')
+netease = Netease('2939318b2327ae352daee7b456c98ace', '582f97e0bb61')
