@@ -35,6 +35,7 @@ class Netease(object):
         url = 'https://api.netease.im/nimserver/user/create.action'
         data = {'accid': account_id,
                 'name': name,
+                'props': props,
                 'token': token}
         try:
             req = requests.post(url, headers=self.headers, data=data)
@@ -43,10 +44,12 @@ class Netease(object):
             logging.exception(e)
             return False
 
-    def update_user(self, account_id, token):
+    def update_user(self, account_id, token, props=None):
         url = 'https://api.netease.im/nimserver/user/update.action'
         data = {'accid': account_id,
                 'token': token}
+        if props:
+            data['props'] = props
         try:
             req = requests.post(url, headers=self.headers, data=data)
             return self.handle_response(req)

@@ -115,7 +115,9 @@ class UserRegisterView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, C
         # self.object.set_password(form.cleaned_data.get('123456qq'))
         self.object.fullname = self.get_fullname()
         self.object.save()
-        netease.create_user(self.object.id, self.object.nick, icon=self.object.avatar, token=self.token)
+        props = {'sex': self.object.sex, 'headline': self.object.headline}
+        netease.create_user(self.object.fullname, self.object.nick, icon=self.object.avatar, token=self.token,
+                            props=json.dumps(props))
         return self.render_to_response(self.object)
 
     def get_fullname(self):
@@ -274,7 +276,7 @@ class SMSLoginView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, Detai
             user.token = self.create_token()
             user.online = True
             user.save()
-            netease.update_user(user.id, user.token)
+            netease.update_user(user.fullname, user.token)
             return self.render_to_response(user)
         self.message = 'missing params'
         self.status_code = ERROR_DATA
@@ -311,9 +313,9 @@ class ThirdLoginView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, Det
         user.online = True
         user.save()
         if flag:
-            netease.create_user(user.id, user.nick, icon=user.avatar, token=user.token)
+            netease.create_user(user.fullname, user.nick, icon=user.avatar, token=user.token)
         else:
-            netease.update_user(user.id, user.token)
+            netease.update_user(user.fullname, user.token)
         return self.render_to_response(user)
 
     def create_token(self):
@@ -383,7 +385,7 @@ class UserLoginView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, Upda
         self.object.online = True
         self.object.save()
         self.update_notify()
-        netease.update_user(self.object.id, self.token)
+        netease.update_user(self.object.fullname, self.token)
         return self.render_to_response(self.object)
 
     def get_object(self, queryset=None):
@@ -908,11 +910,17 @@ class InfoView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespons
             return self.render_to_response(dict())
         nick = request.POST.get('nick')
         fullname = request.POST.get('fullname')
+        sex = request.POST.get('sex', 0)
+        headline = request.POST.get('headline', '')
         if nick and fullname:
             try:
                 self.user.nick = nick
                 self.user.fullname = fullname
+                self.user.sex = sex
+                self.user.headline = headline
                 self.user.save()
+                props = {'sex': sex, 'headline': headline}
+                netease.update_user(self.user.fullname, self.user.token, props=json.dumps(props))
                 return self.render_to_response(self.user)
             except Exception as e:
                 self.message = '昵称已存在'
