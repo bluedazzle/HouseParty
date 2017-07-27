@@ -39,6 +39,12 @@ class Room(BaseModel):
 
 
 class PartyUser(BaseModel, AbstractBaseUser):
+    sex_choices = (
+        (0, '未知'),
+        (1, '男'),
+        (2, '女'),
+    )
+
     nick = models.CharField(max_length=100, default='')
     phone = models.CharField(max_length=11, default='')
     fullname = models.CharField(max_length=64, unique=True)
@@ -46,6 +52,8 @@ class PartyUser(BaseModel, AbstractBaseUser):
     friend_list = models.ManyToManyField('self', related_name='friend_by', blank=True)
     online = models.BooleanField(default=False)
     forbid = models.BooleanField(default=False)
+    sex = models.IntegerField(default=0, choices=sex_choices)
+    headline = models.CharField(max_length=512, default='')
     room = models.ForeignKey(Room, related_name='room_participants', null=True, blank=True, on_delete=models.SET_NULL)
     qq_open_id = models.CharField(max_length=128, default='', blank=True, null=True)
     wx_open_id = models.CharField(max_length=128, default='', blank=True, null=True)
