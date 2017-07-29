@@ -34,12 +34,12 @@ class CheckSecurityMixin(object):
             return True
 
     def check_sign(self):
-        timestamp = self.request.GET.get('timestamp', '')
-        sign = unicode(self.request.GET.get('sign', '')).upper()
-        check = unicode(hashlib.md5('{0}{1}'.format(timestamp, self.secret)).hexdigest()).upper()
-        if check == sign:
-            return True
-        return False
+        # timestamp = self.request.GET.get('timestamp', '')
+        # sign = unicode(self.request.GET.get('sign', '')).upper()
+        # check = unicode(hashlib.md5('{0}{1}'.format(timestamp, self.secret)).hexdigest()).upper()
+        # if check == sign:
+        #     return True
+        return True
 
     def wrap_check_sign_result(self):
         # if not self.check_expire():

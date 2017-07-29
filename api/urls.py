@@ -27,4 +27,6 @@ urlpatterns = patterns('',
                        url(r'^info', views.InfoView.as_view()),
                        url(r'^avatar', views.UserAvatarView.as_view()),
                        url(r'^progress_control', views.ProgressControlView.as_view()),
+                       url(r'^gift', views.PresentListView.as_view()),
+                       url(r'^send_gift', views.SendGiftView.as_view()),
                        )

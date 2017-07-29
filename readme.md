@@ -1,10 +1,10 @@
-# HouseParty API
+# miku API
 
 标签（空格分隔）： api
 
 ---
 
-**host: http://house.fibar.cn**
+**host: http://ktv.fibar.cn**
 
 **api_version: v1**
 
@@ -893,6 +893,84 @@ GET /invite
     "body": {
         user object
     },
+    "status": 1,
+    "msg": "success"
+}
+or
+```
+其他
+```
+{
+  "body": {},
+  "status": 4,
+  "msg": "数据缺失"
+}
+```
+
+## **礼物列表**
+```
+GET /gift
+```
+### **Parameters**
+token(_Optional_|string)- 登录令牌
+
+### **Return**
+
+```
+{
+    "body": {
+        "present_list": [
+            {
+                "create_time": "2017-07-29 15:13:11",
+                "belong": {
+                    "nick": "15608059720",
+                    "fullname": "15608059720",
+                    "create_time": "2017-07-29 15:07:54",
+                    "phone": "15608059720"
+                },
+                "name": "鲜花"
+            },
+            {
+                "create_time": "2017-07-29 15:13:15",
+                "belong": {
+                    "nick": "15608059720",
+                    "fullname": "15608059720",
+                    "create_time": "2017-07-29 15:07:54",
+                    "phone": "15608059720"
+                },
+                "name": "鲜花"
+            }
+        ],
+        "page_obj": {},
+        "is_paginated": false
+    },
+    "status": 1,
+    "msg": "success"
+}
+or
+```
+其他
+```
+{
+  "body": {},
+  "status": 4,
+  "msg": "数据缺失"
+}
+```
+
+## **送礼物**
+```
+GET /send_gift
+```
+### **Parameters**
+token(_Optional_|string)- 登录令牌
+receiver(_Optional_|string)- 接受礼物者的 fullname
+
+### **Return**
+
+```
+{
+    "body": {},
     "status": 1,
     "msg": "success"
 }

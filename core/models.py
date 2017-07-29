@@ -168,3 +168,12 @@ class Song(BaseModel):
 
     def __unicode__(self):
         return '{0}-{1}'.format(self.name, self.author)
+
+
+class Present(BaseModel):
+    receiver = models.ForeignKey(PartyUser, related_name='gifts', null=True)
+    belong = models.ForeignKey(PartyUser, related_name='send_gifts')
+    name = models.CharField(default='鲜花', max_length=20)
+
+    def __unicode__(self):
+        return self.name

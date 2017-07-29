@@ -18,7 +18,7 @@ from core.Mixin.CheckMixin import CheckSecurityMixin, CheckTokenMixin
 from core.Mixin.StatusWrapMixin import StatusWrapMixin, INFO_EXPIRE, ERROR_VERIFY, INFO_NO_VERIFY, ERROR_DATA, \
     ERROR_UNKNOWN, ERROR_PERMISSION_DENIED, ERROR_PASSWORD, INFO_NO_EXIST, INFO_EXISTED
 from core.dss.Mixin import JsonResponseMixin, MultipleJsonResponseMixin
-from core.models import Verify, PartyUser, FriendRequest, FriendNotify, Hook, Room, DeleteNotify, Secret
+from core.models import Verify, PartyUser, FriendRequest, FriendNotify, Hook, Room, DeleteNotify, Secret, Present
 from core.ntim import netease
 from core.push import push_to_friends, push_friend_request, push_friend_response, push_hook
 from core.sms import send_sms
@@ -102,7 +102,7 @@ class UserRegisterView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, C
     http_method_names = ['post']
     datetime_type = 'timestamp'
     success_url = 'localhost'
-    include_attr = ['token', 'id', 'create_time', 'nick', 'phone', 'avatar', 'fullname']
+    include_attr = ['token', 'id', 'create_time', 'nick', 'phone', 'avatar', 'fullname', 'sex', 'headline']
     count = 64
     token = ''
 
@@ -110,6 +110,7 @@ class UserRegisterView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, C
         super(UserRegisterView, self).form_valid(form)
         self.token = self.create_token()
         self.object.token = self.token
+        self.object.sex = int(self.request.POST.get('sex', 0))
         self.object.avatar = self.request.POST.get('avatar')
         self.object.online = True
         # self.object.set_password(form.cleaned_data.get('123456qq'))
@@ -350,7 +351,7 @@ class UserLoginView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, Upda
     count = 64
     http_method_names = ['post']
     pk_url_kwarg = 'phone'
-    include_attr = ['token', 'id', 'create_time', 'nick', 'phone', 'avatar', 'fullname']
+    include_attr = ['token', 'id', 'create_time', 'nick', 'phone', 'avatar', 'fullname', 'sex', 'headline']
     success_url = 'localhost'
     token = ''
 
@@ -866,7 +867,7 @@ class SearchView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespo
         query = request.GET.get('query', '')
         new = request.GET.get('new', None)
         users = PartyUser.objects.filter(
-            Q(nick__icontains=query) | Q(fullname__icontains=query) | Q(phone__icontains=query))
+            Q(nick__icontains=query) | Q(fullname__icontains=query))
         if users.exists():
             if not new:
                 user = users[0]
@@ -1022,6 +1023,7 @@ class RoomListView(CheckSecurityMixin, StatusWrapMixin, MultipleJsonResponseMixi
     def get_numbers(self, obj):
         setattr(obj, 'numbers', obj.number())
 
+
 # class YoukuVideoList(CheckSecurityMixin, StatusWrapMixin, MultipleJsonResponseMixin, ListView):
 #     model = Video
 #     datetime_type = 'timestamp'
@@ -1035,3 +1037,35 @@ class RoomListView(CheckSecurityMixin, StatusWrapMixin, MultipleJsonResponseMixi
 #         if search:
 #             return queryset.filter(video_type=2).filter(title__icontains=search)
 #         return queryset.filter(video_type=video_type)
+
+
+class PresentListView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, MultipleJsonResponseMixin, ListView):
+    model = Present
+    foreign = True
+    include_attr = ['name', 'create_time', 'phone', 'fullname', 'nick', 'belong']
+
+    def get_queryset(self):
+        queryset = self.user.gifts.all()
+        return queryset
+
+    def get(self, request, *args, **kwargs):
+        self.wrap_check_token_result()
+        return super(PresentListView, self).get(request, *args, **kwargs)
+
+
+class SendGiftView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonResponseMixin, DetailView):
+    model = Present
+
+    def get(self, request, *args, **kwargs):
+        self.wrap_check_token_result()
+        rec = request.GET.get('receiver', None)
+        if not rec:
+            self.status_code = ERROR_DATA
+            return self.render_to_response({})
+        receiver = PartyUser.objects.filter(fullname=rec)
+        if not receiver.exists():
+            self.status_code = INFO_NO_EXIST
+            return self.render_to_response({})
+        receiver = receiver[0]
+        Present(receiver=receiver, belong=self.user).save()
+        return self.render_to_response({})
