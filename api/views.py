@@ -117,8 +117,9 @@ class UserRegisterView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, C
         self.object.fullname = self.get_fullname()
         self.object.save()
         props = {'sex': self.object.sex, 'headline': self.object.headline}
-        netease.create_user(self.object.fullname, self.object.nick, icon=self.object.avatar, token=self.token,
-                            props=json.dumps(props))
+        res = netease.create_user(self.object.fullname, self.object.nick, icon=self.object.avatar, token=self.token,
+                                  props=json.dumps(props))
+        setattr(self.object, 'chat', res)
         return self.render_to_response(self.object)
 
     def get_fullname(self):
