@@ -1047,7 +1047,7 @@ class RoomListView(CheckSecurityMixin, StatusWrapMixin, MultipleJsonResponseMixi
     paginate_by = 10
 
     def get_queryset(self):
-        queryset = self.get_queryset()
+        queryset = super(RoomListView, self).get_queryset()
         map(self.get_numbers, queryset)
         return queryset
 
