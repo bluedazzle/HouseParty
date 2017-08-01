@@ -24,10 +24,12 @@ class Netease(object):
         return self.req_headers
 
     @staticmethod
-    def handle_response(req):
+    def handle_response(req, detail=False):
         resp = json.loads(req.content)
         logging.info(resp)
         if resp.get('code') == 200:
+            if detail:
+                return True, resp
             return True
         return False
 
@@ -57,5 +59,15 @@ class Netease(object):
             logging.exception(e)
             return False
 
+    def create_room(self, creator, name):
+        url = 'https://api.netease.im/nimserver/chatroom/create.action'
+        data = {'creator': creator,
+                'name': name}
+        try:
+            req = requests.post(url, data=data, headers=self.headers)
+            return self.handle_response(req, True)
+        except Exception as e:
+            logging.exception(e)
+            return False
 
 netease = Netease('2939318b2327ae352daee7b456c98ace', '582f97e0bb61')
