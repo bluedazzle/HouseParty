@@ -785,28 +785,58 @@ class HookView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespons
 
 
 class RoomView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonResponseMixin, DetailView):
-    http_method_names = ['get']
+    http_method_names = ['get', 'post']
     model = Room
     datetime_type = 'timestamp'
 
     def get(self, request, *args, **kwargs):
+        if not self.wrap_check_token_result():
+            return self.render_to_response(dict())
+        rid = kwargs.get('room', None)
+        if not rid:
+            self.status_code = ERROR_DATA
+            return self.render_to_response({})
+        rooms = Room.objects.filter(room_id=rid)
+        if not rooms.exists():
+            self.status_code = INFO_NO_EXIST
+            return self.render_to_response({})
+        room = rooms[0]
+        self.user.room = room
+        self.user.save()
+        return self.render_to_response({})
+
+    def post(self, request, *args, **kwargs):
         if not self.wrap_check_sign_result():
             return self.render_to_response(dict())
         if not self.wrap_check_token_result():
             return self.render_to_response(dict())
-        rid = kwargs.get('room', None)
-        if rid:
-            room, created = Room.objects.get_or_create(room_id=rid)
-            if not created:
-                room_members = self.user.friend_list.all().filter(room=room)
-                self.update_notify(room_members)
-            self.user.room = room
-        else:
-            rid = self.generate_room()
-            Room(room_id=rid, creator_id=self.user.id, cover=self.user.avatar).save()
-            self.user.room = Room.objects.get(room_id=rid)
+        # rid = kwargs.get('room', None)
+        name = request.POST.get('name', None)
+        if not name:
+            name = '{0}的房间'.format(self.user.nick)
+        # if rid:
+        #     room, created = Room.objects.get_or_create(room_id=rid)
+        #     if not created:
+        #         room_members = self.user.friend_list.all().filter(room=room)
+        #         self.update_notify(room_members)
+        #     self.user.room = room
+        # else:
+        #     rid = self.generate_room()
+        #     Room(room_id=rid, creator_id=self.user.id, cover=self.user.avatar).save()
+        #     self.user.room = Room.objects.get(room_id=rid)
+        # self.user.save()
+        status, data = netease.create_room(self.user.fullname, name)
+        if not status:
+            self.status_code = ERROR_DATA
+            self.message = '创建失败'
+            return self.render_to_response({})
+        chatroom = data.get('chatroom')
+        room = Room(room_id=chatroom.get('roomid'), name=chatroom.get('name'), creator_id=self.user.fullname,
+                    creator_nick=self.user.nick, cover=self.user.avatar)
+        room.save()
+        self.user.room = room
         self.user.save()
-        return self.render_to_response({'room_id': rid})
+        return self.render_to_response(room)
 
     def generate_room(self):
         return 'R{0}{1}'.format(unicode(time.time()).replace('.', '')[:13], random.randint(1000, 9999))
