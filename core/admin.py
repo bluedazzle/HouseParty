@@ -7,6 +7,9 @@ from core.models import *
 class UserAdmin(admin.ModelAdmin):
     search_fields = ['fullname', ]
 
+class SongAdmin(admin.ModelAdmin):
+    search_fields = ['name', ]
+
 
 admin.site.register(PartyUser, UserAdmin)
 admin.site.register(Secret)
@@ -16,5 +19,5 @@ admin.site.register(Verify)
 # admin.site.register(Hook)
 admin.site.register(Room)
 # admin.site.register(DeleteNotify)
-admin.site.register(Song)
+admin.site.register(Song, SongAdmin)
 admin.site.register(Present)
