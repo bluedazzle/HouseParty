@@ -828,7 +828,7 @@ class RoomView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespons
         status, data = netease.create_room(self.user.fullname, name)
         if not status:
             self.status_code = ERROR_DATA
-            self.message = '创建失败'
+            self.message = data
             return self.render_to_response({})
         chatroom = data.get('chatroom')
         room = Room(room_id=chatroom.get('roomid'), name=chatroom.get('name'), creator_id=self.user.fullname,

@@ -31,6 +31,8 @@ class Netease(object):
             if detail:
                 return True, resp
             return True
+        if detail:
+            return False, resp
         return False
 
     def create_user(self, account_id, name=None, props=None, icon=None, token=None):
