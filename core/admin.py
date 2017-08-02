@@ -8,7 +8,7 @@ class UserAdmin(admin.ModelAdmin):
     search_fields = ['fullname', ]
 
 class SongAdmin(admin.ModelAdmin):
-    search_fields = ['name', ]
+    search_fields = ['name', 'author']
 
 
 admin.site.register(PartyUser, UserAdmin)
