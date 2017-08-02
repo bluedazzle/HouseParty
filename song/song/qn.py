@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from qiniu import Auth, put_file, put_data
+from qiniu import Auth, put_file, put_data, BucketManager
 import requests
 import redis
 
@@ -24,3 +24,13 @@ def upload_file(url, name, author):
         cache.set('qiniu_token', token, 3500)
     ret, info = put_data(token, key, data)
     return ret, info
+
+
+def search_file(name):
+    q = Auth(access_key, secret_key)
+    bucket = BucketManager(q)
+    bucket_name = 'song'
+    ret, info = bucket.stat(bucket_name, name)
+    if ret:
+        return 'http://cdn.fibar.cn/{0}'.format(name)
+    return None
