@@ -167,6 +167,7 @@ class Song(BaseModel):
     author = models.CharField(max_length=150, default='')
     link = models.CharField(max_length=256)
     hidden = models.BooleanField(default=False)
+    dup = models.BooleanField(default=False)
 
     def __unicode__(self):
         return '{0}-{1}'.format(self.name, self.author)
