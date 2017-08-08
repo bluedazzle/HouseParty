@@ -788,6 +788,7 @@ class RoomView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespons
     http_method_names = ['get', 'post']
     model = Room
     datetime_type = 'timestamp'
+    exclude_attr = ['token', 'password', 'forbid', 'last_login', 'qq_open_id', 'wx_open_id']
 
     def get(self, request, *args, **kwargs):
         if not self.wrap_check_token_result():
@@ -801,9 +802,10 @@ class RoomView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespons
             self.status_code = INFO_NO_EXIST
             return self.render_to_response({})
         room = rooms[0]
+        users = room.room_participants.filter(online=True)
         self.user.room = room
         self.user.save()
-        return self.render_to_response({})
+        return self.render_to_response({'count': users.count(), 'participants': users})
 
     def post(self, request, *args, **kwargs):
         if not self.wrap_check_sign_result():
@@ -1045,14 +1047,19 @@ class ProgressControlView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, 
 class RoomListView(CheckSecurityMixin, StatusWrapMixin, MultipleJsonResponseMixin, ListView):
     model = Room
     paginate_by = 10
+    exclude_attr = ['token', 'password', 'forbid', 'last_login', 'qq_open_id', 'wx_open_id']
 
     def get_queryset(self):
         queryset = super(RoomListView, self).get_queryset()
         map(self.get_numbers, queryset)
+        map(self.get_users, queryset)
         return queryset
 
     def get_numbers(self, obj):
         setattr(obj, 'numbers', obj.number())
+
+    def get_users(self, obj):
+        setattr(obj, 'participants', obj.room_participants.all())
 
 
 # class YoukuVideoList(CheckSecurityMixin, StatusWrapMixin, MultipleJsonResponseMixin, ListView):
