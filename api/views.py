@@ -467,9 +467,9 @@ class HeartView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespon
             return self.render_to_response(dict())
         if not self.wrap_check_token_result():
             return self.render_to_response(dict())
-        if not self.user.online:
+        # if not self.user.online:
             # 好友上线通知
-            push_to_friends(self.user.phone, self.user.fullname)
+            # push_to_friends(self.user.phone, self.user.fullname)
         self.user.online = True
         self.user.save()
         friend_list = self.user.friend_list.all().order_by('online')
