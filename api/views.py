@@ -481,9 +481,9 @@ class HeartView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespon
             return self.render_to_response(dict())
         if not self.wrap_check_token_result():
             return self.render_to_response(dict())
-        if not self.user.online:
+            # if not self.user.online:
             # 好友上线通知
-            push_to_friends(self.user.phone, self.user.fullname)
+            # push_to_friends(self.user.phone, self.user.fullname)
         self.user.online = True
         self.user.save()
         friend_list = self.user.friend_list.all().order_by('online')
@@ -535,6 +535,20 @@ class HeartView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespon
                     new_list.append(itm)
                     ids.append(itm.id)
         return new_list
+
+
+class ExitView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonResponseMixin, DetailView):
+    http_method_names = ['get']
+    model = PartyUser
+
+    def get(self, request, *args, **kwargs):
+        if not self.wrap_check_sign_result():
+            return self.render_to_response(dict())
+        if not self.wrap_check_token_result():
+            return self.render_to_response(dict())
+        self.user.room = None
+        self.user.save()
+        return self.render_to_response({})
 
 
 # 好友操作
