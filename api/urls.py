@@ -30,4 +30,7 @@ urlpatterns = patterns('',
                        url(r'^progress_control', views.ProgressControlView.as_view()),
                        url(r'^gift', views.PresentListView.as_view()),
                        url(r'^send_gift', views.SendGiftView.as_view()),
+                       url(r'^songs', views.SongListView.as_view()),
+                       url(r'^user/(?P<fullname>(\d)+)', views.SongListView.as_view()),
+                       url(r'^report', views.ReportView.as_view()),
                        )
