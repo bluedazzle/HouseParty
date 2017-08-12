@@ -170,6 +170,7 @@ class Song(BaseModel):
     hidden = models.BooleanField(default=False)
     dup = models.BooleanField(default=False)
     catch_lrc = models.BooleanField(default=False)
+    recommand = models.IntegerField(default=0)
 
     def __unicode__(self):
         return '{0}-{1}'.format(self.name, self.author)

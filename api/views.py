@@ -316,7 +316,6 @@ class ThirdLoginView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, Det
         if not user:
             flag = True
             self.create_user(nick, avatar, openid, source, sex)
-            self.create_user(nick, avatar, openid, source)
             user = self.search_user_by_open_id(openid, source)
         ot = user.token
         user.token = self.create_token()
@@ -981,7 +980,7 @@ class SongListView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, Multipl
 
     def get_queryset(self):
         query = self.request.GET.get('query')
-        queryset = super(SongListView, self).get_queryset().filter(hidden=False)
+        queryset = super(SongListView, self).get_queryset().filter(hidden=False).order_by('-recommand')
         if query:
             queryset.filter(Q(name__icontains=query) | Q(author__icontains=query))
         return queryset
