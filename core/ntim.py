@@ -72,4 +72,4 @@ class Netease(object):
             logging.exception(e)
             return False
 
-netease = Netease('2939318b2327ae352daee7b456c98ace', '582f97e0bb61')
+netease = Netease('216b092633e62c2d8a8e72bffb22732e', 'cde87622baee')

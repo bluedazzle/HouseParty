@@ -316,6 +316,7 @@ class ThirdLoginView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, Det
         if not user:
             flag = True
             self.create_user(nick, avatar, openid, source, sex)
+            self.create_user(nick, avatar, openid, source)
             user = self.search_user_by_open_id(openid, source)
         ot = user.token
         user.token = self.create_token()
@@ -492,6 +493,7 @@ class HeartView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespon
             return self.render_to_response(dict())
         if not self.wrap_check_token_result():
             return self.render_to_response(dict())
+            # if not self.user.online:
             # 好友上线通知
             # push_to_friends(self.user.phone, self.user.fullname)
         self.user.online = True
@@ -1193,3 +1195,4 @@ class UserInfoView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, Detai
         self.status_code = INFO_NO_EXIST
         self.message = '用户不存在'
         return self.render_to_response({})
+
