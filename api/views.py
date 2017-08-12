@@ -18,7 +18,9 @@ from core.Mixin.CheckMixin import CheckSecurityMixin, CheckTokenMixin
 from core.Mixin.StatusWrapMixin import StatusWrapMixin, INFO_EXPIRE, ERROR_VERIFY, INFO_NO_VERIFY, ERROR_DATA, \
     ERROR_UNKNOWN, ERROR_PERMISSION_DENIED, ERROR_PASSWORD, INFO_NO_EXIST, INFO_EXISTED
 from core.dss.Mixin import JsonResponseMixin, MultipleJsonResponseMixin
-from core.models import Verify, PartyUser, FriendRequest, FriendNotify, Hook, Room, DeleteNotify, Secret, Present
+from core.hx import create_new_ease_user, update_ease_user
+from core.models import Verify, PartyUser, FriendRequest, FriendNotify, Hook, Room, DeleteNotify, Secret, Present, Song, \
+    Report
 from core.ntim import netease
 from core.push import push_to_friends, push_friend_request, push_friend_response, push_hook
 from core.sms import send_sms
@@ -119,6 +121,7 @@ class UserRegisterView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, C
         props = {'sex': self.object.sex, 'headline': self.object.headline}
         res = netease.create_user(self.object.fullname, self.object.nick, icon=self.object.avatar, token=self.token,
                                   props=json.dumps(props))
+        create_new_ease_user(self.object.fullname, self.object.nick, self.token)
         setattr(self.object, 'chat', res)
         return self.render_to_response(self.object)
 
@@ -275,10 +278,12 @@ class SMSLoginView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, Detai
                 self.status_code = INFO_NO_EXIST
                 return self.render_to_response({})
             user = users[0]
+            ot = user.token
             user.token = self.create_token()
             user.online = True
             user.save()
             netease.update_user(user.fullname, user.token)
+            update_ease_user(ot, user.token, user.fullname)
             return self.render_to_response(user)
         self.message = 'missing params'
         self.status_code = ERROR_DATA
@@ -303,21 +308,25 @@ class ThirdLoginView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, Det
         avatar = request.POST.get('avatar')
         qq_open_id = request.POST.get('qq_open_id')
         wx_open_id = request.POST.get('wx_open_id')
+        sex = request.POST.get('sex', 1)
         source = int(request.POST.get('source', 1))
         flag = False
         openid = qq_open_id if source == 1 else wx_open_id
         user = self.search_user_by_open_id(openid, source)
         if not user:
             flag = True
-            self.create_user(nick, avatar, openid, source)
+            self.create_user(nick, avatar, openid, source, sex)
             user = self.search_user_by_open_id(openid, source)
+        ot = user.token
         user.token = self.create_token()
         user.online = True
         user.save()
         if flag:
             netease.create_user(user.fullname, user.nick, icon=user.avatar, token=user.token)
+            create_new_ease_user(user.fullname, user.nick, user.token)
         else:
             netease.update_user(user.fullname, user.token)
+            update_ease_user(ot, user.token, user.fullname)
         return self.render_to_response(user)
 
     def create_token(self):
@@ -326,8 +335,8 @@ class ThirdLoginView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, Det
                           self.count)).replace(" ", "")
         return self.token
 
-    def create_user(self, nick, avatar, open_id, source):
-        user = PartyUser(nick=nick, avatar=avatar, fullname=self.get_fullname())
+    def create_user(self, nick, avatar, open_id, source, sex):
+        user = PartyUser(nick=nick, avatar=avatar, fullname=self.get_fullname(), sex=sex)
         if source == 1:
             user.qq_open_id = open_id
         else:
@@ -383,11 +392,13 @@ class UserLoginView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, Upda
             return self.render_to_response(dict())
         self.token = self.create_token()
         # self.object.set_password(form.cleaned_data.get('password'))
+        ot = self.object.token
         self.object.token = self.token
         self.object.online = True
         self.object.save()
         self.update_notify()
         netease.update_user(self.object.fullname, self.token)
+        update_ease_user(ot, self.object.token, self.object.fullname)
         return self.render_to_response(self.object)
 
     def get_object(self, queryset=None):
@@ -481,7 +492,6 @@ class HeartView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespon
             return self.render_to_response(dict())
         if not self.wrap_check_token_result():
             return self.render_to_response(dict())
-        # if not self.user.online:
             # 好友上线通知
             # push_to_friends(self.user.phone, self.user.fullname)
         self.user.online = True
@@ -535,6 +545,20 @@ class HeartView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespon
                     new_list.append(itm)
                     ids.append(itm.id)
         return new_list
+
+
+class ExitView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonResponseMixin, DetailView):
+    http_method_names = ['get']
+    model = PartyUser
+
+    def get(self, request, *args, **kwargs):
+        if not self.wrap_check_sign_result():
+            return self.render_to_response(dict())
+        if not self.wrap_check_token_result():
+            return self.render_to_response(dict())
+        self.user.room = None
+        self.user.save()
+        return self.render_to_response({})
 
 
 # 好友操作
@@ -700,7 +724,7 @@ class FriendMatchView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, Json
         book_list = []
         json_data = json.loads(request.body)
         for itm in json_data:
-            match_user = PartyUser.objects.filter(phone=itm.get('phone', ''))
+            match_user = PartyUser.objects.filter(fullname=itm.get('fullname', ''))
             remark = itm.get('remark', '')
             if match_user.exists():
                 match_user = match_user[0]
@@ -722,7 +746,7 @@ class FriendMatchView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, Json
                     if fq.exists():
                         setattr(match_user, 'friend', 3)
             else:
-                match_user = PartyUser(phone=itm.get('phone', ''))
+                match_user = PartyUser(fullname=itm.get('fullname', ''))
                 setattr(match_user, 'remark', remark)
                 setattr(match_user, 'friend', 5)
             book_list.append(match_user)
@@ -788,6 +812,7 @@ class RoomView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespons
     http_method_names = ['get', 'post']
     model = Room
     datetime_type = 'timestamp'
+    exclude_attr = ['token', 'password', 'forbid', 'last_login', 'qq_open_id', 'wx_open_id']
 
     def get(self, request, *args, **kwargs):
         if not self.wrap_check_token_result():
@@ -801,9 +826,28 @@ class RoomView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespons
             self.status_code = INFO_NO_EXIST
             return self.render_to_response({})
         room = rooms[0]
+        users = room.room_participants.filter(online=True)
+        map(self.check_friend, users)
         self.user.room = room
         self.user.save()
-        return self.render_to_response({})
+        return self.render_to_response({'count': users.count(), 'participants': users})
+
+    def check_friend(self, obj):
+        match_user = obj
+        if match_user in self.user.friend_list.all():
+            #     self.user.friend_list.add(match_user)
+            #     match_user.friend_list.add(self.user)
+            setattr(match_user, 'friend', 1)
+        else:
+            setattr(match_user, 'friend', 4)
+            fq = FriendRequest.objects.filter(requester=self.user,
+                                              add=match_user)
+            if fq.exists():
+                setattr(match_user, 'friend', 2)
+            fq = FriendRequest.objects.filter(
+                requester=match_user, add=self.user)
+            if fq.exists():
+                setattr(match_user, 'friend', 3)
 
     def post(self, request, *args, **kwargs):
         if not self.wrap_check_sign_result():
@@ -888,7 +932,7 @@ class SearchView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespo
     http_method_names = ['get']
     model = PartyUser
     datetime_type = 'timestamp'
-    include_attr = ['id', 'phone', 'nick', 'fullname', 'create_time', 'friend', 'avatar']
+    include_attr = ['id', 'phone', 'nick', 'fullname', 'create_time', 'friend', 'avatar', 'sex']
 
     def get(self, request, *args, **kwargs):
         if not self.wrap_check_sign_result():
@@ -927,6 +971,18 @@ class SearchView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespo
             self.message = '搜索用户不存在'
             self.status_code = INFO_NO_EXIST
             return self.render_to_response({})
+
+
+class SongListView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, MultipleJsonResponseMixin, ListView):
+    model = Song
+    paginate_by = 20
+
+    def get_queryset(self):
+        query = self.request.GET.get('query')
+        queryset = super(SongListView, self).get_queryset().filter(hidden=False)
+        if query:
+            queryset.filter(Q(name__icontains=query) | Q(author__icontains=query))
+        return queryset
 
 
 class InfoView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonResponseMixin, DetailView):
@@ -1045,14 +1101,19 @@ class ProgressControlView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, 
 class RoomListView(CheckSecurityMixin, StatusWrapMixin, MultipleJsonResponseMixin, ListView):
     model = Room
     paginate_by = 10
+    exclude_attr = ['token', 'password', 'forbid', 'last_login', 'qq_open_id', 'wx_open_id']
 
     def get_queryset(self):
         queryset = super(RoomListView, self).get_queryset()
         map(self.get_numbers, queryset)
+        map(self.get_users, queryset)
         return queryset
 
     def get_numbers(self, obj):
         setattr(obj, 'numbers', obj.number())
+
+    def get_users(self, obj):
+        setattr(obj, 'participants', obj.room_participants.all())
 
 
 # class YoukuVideoList(CheckSecurityMixin, StatusWrapMixin, MultipleJsonResponseMixin, ListView):
@@ -1099,4 +1160,36 @@ class SendGiftView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRes
             return self.render_to_response({})
         receiver = receiver[0]
         Present(receiver=receiver, belong=self.user).save()
+        return self.render_to_response({})
+
+
+class ReportView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonResponseMixin, DetailView):
+    model = Report
+
+    def post(self, request, *args, **kwargs):
+        if not self.wrap_check_sign_result():
+            return self.render_to_response(dict())
+        if not self.wrap_check_token_result():
+            return self.render_to_response(dict())
+        rid = request.POST.get('reported')
+        content = request.POST.get('content')
+        reported = PartyUser.objects.filter(fullname=rid)
+        if reported.exists():
+            reported = reported[0]
+            Report(reported=reported, reporter=self.user, content=content).save()
+            return self.render_to_response({})
+
+
+class UserInfoView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, DetailView):
+    model = PartyUser
+    exclude_attr = ['token', 'password', 'qq_open_id', 'wx_open_id']
+
+    def get(self, request, *args, **kwargs):
+        fullname = kwargs.get('fullname')
+        users = PartyUser.objects.filter(fullname=fullname)
+        if users.exists():
+            user = users[0]
+            return self.render_to_response(user)
+        self.status_code = INFO_NO_EXIST
+        self.message = '用户不存在'
         return self.render_to_response({})

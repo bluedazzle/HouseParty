@@ -182,3 +182,12 @@ class Present(BaseModel):
 
     def __unicode__(self):
         return self.name
+
+
+class Report(BaseModel):
+    content = models.TextField(default='')
+    reporter = models.ForeignKey(PartyUser, related_name='user_reports')
+    reported = models.ForeignKey(PartyUser, related_name='user_reported')
+
+    def __unicode__(self):
+        return self.content
