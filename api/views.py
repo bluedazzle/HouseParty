@@ -20,7 +20,7 @@ from core.Mixin.StatusWrapMixin import StatusWrapMixin, INFO_EXPIRE, ERROR_VERIF
 from core.dss.Mixin import JsonResponseMixin, MultipleJsonResponseMixin
 from core.hx import create_new_ease_user, update_ease_user
 from core.models import Verify, PartyUser, FriendRequest, FriendNotify, Hook, Room, DeleteNotify, Secret, Present, Song, \
-    Report
+    Report, Singer
 from core.ntim import netease
 from core.push import push_to_friends, push_friend_request, push_friend_response, push_hook
 from core.sms import send_sms
@@ -557,6 +557,10 @@ class ExitView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespons
             return self.render_to_response(dict())
         if not self.wrap_check_token_result():
             return self.render_to_response(dict())
+        singers = Singer.objects.filter(creator=self.user, room=self.user.room)
+        if singers.exists():
+            singer = singers[0]
+            singer.delete()
         self.user.room = None
         self.user.save()
         return self.render_to_response({})
@@ -1193,5 +1197,69 @@ class UserInfoView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, Detai
             return self.render_to_response(user)
         self.status_code = INFO_NO_EXIST
         self.message = '用户不存在'
+        return self.render_to_response({})
+
+
+class SingerListView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, MultipleJsonResponseMixin, ListView):
+    model = Singer
+    paginate_by = 20
+    foreign = True
+    exclude_attr = ['room', 'creator']
+    http_method_names = ['get', 'delete']
+
+    def get_room(self):
+        room_id = self.kwargs.get('room')
+        rooms = Room.objects.filter(room_id=room_id)
+        if not rooms.exists():
+            self.status_code = INFO_NO_EXIST
+            self.message = '不存在'
+            return self.render_to_response({})
+        return rooms[0]
+
+    def get_queryset(self):
+        room = self.get_room()
+        queryset = super(SingerListView, self).get_queryset().filter(room=room).order_by('-create_time')
+        return queryset
+
+    def delete(self, request, *args, **kwargs):
+        if not self.wrap_check_sign_result():
+            return self.render_to_response(dict())
+        if not self.wrap_check_token_result():
+            return self.render_to_response(dict())
+        room = self.get_room()
+        singers = Singer.objects.filter(room=room, creator=self.user)
+        if singers.exists():
+            singer = singers[0]
+            singer.delete()
+        return self.render_to_response({})
+
+
+class SingerCreateView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonResponseMixin, DetailView):
+    model = Singer
+    http_method_names = ['post']
+
+    def get_room(self):
+        room_id = self.kwargs.get('room')
+        rooms = Room.objects.filter(room_id=room_id)
+        if not rooms.exists():
+            self.status_code = INFO_NO_EXIST
+            self.message = '不存在'
+            return self.render_to_response({})
+        return rooms[0]
+
+    def post(self, request, *args, **kwargs):
+        if not self.wrap_check_sign_result():
+            return self.render_to_response(dict())
+        if not self.wrap_check_token_result():
+            return self.render_to_response(dict())
+        sid = request.POST.get('sid')
+        song = Song.objects.get(id=sid)
+        room = self.get_room()
+        singers = Singer.objects.filter(room=room, creator=self.user)
+        if singers.exists():
+            self.status_code = INFO_EXISTED
+            self.message = '不能重复排麦'
+            return self.render_to_response({})
+        Singer(room=room, creator=self.user, song=song).save()
         return self.render_to_response({})
 

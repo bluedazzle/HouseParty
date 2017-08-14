@@ -984,3 +984,110 @@ or
   "msg": "数据缺失"
 }
 ```
+
+## **获取麦序**
+```
+GET /room/<room_id>/singers
+```
+### **Parameters**
+token(_Optional_|string)- 登录令牌
+
+### **Return**
+
+```
+{
+    "body": {
+        "is_paginated": false,
+        "page_obj": {},
+        "singer_list": [
+            {
+                "song_id": 1,
+                "song": {
+                    "catch_lrc": false,
+                    "lrc": "dany",
+                    "name": "dany",
+                    "author": "dany",
+                    "original": "",
+                    "create_time": "2017-08-14 18:26:50",
+                    "link": "dany",
+                    "modify_time": "2017-08-14 18:26:50",
+                    "dup": false,
+                    "hidden": false,
+                    "recommand": 0,
+                    "id": 1
+                },
+                "creator_id": 1,
+                "create_time": "2017-08-14 18:31:56",
+                "room_id": 1,
+                "modify_time": "2017-08-14 18:31:56",
+                "id": 2
+            }
+        ]
+    },
+    "status": 1,
+    "msg": "success"
+}
+or
+```
+其他
+```
+{
+  "body": {},
+  "status": 4,
+  "msg": "数据缺失"
+}
+```
+
+## **排麦**
+```
+POST /room/<room_id>/singer/create
+```
+### **Parameters**
+token(_Optional_|string)- 登录令牌
+sid(_Optional_|string)- 歌曲 id
+
+### **Return**
+
+```
+{
+    "body": {},
+    "status": 1,
+    "msg": "success"
+}
+or
+```
+其他
+```
+{
+    "body": {},
+    "status": 6,
+    "msg": "不能重复排麦"
+}
+```
+
+## **下麦**
+```
+DELETE /room/<room_id>/singers/
+```
+### **Parameters**
+token(_Optional_|string)- 登录令牌
+
+### **Return**
+
+```
+{
+    "body": {
+        "page_obj": {}
+    },
+    "status": 1,
+    "msg": "success"
+}
+```
+其他
+```
+{
+    "body": {},
+    "status": 4,
+    "msg": ""
+}
+```

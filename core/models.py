@@ -193,3 +193,12 @@ class Report(BaseModel):
 
     def __unicode__(self):
         return self.content
+
+
+class Singer(BaseModel):
+    song = models.ForeignKey(Song, related_name='song_singers')
+    creator = models.ForeignKey(PartyUser, related_name='song_users')
+    room = models.ForeignKey(Room, related_name='song_rooms')
+
+    def __unicode__(self):
+        return '{0}: {1}'.format(self.room.name, self.creator.nick)
