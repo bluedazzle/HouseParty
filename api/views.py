@@ -986,7 +986,7 @@ class SongListView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, Multipl
         query = self.request.GET.get('query')
         queryset = super(SongListView, self).get_queryset().filter(hidden=False).order_by('-recommand')
         if query:
-            queryset.filter(Q(name__icontains=query) | Q(author__icontains=query))
+            queryset = queryset.filter(Q(name__icontains=query) | Q(author__icontains=query))
         return queryset
 
 
