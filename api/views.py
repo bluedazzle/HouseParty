@@ -874,13 +874,13 @@ class RoomView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespons
         #     Room(room_id=rid, creator_id=self.user.id, cover=self.user.avatar).save()
         #     self.user.room = Room.objects.get(room_id=rid)
         # self.user.save()
-        status, data = netease.create_room(self.user.fullname, name)
-        if not status:
-            self.status_code = ERROR_DATA
-            self.message = data
-            return self.render_to_response({})
-        chatroom = data.get('chatroom')
-        room = Room(room_id=chatroom.get('roomid'), name=chatroom.get('name'), creator_id=self.user.fullname,
+        # status, data = netease.create_room(self.user.fullname, name)
+        # if not status:
+        #     self.status_code = ERROR_DATA
+        #     self.message = data
+        #     return self.render_to_response({})
+        # chatroom = data.get('chatroom')
+        room = Room(room_id=self.generate_room(), name=name, creator_id=self.user.fullname,
                     creator_nick=self.user.nick, cover=self.user.avatar)
         room.save()
         self.user.room = room
