@@ -36,6 +36,7 @@ class Netease(object):
         return False
 
     def create_user(self, account_id, name=None, props=None, icon=None, token=None):
+        return self.abandon()
         url = 'https://api.netease.im/nimserver/user/create.action'
         data = {'accid': account_id,
                 'name': name,
@@ -49,6 +50,7 @@ class Netease(object):
             return False
 
     def update_user(self, account_id, token, props=None):
+        return self.abandon()
         url = 'https://api.netease.im/nimserver/user/update.action'
         data = {'accid': account_id,
                 'token': token}
@@ -62,6 +64,7 @@ class Netease(object):
             return False
 
     def create_room(self, creator, name):
+        return self.abandon()
         url = 'https://api.netease.im/nimserver/chatroom/create.action'
         data = {'creator': creator,
                 'name': name}
@@ -71,5 +74,8 @@ class Netease(object):
         except Exception as e:
             logging.exception(e)
             return False
+
+    def abandon(self):
+        return True
 
 netease = Netease('216b092633e62c2d8a8e72bffb22732e', 'cde87622baee')

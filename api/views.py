@@ -588,7 +588,7 @@ class FriendView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespo
                 request = FriendRequest.objects.filter(requester=self.user, add=user)
                 if not request.exists():
                     FriendRequest(requester=self.user, add=user).save()
-                    push_friend_request(user.phone, self.user)
+                    push_friend_request(user.fullname, self.user)
                 return self.render_to_response({})
             self.message = '用户不存在'
             self.status_code = INFO_NO_EXIST
@@ -630,7 +630,7 @@ class FriendView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespo
                         self.generate_notify(user)
 
                         # 添加好友推送
-                        push_friend_response(phone, self.user)
+                        push_friend_response(self.user.fullname, self.user)
                     request.delete()
                 return self.render_to_response({})
             self.message = '用户不存在'
@@ -706,8 +706,8 @@ class InviteView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespo
                 if self.user not in user.friend_list.all():
                     user.friend_list.add(self.user)
                 self.generate_notify(user)
-                push_friend_response(phone, self.user)
-                push_friend_response(self.user.phone, user)
+                push_friend_response(user.fullname, self.user)
+                push_friend_response(self.user.fullname, user)
                 return self.render_to_response({})
         self.message = 'error'
         self.status_code = ERROR_DATA
@@ -790,7 +790,7 @@ class HookView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespons
                 now_time = datetime.datetime.now(tz=get_current_timezone())
                 if now_time - hook.modify_time > datetime.timedelta(seconds=10) or created:
                     # 推送到手机
-                    push_hook(phone, self.user)
+                    push_hook(user.fullname, self.user)
                     hook.save()
                     self.update_notify(user)
                     return self.render_to_response({})
@@ -1139,7 +1139,7 @@ class RoomListView(CheckSecurityMixin, StatusWrapMixin, MultipleJsonResponseMixi
 class PresentListView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, MultipleJsonResponseMixin, ListView):
     model = Present
     foreign = True
-    include_attr = ['name', 'create_time', 'phone', 'fullname', 'nick', 'belong']
+    include_attr = ['name', 'create_time', 'phone', 'fullname', 'nick', 'belong', 'avatar']
 
     def get_queryset(self):
         queryset = self.user.gifts.all()
@@ -1204,7 +1204,7 @@ class SingerListView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, Multi
     model = Singer
     paginate_by = 20
     foreign = True
-    exclude_attr = ['room', 'creator']
+    exclude_attr = ['room', 'token', 'password', 'wx_open_id', 'qq_open_id']
     http_method_names = ['get', 'delete']
 
     def get_room(self):
@@ -1231,6 +1231,9 @@ class SingerListView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, Multi
         if singers.exists():
             singer = singers[0]
             singer.delete()
+            return self.render_to_response({})
+        self.status_code = INFO_NO_EXIST
+        self.message = '不存在'
         return self.render_to_response({})
 
 
