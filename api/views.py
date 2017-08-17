@@ -1218,7 +1218,7 @@ class SingerListView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, Multi
 
     def get_queryset(self):
         room = self.get_room()
-        queryset = super(SingerListView, self).get_queryset().filter(room=room).order_by('-create_time')
+        queryset = super(SingerListView, self).get_queryset().filter(room=room).order_by('create_time')
         return queryset
 
     def delete(self, request, *args, **kwargs):

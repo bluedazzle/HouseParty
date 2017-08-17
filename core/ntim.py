@@ -36,7 +36,7 @@ class Netease(object):
         return False
 
     def create_user(self, account_id, name=None, props=None, icon=None, token=None):
-        return self.abandon()
+        # return self.abandon()
         url = 'https://api.netease.im/nimserver/user/create.action'
         data = {'accid': account_id,
                 'name': name,
@@ -50,7 +50,7 @@ class Netease(object):
             return False
 
     def update_user(self, account_id, token, props=None):
-        return self.abandon()
+        # return self.abandon()
         url = 'https://api.netease.im/nimserver/user/update.action'
         data = {'accid': account_id,
                 'token': token}
