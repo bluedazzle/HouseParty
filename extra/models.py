@@ -38,6 +38,15 @@ class PartyUser(Base):
     modify_time = Column(DateTime)
 
 
+class Singer(Base):
+    __tablename__ = 'core_singer'
+
+    id = Column(Integer, primary_key=True)
+    song_id = Column(Integer)
+    creator_id = Column(Integer)
+    room_id = Column(Integer)
+
+
 engine = create_engine('postgresql+psycopg2://rapospectre:123456qq@localhost:5432/ktv',
                        encoding='utf-8'.encode())
 

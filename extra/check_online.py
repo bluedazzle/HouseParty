@@ -6,7 +6,7 @@ from __future__ import unicode_literals
 import pytz
 import datetime
 
-from models import PartyUser, Room, DBSession
+from models import PartyUser, Room, DBSession, Singer
 
 
 def check_online():
@@ -21,6 +21,9 @@ def check_online():
     for room in session.query(Room).all():
         res = session.query(PartyUser).filter(PartyUser.room_id == room.id).first()
         if not res:
+            singers = session.query(Singer).filter(Singer.room_id == room.id).all()
+            for singer in singers:
+                session.delete(singer)
             session.delete(room)
     session.commit()
     session.close()
