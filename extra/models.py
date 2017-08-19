@@ -13,6 +13,10 @@ class Room(Base):
 
     id = Column(Integer, primary_key=True)
     room_id = Column(String, unique=True)
+    name = Column(String)
+    creator_id = Column(Integer)
+    creator_nick = Column(String)
+    cover = Column(String)
     progress = Column(Integer, default=0)
     index = Column(Integer, default=0)
     create_time = Column(DateTime)
@@ -34,7 +38,7 @@ class PartyUser(Base):
     modify_time = Column(DateTime)
 
 
-engine = create_engine('postgresql+psycopg2://rapospectre:123456qq@localhost:5432/houseparty',
+engine = create_engine('postgresql+psycopg2://rapospectre:123456qq@localhost:5432/ktv',
                        encoding='utf-8'.encode())
 
 DBSession = sessionmaker(bind=engine)
