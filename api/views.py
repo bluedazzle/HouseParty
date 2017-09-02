@@ -814,7 +814,7 @@ class HookView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespons
 
 
 class RoomView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonResponseMixin, DetailView):
-    http_method_names = ['get', 'post']
+    http_method_names = ['get', 'post', 'delete']
     model = Room
     datetime_type = 'timestamp'
     exclude_attr = ['token', 'password', 'forbid', 'last_login', 'qq_open_id', 'wx_open_id']
@@ -895,6 +895,15 @@ class RoomView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespons
             fn, created = FriendNotify.objects.get_or_create(friend=self.user, belong=member)
             fn.message = '见过面'
             fn.save()
+
+    def delete(self, request, *args, **kwargs):
+        room_id = kwargs.get('room')
+        room = Room.objects.filter(room_id=room_id)
+        if room.exists():
+            room = room[0]
+            room.delete()
+            return self.render_to_response({})
+        return self.render_to_response({})
 
 
 class DeleteVerifyView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonResponseMixin, DetailView):
