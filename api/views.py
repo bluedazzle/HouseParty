@@ -770,6 +770,20 @@ class HookView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespons
         fn.save()
 
 
+class ExitView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonResponseMixin, DetailView):
+    http_method_names = ['get']
+    model = PartyUser
+
+    def get(self, request, *args, **kwargs):
+        if not self.wrap_check_sign_result():
+            return self.render_to_response(dict())
+        if not self.wrap_check_token_result():
+            return self.render_to_response(dict())
+        self.user.room = None
+        self.user.save()
+        return self.render_to_response({})
+
+
 class RoomView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonResponseMixin, DetailView):
     http_method_names = ['get']
     model = Room

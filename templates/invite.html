@@ -8,6 +8,55 @@
     <link href="/s/css/invite.css" rel="stylesheet">
 
     <title>Bolo</title>
+    <script type="text/javascript">
+        (function () {
+            window.zhuge = window.zhuge || [];
+            window.zhuge.methods = "_init identify track getDid getSid getKey setSuperProperty setUserProperties setPlatform".split(" ");
+            window.zhuge.factory = function (b) {
+                return function () {
+                    var a = Array.prototype.slice.call(arguments);
+                    a.unshift(b);
+                    window.zhuge.push(a);
+                    return window.zhuge;
+                }
+            };
+            for (var i = 0; i < window.zhuge.methods.length; i++) {
+                var key = window.zhuge.methods[i];
+                window.zhuge[key] = window.zhuge.factory(key);
+            }
+            window.zhuge.load = function (b, x) {
+                if (!document.getElementById("zhuge-js")) {
+                    var a = document.createElement("script");
+                    var verDate = new Date();
+                    var verStr = verDate.getFullYear().toString() + verDate.getMonth().toString() + verDate.getDate().toString();
+
+                    a.type = "text/javascript";
+                    a.id = "zhuge-js";
+                    a.async = !0;
+                    a.src = (location.protocol == 'http:' ? "http://sdk.zhugeio.com/zhuge.min.js?v=" : 'https://zgsdk.zhugeio.com/zhuge.min.js?v=') + verStr;
+                    a.onerror = function () {
+                        window.zhuge.identify = window.zhuge.track = function (ename, props, callback) {
+                            if (callback && Object.prototype.toString.call(callback) === '[object Function]') callback();
+                        };
+                    };
+                    var c = document.getElementsByTagName("script")[0];
+                    c.parentNode.insertBefore(a, c);
+                    window.zhuge._init(b, x)
+                }
+            };
+            window.zhuge.load('646dea69a599443ca69159fc2090b21f', {
+                platform: { //自定义触发环境信息(选填)
+                    '版本': 'v1.0'
+                },
+                superProperty: { //全局的事件属性(选填)
+                    '应用名称': '诸葛io'
+                },
+                autoTrack: false,
+                //启用全埋点采集（选填，默认false）
+                singlePage: false //是否是单页面应用（SPA），启用autoTrack后生效（选填，默认false）
+            });
+        })();
+    </script>
 </head>
 <body style="padding-left: 10%; padding-right: 10%; padding-top: 30px; background-color: white;">
 <ul class="ui-row">
@@ -19,7 +68,8 @@
     </li>
     <li class="ui-col ui-col-50">
         <div class="" style="float: right;">
-            <button style="background-color: black; height: 35px; border-radius: 5px;color: white; width: 90px;" onclick="is_weixn()">添加好友
+            <button style="background-color: black; height: 35px; border-radius: 5px;color: white; width: 90px;"
+                    onclick="is_weixn()">添加好友
             </button>
         </div>
     </li>
@@ -31,7 +81,8 @@
 </div>
 <div class="ui-container ui-center" style="margin-top: 80px;">
     <button style="background-color: black; height: 60px; border-radius: 5px; color: white; width: 230px; display: block; font-size: 18px; font-family: 'Microsoft YaHei'; font-weight: 200;">
-        <img src="/s/image/pz.png" alt="" height="30px" style="margin-right: 10px; display: inline;" onclick="is_weixn()">
+        <img src="/s/image/pz.png" alt="" height="30px" style="margin-right: 10px; display: inline;"
+             onclick="is_weixn()">
     </button>
     <button style="background-color: white; height: 60px; border-radius: 5px; color: grey; width: 230px; display: block;  font-size: 18px; font-family: 'Microsoft YaHei'; font-weight: 200;">
         <img src="/s/image/az.png" alt="" height="30px" style="margin-right: 10px; display: inline;padding-left: 23px;">
