@@ -51,9 +51,22 @@
                 superProperty: { //全局的事件属性(选填)
                     '应用名称': '诸葛io'
                 },
-                autoTrack: false,
-                //启用全埋点采集（选填，默认false）
-                singlePage: false //是否是单页面应用（SPA），启用autoTrack后生效（选填，默认false）
+                deepShare: true,// 启⽤用deepshare，默认关闭
+                onLoadDeepShare: function () {//deepshare加载成功的回调
+                    var params = {
+                        channels: ["chanName1_chanType1_chanNumber1"],
+                        download_title: "我是download_title",
+                        download_msg: "我是download_msg"
+                    };
+                    deepshare = new DeepShare('646dea69a599443ca69159fc2090b21f');
+                    deepshare.BindParams(params);
+                    document.getElementById('addFriend').addEventListener('click', function () {
+                        deepshare.Start();
+                    });
+                    document.getElementById('downloadApp').addEventListener('click', function () {
+                        deepshare.Start();
+                    })
+                }
             });
         })();
     </script>
@@ -68,8 +81,7 @@
     </li>
     <li class="ui-col ui-col-50">
         <div class="" style="float: right;">
-            <button style="background-color: black; height: 35px; border-radius: 5px;color: white; width: 90px;"
-                    onclick="is_weixn()">添加好友
+            <button style="background-color: black; height: 35px; border-radius: 5px;color: white; width: 90px;" id="addFriend">添加好友
             </button>
         </div>
     </li>
@@ -80,9 +92,8 @@
     <div style="font-size: 25px; margin-top: 20px;">一起看视频</div>
 </div>
 <div class="ui-container ui-center" style="margin-top: 80px;">
-    <button style="background-color: black; height: 60px; border-radius: 5px; color: white; width: 230px; display: block; font-size: 18px; font-family: 'Microsoft YaHei'; font-weight: 200;">
-        <img src="/s/image/pz.png" alt="" height="30px" style="margin-right: 10px; display: inline;"
-             onclick="is_weixn()">
+    <button id="downloadApp" style="background-color: black; height: 60px; border-radius: 5px; color: white; width: 230px; display: block; font-size: 18px; font-family: 'Microsoft YaHei'; font-weight: 200;">
+        <img src="/s/image/pz.png" alt="" height="30px" style="margin-right: 10px; display: inline;">
     </button>
     <button style="background-color: white; height: 60px; border-radius: 5px; color: grey; width: 230px; display: block;  font-size: 18px; font-family: 'Microsoft YaHei'; font-weight: 200;">
         <img src="/s/image/az.png" alt="" height="30px" style="margin-right: 10px; display: inline;padding-left: 23px;">
