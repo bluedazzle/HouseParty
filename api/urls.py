@@ -35,4 +35,5 @@ urlpatterns = patterns('',
                        url(r'^songs', views.SongListView.as_view()),
                        url(r'^user/(?P<fullname>(\d)+)', views.UserInfoView.as_view()),
                        url(r'^report', views.ReportView.as_view()),
+                       url(r'^song/create', views.SongInfoCreateView.as_view()),
                        )

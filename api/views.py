@@ -1275,3 +1275,27 @@ class SingerCreateView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, Jso
         Singer(room=room, creator=self.user, song=song).save()
         return self.render_to_response({})
 
+
+class SongInfoCreateView(StatusWrapMixin, JsonResponseMixin, DetailView):
+    model = Song
+    http_method_names = ['get']
+
+    def get(self, request, *args, **kwargs):
+        author = request.GET.get('author', None)
+        name = request.GET.get('name', None)
+        origin_hash = request.GET.get('origin_hash', None)
+        accompany_hash = request.GET.get('accompany_hash', None)
+        print origin_hash, accompany_hash
+        if not (origin_hash and accompany_hash and author and name):
+            self.status_code = ERROR_DATA
+            self.message = 'parameters miss'
+            return self.render_to_response({})
+        song = Song(author=author, name=name)
+        song.original = 'http://cdn.fibar.cn/{0}.mp3'.format(origin_hash)
+        song.hash = accompany_hash
+        song.link = 'http://cdn.fibar.cn/{0}.mp3'.format(accompany_hash)
+        song.lrc = 'http://cdn.fibar.cn/{0}.bph'.format(accompany_hash)
+        song.song_type = 2
+        song.hidden = True
+        song.save()
+        return self.render_to_response({})

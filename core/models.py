@@ -163,6 +163,10 @@ class DeleteNotify(BaseModel):
 
 
 class Song(BaseModel):
+    song_choice = (
+        (1, '爬虫'),
+        (2, '全民')
+    )
     name = models.CharField(max_length=150, default='')
     author = models.CharField(max_length=150, default='')
     link = models.CharField(max_length=256)
@@ -172,6 +176,8 @@ class Song(BaseModel):
     catch_lrc = models.BooleanField(default=False)
     recommand = models.IntegerField(default=0)
     original = models.CharField(default='', max_length=150, null=True, blank=True)
+    hash = models.CharField(default='', max_length=128, blank=True, null=True)
+    song_type = models.IntegerField(default=1, choices=song_choice)
 
     def __unicode__(self):
         return '{0}-{1}'.format(self.name, self.author)
