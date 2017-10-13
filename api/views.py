@@ -1296,6 +1296,6 @@ class SongInfoCreateView(StatusWrapMixin, JsonResponseMixin, DetailView):
         song.link = 'http://cdn.fibar.cn/{0}.mp3'.format(accompany_hash)
         song.lrc = 'http://cdn.fibar.cn/{0}.bph'.format(accompany_hash)
         song.song_type = 2
-        song.hidden = True
+        song.hidden = False
         song.save()
         return self.render_to_response({})
