@@ -620,7 +620,7 @@ class FriendView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespo
         phone = kwargs.get('phone', None)
         agree = bool(request.GET.get('agree', 0))
         if phone:
-            user = PartyUser.objects.filter(phone=phone)
+            user = PartyUser.objects.filter(fullname=phone)
             if user.exists():
                 user = user[0]
                 request = FriendRequest.objects.filter(requester=user, add=self.user)
