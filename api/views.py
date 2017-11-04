@@ -582,7 +582,7 @@ class FriendView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespo
     def post(self, request, *args, **kwargs):
         phone = request.POST.get('phone', None)
         if phone:
-            user = PartyUser.objects.filter(phone=phone)
+            user = PartyUser.objects.filter(fullname=phone)
             if user.exists():
                 user = user[0]
                 request = FriendRequest.objects.filter(requester=self.user, add=user)
