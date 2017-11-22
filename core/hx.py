@@ -23,11 +23,14 @@ def create_new_ease_user(user_id, nick, token):
 
 
 def update_ease_user(token, new_token, user_id):
-    org, app = APP_KEY.split('#')
-    url = 'https://a1.easemob.com/{0}/{1}/users/{2}/password'.format(org, app, user_id)
-    data = {'oldpassword': token, 'newpassword': new_token}
-    req = requests.put(url, data=json.dumps(data), timeout=4)
-    if req.status_code != 200:
-        print req.content
+    try:
+        org, app = APP_KEY.split('#')
+        url = 'https://a1.easemob.com/{0}/{1}/users/{2}/password'.format(org, app, user_id)
+        data = {'oldpassword': token, 'newpassword': new_token}
+        req = requests.put(url, data=json.dumps(data), timeout=3)
+        if req.status_code != 200:
+            return False
+        return True
+    except Exception as e:
+        print e
         return False
-    return True
