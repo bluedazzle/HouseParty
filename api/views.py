@@ -1316,3 +1316,14 @@ class InviteCodeView(StatusWrapMixin, JsonResponseMixin, DetailView):
         self.message = '无效的邀请码'
         self.status_code = INFO_NO_VERIFY
         return self.render_to_response({})
+
+
+class InviteListView(StatusWrapMixin, JsonResponseMixin, DetailView):
+    model = Invite
+    include_attr = ['code']
+
+    def get(self, request, *args, **kwargs):
+        queryset = super(InviteListView, self).get_queryset()
+        codes = [code.code for code in queryset]
+        return self.render_to_response({'codes': codes})
+
