@@ -20,7 +20,7 @@ from core.Mixin.StatusWrapMixin import StatusWrapMixin, INFO_EXPIRE, ERROR_VERIF
 from core.dss.Mixin import JsonResponseMixin, MultipleJsonResponseMixin
 from core.hx import create_new_ease_user, update_ease_user
 from core.models import Verify, PartyUser, FriendRequest, FriendNotify, Hook, Room, DeleteNotify, Secret, Present, Song, \
-    Report, Singer
+    Report, Singer, Invite
 from core.ntim import netease
 from core.push import push_to_friends, push_friend_request, push_friend_response, push_hook
 from core.sms import send_sms
@@ -1298,4 +1298,21 @@ class SongInfoCreateView(StatusWrapMixin, JsonResponseMixin, DetailView):
         song.song_type = 2
         song.hidden = False
         song.save()
+        return self.render_to_response({})
+
+
+class InviteCodeView(StatusWrapMixin, JsonResponseMixin, DetailView):
+    model = Invite
+    http_method_names = ['get']
+
+    def get(self, request, *args, **kwargs):
+        code = unicode(request.GET.get('code')).lower()
+        res = self.model.objects.filter(code=code, use=False).all()
+        if res.exists():
+            obj = res[0]
+            obj.use = True
+            obj.save()
+            return self.render_to_response({})
+        self.message = '无效的邀请码'
+        self.status_code = INFO_NO_VERIFY
         return self.render_to_response({})

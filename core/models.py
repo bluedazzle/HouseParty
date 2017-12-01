@@ -208,3 +208,11 @@ class Singer(BaseModel):
 
     def __unicode__(self):
         return '{0}: {1}'.format(self.room.name, self.creator.nick)
+
+
+class Invite(BaseModel):
+    code = models.CharField(max_length=6, unique=True)
+    use = models.BooleanField(default=False)
+
+    def __unicode__(self):
+        return self.code
