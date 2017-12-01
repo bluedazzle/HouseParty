@@ -1306,6 +1306,8 @@ class InviteCodeView(CheckTokenMixin, StatusWrapMixin, JsonResponseMixin, Detail
     http_method_names = ['get']
 
     def get(self, request, *args, **kwargs):
+        if not self.wrap_check_token_result():
+            return self.render_to_response({})
         code = unicode(request.GET.get('code')).lower()
         res = self.model.objects.filter(code=code, use=False).all()
         if res.exists():
