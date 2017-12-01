@@ -104,7 +104,7 @@ class UserRegisterView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, C
     http_method_names = ['post']
     datetime_type = 'timestamp'
     success_url = 'localhost'
-    include_attr = ['token', 'id', 'create_time', 'nick', 'phone', 'avatar', 'fullname', 'sex', 'headline']
+    include_attr = ['token', 'id', 'create_time', 'nick', 'phone', 'avatar', 'fullname', 'sex', 'headline', 'active']
     count = 64
     token = ''
 
@@ -149,7 +149,7 @@ class UserResetView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, Upda
     datetime_type = 'timestamp'
     http_method_names = ['post']
     success_url = 'localhost'
-    include_attr = ['token', 'id', 'create_time', 'nick', 'phone', 'avatar', 'fullname']
+    include_attr = ['token', 'id', 'create_time', 'nick', 'phone', 'avatar', 'fullname', 'active']
     pk_url_kwarg = 'phone'
     count = 64
     token = ''
@@ -361,7 +361,7 @@ class UserLoginView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, Upda
     count = 64
     http_method_names = ['post']
     pk_url_kwarg = 'phone'
-    include_attr = ['token', 'id', 'create_time', 'nick', 'phone', 'avatar', 'fullname', 'sex', 'headline']
+    include_attr = ['token', 'id', 'create_time', 'nick', 'phone', 'avatar', 'fullname', 'sex', 'headline', 'active']
     success_url = 'localhost'
     token = ''
 
@@ -1301,7 +1301,7 @@ class SongInfoCreateView(StatusWrapMixin, JsonResponseMixin, DetailView):
         return self.render_to_response({})
 
 
-class InviteCodeView(StatusWrapMixin, JsonResponseMixin, DetailView):
+class InviteCodeView(CheckTokenMixin, StatusWrapMixin, JsonResponseMixin, DetailView):
     model = Invite
     http_method_names = ['get']
 
@@ -1311,7 +1311,10 @@ class InviteCodeView(StatusWrapMixin, JsonResponseMixin, DetailView):
         if res.exists():
             obj = res[0]
             obj.use = True
+            obj.bind = self.user
             obj.save()
+            self.user.active = True
+            self.user.save()
             return self.render_to_response({})
         self.message = '无效的邀请码'
         self.status_code = INFO_NO_VERIFY

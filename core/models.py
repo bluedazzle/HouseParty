@@ -60,6 +60,7 @@ class PartyUser(BaseModel, AbstractBaseUser):
     qq_open_id = models.CharField(max_length=128, default='', blank=True, null=True)
     wx_open_id = models.CharField(max_length=128, default='', blank=True, null=True)
     token = models.CharField(max_length=64, unique=True)
+    active = models.BooleanField(default=False)
 
     USERNAME_FIELD = 'phone'
 
@@ -213,6 +214,7 @@ class Singer(BaseModel):
 class Invite(BaseModel):
     code = models.CharField(max_length=6, unique=True)
     use = models.BooleanField(default=False)
+    bind = models.ForeignKey(PartyUser, related_name='user_invite')
 
     def __unicode__(self):
         return self.code
