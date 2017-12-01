@@ -1003,7 +1003,7 @@ class InfoView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespons
     http_method_names = ['post']
     model = PartyUser
     datetime_type = 'timestamp'
-    include_attr = ['id', 'phone', 'nick', 'fullname']
+    include_attr = ['id', 'phone', 'nick', 'fullname', 'active']
 
     def post(self, request, *args, **kwargs):
         if not self.wrap_check_sign_result():
