@@ -1000,10 +1000,17 @@ class SongListView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, Multipl
 
 
 class InfoView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonResponseMixin, DetailView):
-    http_method_names = ['post']
+    http_method_names = ['post', 'get']
     model = PartyUser
     datetime_type = 'timestamp'
     include_attr = ['id', 'phone', 'nick', 'fullname', 'active']
+
+    def get(self, request, *args, **kwargs):
+        if not self.wrap_check_sign_result():
+            return self.render_to_response(dict())
+        if not self.wrap_check_token_result():
+            return self.render_to_response(dict())
+        return self.render_to_response(self.user)
 
     def post(self, request, *args, **kwargs):
         if not self.wrap_check_sign_result():
@@ -1331,4 +1338,3 @@ class InviteListView(StatusWrapMixin, JsonResponseMixin, DetailView):
         queryset = super(InviteListView, self).get_queryset()
         codes = [code.code for code in queryset]
         return self.render_to_response({'codes': codes})
-
