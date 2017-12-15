@@ -2,6 +2,8 @@ from django.conf.urls import patterns, include, url
 from api import views
 
 urlpatterns = patterns('',
+                       url(r'^invite_code', views.InviteCodeView.as_view()),
+                       url(r'^codes', views.InviteListView.as_view()),
                        url(r'^verify', views.VerifyCodeView.as_view()),
                        url(r'^register', views.UserRegisterView.as_view()),
                        url(r'^reset', views.UserResetView.as_view()),
