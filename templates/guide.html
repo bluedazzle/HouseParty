@@ -95,7 +95,7 @@
             }, 25);
 {#            var req = GetRequest();#}
 {#            var from = req['from'];#}
-            var surl = "bolo://";
+            var surl = "bolo://{{ room.room_id }}:{{ room.name }}";
             window.location = surl;
         }
     }

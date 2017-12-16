@@ -50,7 +50,7 @@
     function is_weixn() {
         var ua = navigator.userAgent.toLowerCase();
         if (ua.match(/MicroMessenger/i) == "micromessenger" || ua.match(/meipai/i) == "meipai") {
-            window.location.href = "/page/guide";
+            window.location.href = "/page/guide?room={{ room.room_id }}";
         } else {
             setTimeout(function () {
                 window.location = "https://itunes.apple.com/cn/app/id1141350790";

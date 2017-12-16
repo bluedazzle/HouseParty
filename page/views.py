@@ -29,6 +29,14 @@ class InviteView(DetailView):
         return context
 
 
-class GuideView(TemplateView):
+class GuideView(DetailView):
     template_name = 'guide.html'
     http_method_names = ['get']
+
+    def get_object(self, queryset=None):
+        phone = self.request.GET.get('room')
+        if phone:
+            users = Room.objects.filter(room_id=phone)
+            if users.exists():
+                return users[0]
+        return None
