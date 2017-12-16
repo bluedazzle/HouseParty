@@ -779,7 +779,7 @@ class HookView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespons
             return self.render_to_response(dict())
         phone = kwargs.get('phone', None)
         if phone:
-            user = PartyUser.objects.filter(phone=phone)
+            user = PartyUser.objects.filter(fullname=phone)
             if user.exists():
                 user = user[0]
                 if user not in self.user.friend_list.all():
