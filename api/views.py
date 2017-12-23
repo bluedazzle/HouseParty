@@ -1125,7 +1125,7 @@ class RoomListView(CheckSecurityMixin, StatusWrapMixin, MultipleJsonResponseMixi
     exclude_attr = ['token', 'password', 'forbid', 'last_login', 'qq_open_id', 'wx_open_id']
 
     def get_queryset(self):
-        queryset = super(RoomListView, self).get_queryset()
+        queryset = super(RoomListView, self).get_queryset().order_by("-priority", "-create_time")
         map(self.get_numbers, queryset)
         map(self.get_users, queryset)
         return queryset

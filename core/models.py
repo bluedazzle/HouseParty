@@ -23,6 +23,7 @@ class Room(BaseModel):
     creator_id = models.IntegerField(default=0)
     creator_nick = models.CharField(default='', max_length=100)
     cover = models.CharField(max_length=256, default='')
+    priority = models.IntegerField(default=0)
 
     # participants = models.ManyToManyField(PartyUser, related_name='my_all_rooms', blank=True)
 
@@ -48,14 +49,14 @@ class PartyUser(BaseModel, AbstractBaseUser):
     )
 
     nick = models.CharField(max_length=100, default='')
-    phone = models.CharField(max_length=11, default='')
+    phone = models.CharField(max_length=11, default='', null=True, blank=True)
     fullname = models.CharField(max_length=64, unique=True)
     avatar = models.CharField(max_length=256, null=True, blank=True)
     friend_list = models.ManyToManyField('self', related_name='friend_by', blank=True)
     online = models.BooleanField(default=False)
     forbid = models.BooleanField(default=False)
     sex = models.IntegerField(default=0, choices=sex_choices)
-    headline = models.CharField(max_length=512, default='')
+    headline = models.CharField(max_length=512, default='', null=True, blank=True)
     room = models.ForeignKey(Room, related_name='room_participants', null=True, blank=True, on_delete=models.SET_NULL)
     qq_open_id = models.CharField(max_length=128, default='', blank=True, null=True)
     wx_open_id = models.CharField(max_length=128, default='', blank=True, null=True)
