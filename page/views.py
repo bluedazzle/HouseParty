@@ -40,3 +40,8 @@ class GuideView(DetailView):
             if users.exists():
                 return users[0]
         return None
+
+
+class DownloadView(TemplateView):
+    template_name = 'download.html'
+    http_method_names = ['get']

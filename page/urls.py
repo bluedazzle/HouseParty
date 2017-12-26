@@ -4,4 +4,5 @@ from page import views
 urlpatterns = patterns('',
                        url(r'^invite', views.InviteView.as_view()),
                        url(r'^guide', views.GuideView.as_view()),
+                       url(r'^download', views.DownloadView.as_view()),
                        )
