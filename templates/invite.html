@@ -50,10 +50,21 @@
     function is_weixn() {
         var ua = navigator.userAgent.toLowerCase();
         if (ua.match(/MicroMessenger/i) == "micromessenger" || ua.match(/meipai/i) == "meipai") {
-            window.location.href = "/page/guide?room={{ room.room_id }}";
+            window.location.href = "/page/guide?room={{ room.room_id }}&device=0";
         } else {
             setTimeout(function () {
                 window.location = "https://itunes.apple.com/cn/app/id1141350790";
+            }, 25);
+            window.location = "miku://{{ room.room_id }}:{{ room.name }}";
+        }
+    }
+    function android_download() {
+        var ua = navigator.userAgent.toLowerCase();
+        if (ua.match(/MicroMessenger/i) == "micromessenger" || ua.match(/meipai/i) == "meipai") {
+            window.location.href = "/page/guide?room={{ room.room_id }}&device=1";
+        } else {
+            setTimeout(function () {
+                window.location = "http://static.fibar.cn/mido_latest.apk";
             }, 25);
             window.location = "miku://{{ room.room_id }}:{{ room.name }}";
         }
