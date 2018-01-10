@@ -831,10 +831,11 @@ class RoomView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespons
             self.status_code = INFO_NO_EXIST
             return self.render_to_response({})
         room = rooms[0]
-        users = room.room_participants.filter(online=True)
-        map(self.check_friend, users)
         self.user.room = room
         self.user.save()
+        users = room.room_participants.filter(online=True)
+        map(self.check_friend, users)
+
         return self.render_to_response({'count': users.count(), 'participants': users})
 
     def check_friend(self, obj):
