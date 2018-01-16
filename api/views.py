@@ -831,6 +831,11 @@ class RoomView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespons
             self.status_code = INFO_NO_EXIST
             return self.render_to_response({})
         room = rooms[0]
+        if self.user.room:
+            singers = Singer.objects.filter(creator=self.user, room=self.user.room)
+            if singers.exists():
+                singer = singers[0]
+                singer.delete()
         self.user.room = room
         self.user.save()
         users = room.room_participants.filter(online=True)
