@@ -7,7 +7,6 @@ urlpatterns = patterns('',
                        # Examples:
                        # url(r'^$', 'HouseParty.views.home', name='home'),
                        # url(r'^blog/', include('blog.urls')),
-                       url(r'^test/socket/', include('django_socketio.urls')),
                        url(r'^api/v1/', include('api.urls')),
                        url(r'^page/', include('page.urls')),
                        url(r'^admin/api/', include('myadmin.api_urls')),
