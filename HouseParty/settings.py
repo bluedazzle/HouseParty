@@ -102,4 +102,6 @@ STATIC_URL = '/static/'
 STATIC_ROOT = './static/'
 STATIC_MEDIA = './static/'
 
+APPEND_SLASH = True
+
 TEMPLATE_DIRS = (os.path.join(BASE_DIR,  'templates'),)
