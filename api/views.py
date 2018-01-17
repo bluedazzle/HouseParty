@@ -553,6 +553,7 @@ class ExitView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespons
     model = PartyUser
 
     def get(self, request, *args, **kwargs):
+        print 'exit'
         if not self.wrap_check_sign_result():
             return self.render_to_response(dict())
         if not self.wrap_check_token_result():
