@@ -553,7 +553,6 @@ class ExitView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespons
     model = PartyUser
 
     def get(self, request, *args, **kwargs):
-        print 'exit'
         if not self.wrap_check_sign_result():
             return self.render_to_response(dict())
         if not self.wrap_check_token_result():
@@ -1270,7 +1269,7 @@ class SingerCreateView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, Jso
         if not rooms.exists():
             self.status_code = INFO_NO_EXIST
             self.message = '不存在'
-            return self.render_to_response({})
+            return None
         return rooms[0]
 
     def post(self, request, *args, **kwargs):
@@ -1281,6 +1280,8 @@ class SingerCreateView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, Jso
         sid = request.POST.get('sid')
         song = Song.objects.get(id=sid)
         room = self.get_room()
+        if not room:
+            return self.render_to_response({})
         singers = Singer.objects.filter(room=room, creator=self.user)
         if singers.exists():
             self.status_code = INFO_EXISTED
