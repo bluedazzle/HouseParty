@@ -1119,3 +1119,90 @@ accompany_hash(_Optional_|string)- 伴奏 hash
     "msg": ""
 }
 ```
+
+
+## **踢人**
+```
+GET /kick/
+```
+### **Parameters**
+fullname(_Required_|string)- 被踢用户 fullname
+
+### **Return**
+
+```
+{
+    "body": {},
+    "status": 1,
+    "msg": "success"
+}
+```
+其他
+```
+{
+    "body": {},
+    "status": 4,
+    "msg": ""
+}
+```
+
+## **批量获取用户信息**
+```
+GET /user/infos/
+```
+### **Parameters**
+示例输入：
+
+```
+["13888888888", "15608059720"]
+```
+
+### **Return**
+
+```
+{
+    "body": {
+        "page_obj": {},
+        "is_paginated": false,
+        "partyuser_list": [
+            {
+                "phone": "13888888888",
+                "headline": "13888888888",
+                "sex": 1,
+                "nick": "皮皮",
+                "create_time": "2017-08-08 19:46:13",
+                "last_login": "2017-08-08 19:45:58",
+                "modify_time": "2018-01-18 02:40:43",
+                "active": false,
+                "fullname": "13888888888",
+                "id": 2,
+                "avatar": "/s/image/avatar.png"
+            },
+            {
+                "phone": "15608059720",
+                "headline": "15608059720",
+                "sex": 1,
+                "nick": "15608059720",
+                "create_time": "2017-08-08 19:45:54",
+                "last_login": "2017-08-08 19:45:30",
+                "modify_time": "2018-01-26 23:17:50",
+                "active": false,
+                "fullname": "15608059720",
+                "id": 1,
+                "avatar": "15608059720"
+            }
+        ]
+    },
+    "status": 1,
+    "msg": "success"
+}
+```
+其他
+```
+{
+    "body": {},
+    "status": 4,
+    "msg": ""
+}
+```
+
