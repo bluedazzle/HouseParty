@@ -38,7 +38,7 @@ class Room(BaseModel):
         return True if user in self.room_participants.all() else False
 
     def __unicode__(self):
-        return self.room_id
+        return '{0}-{1}'.format(self.room_id, self.name)
 
 
 class PartyUser(BaseModel, AbstractBaseUser):
