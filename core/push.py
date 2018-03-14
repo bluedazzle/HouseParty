@@ -67,7 +67,7 @@ def push_friend_request(rid, user):
 
 
 def push_hook(rid, user):
-    msg = '{0} 向你打招呼, 点击加入聊天'.format(user.fullname).encode('utf-8')
+    msg = '{0} 向你打招呼, 点击加入聊天'.format(user.nick).encode('utf-8')
     _jpush = jpush.JPush(APP_KEY, MASTER_SECRET)
     # _jpush.set_logging("DEBUG")
     push = _jpush.create_push()
