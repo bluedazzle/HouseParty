@@ -783,10 +783,10 @@ class HookView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespons
             user = PartyUser.objects.filter(fullname=phone)
             if user.exists():
                 user = user[0]
-                if user not in self.user.friend_list.all():
-                    self.message = '非好友不能打招呼'
-                    self.status_code = ERROR_DATA
-                    return self.render_to_response({})
+                # if user not in self.user.friend_list.all():
+                #     self.message = '非好友不能打招呼'
+                #     self.status_code = ERROR_DATA
+                #     return self.render_to_response({})
                 hook, created = Hook.objects.get_or_create(author=self.user, hook_to=user)
                 now_time = datetime.datetime.now(tz=get_current_timezone())
                 if now_time - hook.modify_time > datetime.timedelta(seconds=10) or created:
