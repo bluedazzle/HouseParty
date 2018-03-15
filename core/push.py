@@ -71,7 +71,7 @@ def push_hook(rid, user):
     _jpush = jpush.JPush(APP_KEY, MASTER_SECRET)
     # _jpush.set_logging("DEBUG")
     push = _jpush.create_push()
-    ios_msg = jpush.ios(alert=msg, extras={'room_id': user.room.room_id})
+    ios_msg = jpush.ios(alert=msg, extras={'room_id': user.room.room_id, 'room_name': user.room.name})
     push.audience = jpush.audience(
         jpush.alias(rid)
     )
