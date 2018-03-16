@@ -283,8 +283,11 @@ class SMSLoginView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, Detai
             user.token = self.create_token()
             user.online = True
             user.save()
-            netease.update_user(user.fullname, user.token)
-            update_ease_user(ot, user.token, user.fullname)
+            # netease.update_user(user.fullname, user.token)
+            if not update_ease_user(ot, user.token, user.fullname):
+                self.message = '登录失败，请稍后重试'
+                self.status_code = ERROR_UNKNOWN
+                return self.render_to_response({})
             return self.render_to_response(user)
         self.message = 'missing params'
         self.status_code = ERROR_DATA
@@ -322,12 +325,17 @@ class ThirdLoginView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, Det
         user.token = self.create_token()
         user.online = True
         user.save()
+        res = False
         if flag:
-            netease.create_user(user.fullname, user.nick, icon=user.avatar, token=user.token)
-            create_new_ease_user(user.fullname, user.nick, user.token)
+            # netease.create_user(user.fullname, user.nick, icon=user.avatar, token=user.token)
+            res = create_new_ease_user(user.fullname, user.nick, user.token)
         else:
-            netease.update_user(user.fullname, user.token)
-            update_ease_user(ot, user.token, user.fullname)
+            # netease.update_user(user.fullname, user.token)
+            res = update_ease_user(ot, user.token, user.fullname)
+        if not res:
+            self.message = '登录失败，请稍后重试'
+            self.status_code = ERROR_UNKNOWN
+            return self.render_to_response({})
         return self.render_to_response(user)
 
     def create_token(self):

@@ -17,7 +17,7 @@ def create_new_ease_user(user_id, nick, token):
     data = {'username': user_id, 'nickname': nick, 'password': token}
     req = requests.post(url, data=json.dumps(data), timeout=4)
     if req.status_code != 200:
-        print req.content
+        print 'ERROR IN create new ease user , nick {0}, reason {1}'.format(nick, unicode(req.content))
         return False
     return True
 
@@ -32,5 +32,5 @@ def update_ease_user(token, new_token, user_id):
             return False
         return True
     except Exception as e:
-        print e
+        print 'ERROR IN update ease user {0} reason {1}'.format(user_id, e)
         return False
