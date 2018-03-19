@@ -827,6 +827,7 @@ class RoomView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespons
     model = Room
     datetime_type = 'timestamp'
     exclude_attr = ['token', 'password', 'forbid', 'last_login', 'qq_open_id', 'wx_open_id']
+    max_members = 12
 
     def get(self, request, *args, **kwargs):
         if not self.wrap_check_token_result():
@@ -840,6 +841,10 @@ class RoomView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespons
             self.status_code = INFO_NO_EXIST
             return self.render_to_response({})
         room = rooms[0]
+        if room.number() >= self.max_members:
+            self.message = '房间已满'
+            self.status_code = ERROR_DATA
+            return self.render_to_response({})
         if self.user.room and room != self.user.room:
             singers = Singer.objects.filter(creator=self.user, room=self.user.room)
             if singers.exists():
@@ -1330,20 +1335,20 @@ class InviteCodeView(CheckTokenMixin, StatusWrapMixin, JsonResponseMixin, Detail
     http_method_names = ['get']
 
     def get(self, request, *args, **kwargs):
-        if not self.wrap_check_token_result():
-            return self.render_to_response({})
-        code = unicode(request.GET.get('code')).lower()
-        res = self.model.objects.filter(code=code, use=False).all()
-        if res.exists():
-            obj = res[0]
-            obj.use = True
-            obj.bind = self.user
-            obj.save()
-            self.user.active = True
-            self.user.save()
-            return self.render_to_response({})
-        self.message = '无效的邀请码'
-        self.status_code = INFO_NO_VERIFY
+        # if not self.wrap_check_token_result():
+        #     return self.render_to_response({})
+        # code = unicode(request.GET.get('code')).lower()
+        # res = self.model.objects.filter(code=code, use=False).all()
+        # if res.exists():
+        #     obj = res[0]
+        #     obj.use = True
+        #     obj.bind = self.user
+        #     obj.save()
+        #     self.user.active = True
+        #     self.user.save()
+        #     return self.render_to_response({})
+        # self.message = '无效的邀请码'
+        # self.status_code = INFO_NO_VERIFY
         return self.render_to_response({})
 
 
