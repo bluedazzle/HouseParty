@@ -61,7 +61,7 @@ class PartyUser(BaseModel, AbstractBaseUser):
     qq_open_id = models.CharField(max_length=128, default='', blank=True, null=True)
     wx_open_id = models.CharField(max_length=128, default='', blank=True, null=True)
     token = models.CharField(max_length=64, unique=True)
-    active = models.BooleanField(default=False)
+    active = models.BooleanField(default=True)
 
     USERNAME_FIELD = 'phone'
 

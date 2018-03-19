@@ -11,4 +11,3 @@ class Command(BaseCommand):
         for itm in PartyUser.objects.all():
             itm.active = True
             itm.save()
-
