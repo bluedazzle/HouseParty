@@ -1021,8 +1021,9 @@ class SongListView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, Multipl
             queryset = Song.objects.raw(
                 '''SELECT * FROM core_song WHERE to_tsvector('parser_name', name) @@ to_tsquery('parser_name', '{0}') or to_tsvector('parser_name', author) @@ to_tsquery('parser_name', '{1}');'''.format(
                     query, query))
-            self.raw_count = len(list(queryset))
-            self.paginator_class = SearchPaginator
+            # self.raw_count = len(list(queryset))
+            # self.paginator_class = SearchPaginator
+            return self.render_to_response({'object_list': queryset})
         return queryset
 
     def get_paginator(self, queryset, per_page, orphans=0,
