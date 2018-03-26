@@ -15,6 +15,7 @@ from django.views.generic import CreateView, UpdateView, View, DetailView, Delet
 from django.core.cache import cache
 
 from api.forms import VerifyCodeForm, UserResetForm, UserLoginForm, UserRegisterForm
+from api.paginator import SearchPaginator
 from core.Mixin.CheckMixin import CheckSecurityMixin, CheckTokenMixin
 from core.Mixin.StatusWrapMixin import StatusWrapMixin, INFO_EXPIRE, ERROR_VERIFY, INFO_NO_VERIFY, ERROR_DATA, \
     ERROR_UNKNOWN, ERROR_PERMISSION_DENIED, ERROR_PASSWORD, INFO_NO_EXIST, INFO_EXISTED
@@ -1011,6 +1012,7 @@ class SearchView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespo
 class SongListView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, MultipleJsonResponseMixin, ListView):
     model = Song
     paginate_by = 20
+    raw_count = 0
 
     def get_queryset(self):
         query = self.request.GET.get('query')
@@ -1019,7 +1021,17 @@ class SongListView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, Multipl
             queryset = Song.objects.raw(
                 '''SELECT * FROM core_song WHERE to_tsvector('parser_name', name) @@ to_tsquery('parser_name', {0}) or to_tsvector('parser_name', author) @@ to_tsquery('parser_name', {1});'''.format(
                     query, query))
+            self.raw_count = len(queryset)
+            self.paginator_class = SearchPaginator
         return queryset
+
+    def get_paginator(self, queryset, per_page, orphans=0,
+                      allow_empty_first_page=True, **kwargs):
+        if self.raw_count:
+            kwargs['keyword'] = self.raw_count
+        return self.paginator_class(
+            queryset, per_page, orphans=orphans,
+            allow_empty_first_page=allow_empty_first_page, **kwargs)
 
 
 class InfoView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonResponseMixin, DetailView):
