@@ -29,6 +29,7 @@ from core.utils import upload_picture
 from django.utils.datastructures import MultiValueDict
 
 import time
+import redis
 
 
 class VerifyCodeView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, CreateView):
@@ -1416,3 +1417,27 @@ class UserInfoListView(StatusWrapMixin, MultipleJsonResponseMixin, ListView):
                               % {'class_name': self.__class__.__name__})
         context = self.get_context_data()
         return self.render_to_response(context)
+
+
+class UserMessageView(CheckTokenMixin, StatusWrapMixin, JsonResponseMixin, DetailView):
+    model = PartyUser
+
+    def __init__(self, *args, **kwargs):
+        self.redis = redis.StrictRedis(host='localhost', port=6379, db=4)
+        super(UserMessageView, self).__init__(*args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        if not self.wrap_check_token_result():
+            return self.render_to_response(dict())
+        key = 'IE_{0}'.format(self.user.fullname)
+        result = self.redis.hgetall(key)
+        return self.render_to_response(result)
+
+    def post(self, request, *args, **kwargs):
+        if not self.wrap_check_token_result():
+            return self.render_to_response(dict())
+        body = request.body
+        key = "IE_{0}".format(self.user.fullname)
+        json_data = json.loads(body)
+        self.redis.hmset(key, json_data)
+        return self.render_to_response({})

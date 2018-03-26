@@ -40,4 +40,5 @@ urlpatterns = patterns('',
                        url(r'^song/create', views.SongInfoCreateView.as_view()),
                        url(r'^user/infos/$', views.UserInfoListView.as_view()),
                        url(r'^kick/$', views.KickView.as_view()),
+                       url(r'^latest_messages/$', views.UserMessageView.as_view()),
                        )
