@@ -1016,7 +1016,9 @@ class SongListView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, Multipl
         query = self.request.GET.get('query')
         queryset = super(SongListView, self).get_queryset().filter(hidden=False).order_by('-recommand')
         if query:
-            queryset = queryset.filter(Q(name__icontains=query) | Q(author__icontains=query))
+            queryset = Song.objects.raw(
+                '''SELECT * FROM core_song WHERE to_tsvector('parser_name', name) @@ to_tsquery('parser_name', {0}) or to_tsvector('parser_name', author) @@ to_tsquery('parser_name', {1});'''.format(
+                    query, query))
         return queryset
 
 
