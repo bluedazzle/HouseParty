@@ -1012,7 +1012,7 @@ class SearchView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespo
 class SongListView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, MultipleJsonResponseMixin, ListView):
     model = Song
     paginate_by = 20
-    raw_count = 0
+    paginator_class = SearchPaginator
 
     def get(self, request, *args, **kwargs):
         query = self.request.GET.get('query')
@@ -1029,14 +1029,6 @@ class SongListView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, Multipl
     def get_queryset(self):
         queryset = super(SongListView, self).get_queryset().filter(hidden=False).order_by('-recommand')
         return queryset
-
-    def get_paginator(self, queryset, per_page, orphans=0,
-                      allow_empty_first_page=True, **kwargs):
-        if self.raw_count:
-            kwargs['keyword'] = self.raw_count
-        return self.paginator_class(
-            queryset, per_page, orphans=orphans,
-            allow_empty_first_page=allow_empty_first_page, **kwargs)
 
 
 class InfoView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonResponseMixin, DetailView):
