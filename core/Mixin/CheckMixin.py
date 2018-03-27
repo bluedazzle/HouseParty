@@ -102,10 +102,10 @@ class CheckTokenMixin(object):
             return False
         return True
 
-    def get(self, request, *args, **kwargs):
-        if not self.wrap_check_token_result():
-            return self.render_to_response(dict())
-        return super(CheckTokenMixin, self).get(request, *args, **kwargs)
+    # def get(self, request, *args, **kwargs):
+    #     if not self.wrap_check_token_result():
+    #         return self.render_to_response(dict())
+    #     return super(CheckTokenMixin, self).get(request, *args, **kwargs)
 
 
 class CheckAdminPermissionMixin(object):
