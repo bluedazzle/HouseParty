@@ -1450,13 +1450,19 @@ class UserMessageView(CheckTokenMixin, StatusWrapMixin, JsonResponseMixin, Detai
             return self.render_to_response(dict())
         key = 'IE_{0}'.format(self.user.fullname)
         result = self.redis.hgetall(key)
-        return self.render_to_response(result)
+        out_dict = {}
+        for k, v in result.items():
+            out_dict[k] = json.loads(v)
+        return self.render_to_response(out_dict)
 
     def post(self, request, *args, **kwargs):
         if not self.wrap_check_token_result():
             return self.render_to_response(dict())
         body = request.body
+        now_stamp = int(time.time())
         key = "IE_{0}".format(self.user.fullname)
         json_data = json.loads(body)
-        self.redis.hmset(key, json_data)
+        for k, v in json_data.items():
+            ie_dict = {'message': v, 'time': now_stamp}
+            self.redis.hset(key, k, json.dumps(ie_dict))
         return self.render_to_response({})

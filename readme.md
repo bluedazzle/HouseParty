@@ -1206,3 +1206,67 @@ GET /user/infos/
 }
 ```
 
+
+
+
+## **获取最近互动消息**
+```
+GET /latest_messages/
+```
+### **Parameters**
+
+### **Return**
+
+```
+{
+　　"body":{
+　　　　"fullname":{
+　　　　　　"message":"[图片]",
+　　　　　　"time":1522130171
+　　　　},
+　　　　"33231":{
+　　　　　　"message":"打过招呼",
+　　　　　　"time":1522130171
+　　　　}
+　　},
+　　"status":1,
+　　"msg":"success"
+}
+```
+其他
+```
+{
+    "body": {},
+    "status": 4,
+    "msg": ""
+}
+```
+
+## **更新最近互动消息**
+```
+POST /latest_messages/
+```
+### **Parameters**
+示例输入：(json)
+
+```
+{"123": "[图片]", "33231": "打过招呼"}
+```
+
+### **Return**
+
+```
+{
+    "body": {},
+    "status": 1,
+    "msg": "success"
+}
+```
+其他
+```
+{
+    "body": {},
+    "status": 4,
+    "msg": ""
+}
+```
