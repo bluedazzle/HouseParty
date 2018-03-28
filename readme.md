@@ -1250,7 +1250,7 @@ POST /latest_messages/
 示例输入：(json)
 
 ```
-{"123": "[图片]", "33231": "打过招呼"}
+{"123": {"name": "xxx", "message": "[图片]"}, "33231": {"name": "xxx", "message": "打过招呼"}}
 ```
 
 ### **Return**
