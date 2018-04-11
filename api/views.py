@@ -1018,7 +1018,7 @@ class SongListView(CheckSecurityMixin, StatusWrapMixin, MultipleJsonResponseMixi
         query = self.request.GET.get('query')
         if query:
             queryset = Song.objects.raw(
-                '''SELECT * FROM core_song WHERE to_tsvector('parser_name', name) @@ to_tsquery('parser_name', '{0}') or to_tsvector('parser_name', author) @@ to_tsquery('parser_name', '{1}');'''.format(
+                '''SELECT * FROM core_song WHERE to_tsvector('parser_name', name) @@ to_tsquery('parser_name', '{0}') or to_tsvector('parser_name', author) @@ to_tsquery('parser_name', '{1}') ORDER BY recommand DESC;'''.format(
                     query, query))
             # self.raw_count = len(list(queryset))
             # self.paginator_class = SearchPaginator
