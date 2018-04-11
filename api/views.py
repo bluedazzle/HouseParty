@@ -1437,15 +1437,36 @@ class UserMessageView(CheckTokenMixin, StatusWrapMixin, JsonResponseMixin, Detai
         self.redis = redis.StrictRedis(host='localhost', port=6379, db=4)
         super(UserMessageView, self).__init__(*args, **kwargs)
 
-    def get(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         if not self.wrap_check_token_result():
             return self.render_to_response(dict())
+        groups = request.body
+        # 群组缓存，所有用户共用
+        group_key = "IE_GROUP"
+        # server 发出的消息，每个用户一个
+        server_key = "IE_SERVER"
+        out_dict = {}
+        if groups:
+            groups = json.loads(groups)
+            groups_detail = self.redis.hmget(group_key, groups)
+            for index, group in enumerate(groups):
+                gp_detail = groups_detail[index]
+                if gp_detail:
+                    out_dict[group] = json.loads(groups_detail[index])
+                # out_dict[k] = json.loads(v)
         key = 'IE_{0}'.format(self.user.fullname)
         result = self.redis.hgetall(key)
-        out_dict = {}
         for k, v in result.items():
             out_dict[k] = json.loads(v)
         return self.render_to_response(out_dict)
+
+
+class UserMessageUpdateView(CheckTokenMixin, StatusWrapMixin, JsonResponseMixin, DetailView):
+    model = PartyUser
+
+    def __init__(self, *args, **kwargs):
+        self.redis = redis.StrictRedis(host='localhost', port=6379, db=4)
+        super(UserMessageUpdateView, self).__init__(*args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         if not self.wrap_check_token_result():
@@ -1453,8 +1474,12 @@ class UserMessageView(CheckTokenMixin, StatusWrapMixin, JsonResponseMixin, Detai
         body = request.body
         now_stamp = int(time.time())
         key = "IE_{0}".format(self.user.fullname)
+        group_key = "IE_GROUP"
         json_data = json.loads(body)
         for k, v in json_data.items():
-            ie_dict = {'message': v, 'time': now_stamp}
-            self.redis.hset(key, k, json.dumps(ie_dict))
+            v['time'] = now_stamp
+            if unicode(k).startswith('group_'):
+                self.redis.hset(group_key, k, json.dumps(v))
+            else:
+                self.redis.hset(key, k, json.dumps(v))
         return self.render_to_response({})

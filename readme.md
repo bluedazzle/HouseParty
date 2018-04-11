@@ -1214,23 +1214,35 @@ GET /user/infos/
 GET /latest_messages/
 ```
 ### **Parameters**
+json:
+
+```
+["group_123", "group_111"]
+```
+
 
 ### **Return**
 
 ```
 {
-　　"body":{
-　　　　"fullname":{
-　　　　　　"message":"[图片]",
-　　　　　　"time":1522130171
-　　　　},
-　　　　"33231":{
-　　　　　　"message":"打过招呼",
-　　　　　　"time":1522130171
-　　　　}
-　　},
-　　"status":1,
-　　"msg":"success"
+    "body": {
+        "123": {
+            "message": "打过招呼",
+            "xxx": "ddd",
+            "time": 1523467838
+        },
+        "33231": {
+            "message": "打过招呼",
+            "time": 1523467838
+        },
+        "group_123": {
+            "message": "傻逼",
+            "name": "xxx群",
+            "time": 1523467838
+        }
+    },
+    "status": 1,
+    "msg": "success"
 }
 ```
 其他
@@ -1244,13 +1256,13 @@ GET /latest_messages/
 
 ## **更新最近互动消息**
 ```
-POST /latest_messages/
+POST /latest_messages/update/
 ```
 ### **Parameters**
 示例输入：(json)
 
 ```
-{"123": {"name": "xxx", "message": "[图片]"}, "33231": {"name": "xxx", "message": "打过招呼"}}
+{"123": {"name": "xxx", "message": "[图片]"}, "33231": {"name": "xxx", "message": "打过招呼"}, "group_xxxx": {"name": "xxx", "message": "打过招呼"}}
 ```
 
 ### **Return**
