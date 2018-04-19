@@ -32,6 +32,9 @@ from django.utils.datastructures import MultiValueDict
 import time
 import redis
 
+NEW_TOKEN = 'ZGBKrriEYvaXsiJjaQuhq5yntpl8ewWdxu7nRmTAhzSCkZGNket92Bf3dFbMIgLj'
+
+
 
 class VerifyCodeView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, CreateView):
     form_class = VerifyCodeForm
@@ -124,7 +127,7 @@ class UserRegisterView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, C
         props = {'sex': self.object.sex, 'headline': self.object.headline}
         res = netease.create_user(self.object.fullname, self.object.nick, icon=self.object.avatar, token=self.token,
                                   props=json.dumps(props))
-        create_new_ease_user(self.object.fullname, self.object.nick, self.token)
+        create_new_ease_user(self.object.fullname, self.object.nick, NEW_TOKEN)
         setattr(self.object, 'chat', res)
         return self.render_to_response(self.object)
 
@@ -286,10 +289,10 @@ class SMSLoginView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, Detai
             user.online = True
             user.save()
             # netease.update_user(user.fullname, user.token)
-            if not update_ease_user(ot, user.token, user.fullname):
-                self.message = '登录失败，请稍后重试'
-                self.status_code = ERROR_UNKNOWN
-                return self.render_to_response({})
+            # if not update_ease_user(ot, user.token, user.fullname):
+            #     self.message = '登录失败，请稍后重试'
+            #     self.status_code = ERROR_UNKNOWN
+            #     return self.render_to_response({})
             return self.render_to_response(user)
         self.message = 'missing params'
         self.status_code = ERROR_DATA
@@ -330,10 +333,10 @@ class ThirdLoginView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, Det
         res = False
         if flag:
             # netease.create_user(user.fullname, user.nick, icon=user.avatar, token=user.token)
-            res = create_new_ease_user(user.fullname, user.nick, user.token)
+            res = create_new_ease_user(user.fullname, user.nick, NEW_TOKEN)
         else:
             # netease.update_user(user.fullname, user.token)
-            res = update_ease_user(ot, user.token, user.fullname)
+            # res = update_ease_user(ot, NEW_TOKEN, user.fullname)
         if not res:
             self.message = '登录失败，请稍后重试'
             self.status_code = ERROR_UNKNOWN
@@ -409,7 +412,7 @@ class UserLoginView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, Upda
         self.object.save()
         self.update_notify()
         netease.update_user(self.object.fullname, self.token)
-        update_ease_user(ot, self.object.token, self.object.fullname)
+        # update_ease_user(ot, self.object.token, self.object.fullname)
         return self.render_to_response(self.object)
 
     def get_object(self, queryset=None):
