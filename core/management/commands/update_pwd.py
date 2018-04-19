@@ -18,4 +18,4 @@ class Command(BaseCommand):
             else:
                 print 'reset user token failed'
                 fail_list.append(itm.fullname)
-            print 'fail list {0}'.format(fail_list)
+        print 'fail list {0}'.format(fail_list)
