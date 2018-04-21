@@ -180,6 +180,7 @@ class Song(BaseModel):
     original = models.CharField(default='', max_length=150, null=True, blank=True)
     hash = models.CharField(default='', max_length=128, blank=True, null=True)
     song_type = models.IntegerField(default=1, choices=song_choice)
+    duration = models.IntegerField(default=0)
 
     def __unicode__(self):
         return '{0}-{1}'.format(self.name, self.author)

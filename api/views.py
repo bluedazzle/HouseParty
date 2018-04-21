@@ -334,7 +334,7 @@ class ThirdLoginView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, Det
         if flag:
             # netease.create_user(user.fullname, user.nick, icon=user.avatar, token=user.token)
             res = create_new_ease_user(user.fullname, user.nick, NEW_TOKEN)
-        else:
+        # else:
             # netease.update_user(user.fullname, user.token)
             # res = update_ease_user(ot, NEW_TOKEN, user.fullname)
         if not res:
