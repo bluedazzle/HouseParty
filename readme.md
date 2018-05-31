@@ -51,11 +51,7 @@ POST /verify
 ### **Return**
 成功
 ```
-{
-  "body": {},
-  "status": 1,
-  "msg": "success"
-}
+{u'status': 0, u'body': {u'count': 1, 'status': '4', u'room': u'R123', 'current_time': 1527574165, 'start_time': '1527574164', 'author': '', 'name': '', 'nick': '', 'end_time': '1527660564', u'members': [{u'nick': u'15608059720', u'fullname': u'15608059720', u'avatar': u'15608059720'}], 'sid': '0', 'duration': '86400', 'fullname': '', u'songs': []}, u'message': u'success', u'timestamp': '1527574165.09'}
 ```
 失败
 ```
