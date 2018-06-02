@@ -100,10 +100,10 @@ class ChatCenter(object):
         room_status = self.get_room_info(room)
         status = room_status.get('status')
         if status == RoomStatus.singing and room_status.get('fullname') == lefter.user.fullname:
-            self.room.set_rest(room)
-            # self.boardcast_in_room(None, room_status)
-        self.chat_register[room].remove(lefter)
+            room_status = self.room.set_rest(room)
+            rest_callback.apply_async((room, self.get_now_end_time(TIME_REST)), countdown=TIME_REST)
         self.boardcast_in_room(None, room_status)
+        self.chat_register[room].remove(lefter)
         logger.info('INFO socket {0} close from room {1}'.format(lefter.user.fullname, room))
 
     @coroutine
@@ -153,7 +153,7 @@ class ChatCenter(object):
         # 房间人数
         out_dict['count'] = self.members.get_set_count(room)
         out_dict['members'] = self.members.get_set_members(room)
-        out_dict['songs'] = self.songs.get_set_members(room)
+        out_dict['songs'] = self.songs.get_members(room)
         for k, v in result.items():
             out_dict[k] = v
         return out_dict
@@ -177,6 +177,8 @@ class ChatCenter(object):
             # sender.write_message()
             return
         song = self.songs.pop(message.room)
+        song['duration'] = message.duration
+        self.user_song.remove_member_from_set(message.room, message.fullname)
         if ack:
             res = self.room.set_song(message.room, song)
             # 广播房间状态

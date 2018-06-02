@@ -4,7 +4,7 @@
 
 ---
 
-**连接地址：ws://localhost:8888/**
+**连接地址：ws://mido.fibar.cn/**
 
 总体流程：
 
@@ -38,7 +38,13 @@
         "duration":"86400", # 此状态持续时长 （演唱时为歌曲时长）
         "fullname":"", # 麦上人 fullname （仅演唱状态时不为空）
         "songs":[ # 麦序
-
+            {
+                "nick":"皮皮",  # 排麦人昵称
+                "fullname":"13888888888", # 排麦人 fullname
+                "author":"dany", # 歌曲作者
+                "name":"dany", # 歌曲名称
+                "sid":"1" # 歌曲 id
+            }
         ]
     },
     "message":"success", # 状态信息
@@ -310,29 +316,40 @@ action: boardcast
 ```
 ```
 
-
-# HTTP 接口
-
 ## **排麦**
 
 ```
-POST /api/v2/singer/create
+action: sing
 ```
 ### **Parameters**
-* room(_Required_|string)-房间
-* sid(_Required_|string)- 歌曲 id
+* action(_Required_|string)-行为
+* fullname(_Required_|string)- 用户 fullname
 * token(_Required_|string)- 用户 token
+* room(_Required_|string)-房间 id
+* body(_Optional_|object)-可选数据
+* sid(_Required_|string)- 歌曲 id
 * duration(_Required_|string)-歌曲 时长 （秒）
 
 ### **Return**
 成功
 ```
 {
-    "body": {},
-    "status": 1,
-    "msg": "success"
+    "status":0,
+    "body":{
+
+    },
+    "message":"success",
+    "timestamp":"1527915490.31"
 }
 ```
 失败
 ```
+{
+    "status":-1,
+    "body":{
+
+    },
+    "message":"不能重复排麦",
+    "timestamp":"1527915707.61"
+}
 ```

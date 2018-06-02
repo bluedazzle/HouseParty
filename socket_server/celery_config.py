@@ -1,7 +1,7 @@
 # coding: utf-8
 
 from celery.schedules import crontab
-
+from cache import init_redis
 
 # CELERYBEAT_SCHEDULE = {
 #     'top-column-task': {
@@ -34,3 +34,4 @@ CELERYD_FORCE_EXECV = True  # 非常重要,有些情况下可以防止死锁
 
 CELERYD_PREFETCH_MULTIPLIER = 1
 
+init_redis()

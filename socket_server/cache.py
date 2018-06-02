@@ -202,6 +202,7 @@ class HashRedisProxy(RedisProxy):
         self.status.update(time_dict)
         self.status.update(song)
         self.status['room'] = key
+        self.status['status'] = RoomStatus.singing
         self.set(key, **self.status)
         return self.status
 
