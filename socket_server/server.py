@@ -47,7 +47,8 @@ class ChatCenter(object):
 
     def __init__(self):
         self.members = RedisProxy(redis_room, ROOM_MEMBER_KEY, 'fullname', ['fullname', 'nick', 'avatar'])
-        self.songs = ListRedisProxy(redis_room, ROOM_SONG_KEY, 'fullname', ['sid', 'name', 'author', 'nick', 'fullname'])
+        self.songs = ListRedisProxy(redis_room, ROOM_SONG_KEY, 'fullname',
+                                    ['sid', 'name', 'author', 'nick', 'fullname', 'duration'])
         self.user_song = RedisProxy(redis_room, USER_SONG_KEY, 'fullname', ['fullname'])
         self.room = HashRedisProxy(redis_room, ROOM_STATUS_KEY)
 
@@ -177,7 +178,6 @@ class ChatCenter(object):
             # sender.write_message()
             return
         song = self.songs.pop(message.room)
-        song['duration'] = message.duration
         self.user_song.remove_member_from_set(message.room, message.fullname)
         if ack:
             res = self.room.set_song(message.room, song)
@@ -215,7 +215,8 @@ class ChatCenter(object):
             sender.write_message(self.response_wrapper({}, STATUS_ERROR, '不能重复排麦'))
             return
 
-        self.songs.push(message.room, song.id, song.name, song.author, sender.user.nick, sender.user.fullname)
+        self.songs.push(message.room, song.id, song.name, song.author, sender.user.nick, sender.user.fullname,
+                        song.duration)
         self.user_song.create_update_set(message.room, sender.user.fullname)
         sender.write_message(self.response_wrapper({}))
 
@@ -225,7 +226,6 @@ class ChatCenter(object):
             res = self.room.set_ask(message.room, song.get('fullname'), song.get('name'))
             yield self.boardcast_in_room(sender, res)
             ask_callback.apply_async((message.room, self.get_now_end_time(TIME_ASK)), countdown=TIME_ASK)
-
 
     @coroutine
     def callback_trigger(self, home, message):
@@ -240,7 +240,7 @@ class ChatCenter(object):
                 logger.error("ERROR IN sending message: {0}, reason {1}".format(message, e))
         end = time.time()
         logging.info("Send message to {0} waiters, cost {1}s message: {2}".format(len(self.chat_register[home]),
-                                                                                      (end - start) * 1000.0, message))
+                                                                                  (end - start) * 1000.0, message))
 
     @coroutine
     def generate_new_room(self, room):
@@ -292,7 +292,6 @@ class RoomHandler(tornado.web.RequestHandler):
 
 
 class BoardCastHandler(tornado.web.RequestHandler):
-
     @coroutine
     def post(self, *args, **kwargs):
         message = json.loads(self.request.body)

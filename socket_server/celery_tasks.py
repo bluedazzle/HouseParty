@@ -48,7 +48,8 @@ def singing_callback(key, end_time):
 @app.task()
 def rest_callback(key, end_time):
     redis_room = redis.StrictRedis(host='localhost', port=6379, db=5)
-    songs = ListRedisProxy(redis_room, ROOM_SONG_KEY, 'fullname', ['sid', 'name', 'author', 'nick', 'fullname'])
+    songs = ListRedisProxy(redis_room, ROOM_SONG_KEY, 'fullname',
+                           ['sid', 'name', 'author', 'nick', 'fullname', 'duration'])
     room = HashRedisProxy(redis_room, ROOM_STATUS_KEY)
 
     now = int(time.time())
@@ -83,7 +84,8 @@ def rest_callback(key, end_time):
 def ask_callback(key, end_time):
     redis_room = redis.StrictRedis(host='localhost', port=6379, db=5)
     members = RedisProxy(redis_room, ROOM_MEMBER_KEY, 'fullname', ['fullname', 'nick', 'avatar'])
-    songs = ListRedisProxy(redis_room, ROOM_SONG_KEY, 'fullname', ['sid', 'name', 'author', 'nick', 'fullname'])
+    songs = ListRedisProxy(redis_room, ROOM_SONG_KEY, 'fullname',
+                           ['sid', 'name', 'author', 'nick', 'fullname', 'duration'])
     user_song = RedisProxy(redis_room, USER_SONG_KEY, 'fullname', ['fullname'])
     room = HashRedisProxy(redis_room, ROOM_STATUS_KEY)
 
