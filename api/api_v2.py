@@ -113,7 +113,7 @@ class UserAuthView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, JsonR
             status, openid, session = get_session_key(code)
             if status:
                 my_session = self.generate_session()
-                user = PartyUser.objects.filter(openid=openid)
+                user = PartyUser.objects.filter(wx_open_id=openid)
                 if user.exists():
                     user = user[0]
                     user.token = my_session
