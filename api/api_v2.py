@@ -17,8 +17,10 @@ from django.core.cache import cache
 from api.forms import VerifyCodeForm, UserResetForm, UserLoginForm, UserRegisterForm
 from api.paginator import SearchPaginator
 from core.Mixin.CheckMixin import CheckSecurityMixin, CheckTokenMixin
+from core.Mixin.JsonRequestMixin import JsonRequestMixin
 from core.Mixin.StatusWrapMixin import StatusWrapMixin, INFO_EXPIRE, ERROR_VERIFY, INFO_NO_VERIFY, ERROR_DATA, \
     ERROR_UNKNOWN, ERROR_PERMISSION_DENIED, ERROR_PASSWORD, INFO_NO_EXIST, INFO_EXISTED
+from core.Mixin import StatusWrapMixin as SW
 from core.dss.Mixin import JsonResponseMixin, MultipleJsonResponseMixin
 from core.hx import create_new_ease_user, update_ease_user
 from core.models import Verify, PartyUser, FriendRequest, FriendNotify, Hook, Room, DeleteNotify, Secret, Present, Song, \
@@ -29,6 +31,7 @@ from core.sms import send_sms
 from core.utils import upload_picture
 from django.utils.datastructures import MultiValueDict
 
+from core.wechat import get_session_key
 from socket_server.cache import songs, user_song, room, members, RedisProxy, ListRedisProxy
 
 import time
@@ -74,4 +77,74 @@ class NewSingerCreateView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, 
             songs.push(room.room_id, song.id, song.name, song.author, self.user.nick, self.user.fullname)
             user_song.create_update_set(room.room_id, self.user.fullname)
 
+        return self.render_to_response({})
+
+
+class UserAuthView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, JsonRequestMixin, DetailView):
+    model = PartyUser
+    http_method_names = ['get', 'post']
+
+    def generate_session(self, count=64):
+        ran = string.join(
+            random.sample('ZYXWVUTSRQPONMLKJIHGFEDCBA1234567890zyxwvutsrqponmlkjihgfedcbazyxwvutsrqponmlkjihgfedcba',
+                          count)).replace(" ", "")
+        return ran
+
+    def get(self, request, *args, **kwargs):
+        session = request.GET.get('token')
+        user = PartyUser.objects.filter(token=session)
+        if user.exists():
+            return self.render_to_response({})
+        self.message = 'token 已过期或不存在'
+        self.status_code = SW.ERROR_PERMISSION_DENIED
+        return self.render_to_response({})
+
+    def get_fullname(self):
+        s = Secret.objects.all()[0]
+        s.num += 1
+        s.save()
+        return s.num
+
+    def post(self, request, *args, **kwargs):
+        if not self.wrap_check_sign_result():
+            return self.render_to_response(dict())
+        code = request.POST.get('code', None)
+        if code:
+            status, openid, session = get_session_key(code)
+            if status:
+                my_session = self.generate_session()
+                user = PartyUser.objects.filter(openid=openid)
+                if user.exists():
+                    user = user[0]
+                    user.token = my_session
+                    user.save()
+                else:
+                    PartyUser(wx_open_id=openid, token=my_session, fullname=self.get_fullname()).save()
+                return self.render_to_response({'token': my_session})
+            self.message = 'code 错误'
+            self.status_code = SW.ERROR_VERIFY
+            return self.render_to_response({})
+        self.message = 'code 缺失'
+        self.status_code = SW.INFO_NO_EXIST
+        return self.render_to_response({})
+
+
+class UserView(CheckSecurityMixin, StatusWrapMixin, JsonRequestMixin, JsonResponseMixin, DetailView):
+    model = PartyUser
+    http_method_names = ['post']
+
+    def post(self, request, *args, **kwargs):
+        if not self.wrap_check_sign_result():
+            return self.render_to_response(dict())
+        session = request.POST.get('token')
+        user = PartyUser.objects.filter(session=session)
+        if user.exists():
+            user = user[0]
+            if not user.nick:
+                user.nick = request.POST.get('nick')
+                user.avatar = request.POST.get('avatar')
+                user.save()
+            return self.render_to_response({})
+        self.message = 'session 已过期或不存在'
+        self.status_code = SW.ERROR_PERMISSION_DENIED
         return self.render_to_response({})

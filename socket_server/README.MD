@@ -21,6 +21,8 @@
         "count":1, # 房间成员数量
         "status":"4", # 房间状态
         "room":"R123", # 房间 id
+        "cover": "xxx", # 房间封面
+        "room_name": "xxx", # 房间名称
         "current_time":1527574165, # 当前时间戳
         "start_time":"1527574164", # 此状态开始时间
         "author":"",  # 歌曲作者 （仅演唱状态时不为空）
@@ -43,7 +45,9 @@
                 "fullname":"13888888888", # 排麦人 fullname
                 "author":"dany", # 歌曲作者
                 "name":"dany", # 歌曲名称
-                "sid":"1" # 歌曲 id
+                "sid":"1", # 歌曲 id
+                "lrc": "xxx", # 歌词地址
+                "link": "xxx" # 歌曲地址
             }
         ]
     },

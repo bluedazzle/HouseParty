@@ -42,6 +42,7 @@ class Song(Base):
     name = Column(String)
     author = Column(String)
     link = Column(String)
+    lrc = Column(String)
     hash = Column(String)
     duration = Column(Integer)
 
