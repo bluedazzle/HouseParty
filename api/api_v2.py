@@ -83,6 +83,7 @@ class NewSingerCreateView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, 
 class UserAuthView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, JsonRequestMixin, DetailView):
     model = PartyUser
     http_method_names = ['get', 'post']
+    include_attr = ['fullname', 'nick', 'avatar', 'headline', 'token']
 
     def generate_session(self, count=64):
         ran = string.join(
@@ -94,7 +95,7 @@ class UserAuthView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, JsonR
         session = request.GET.get('token')
         user = PartyUser.objects.filter(token=session)
         if user.exists():
-            return self.render_to_response({})
+            return self.render_to_response(user)
         self.message = 'token 已过期或不存在'
         self.status_code = SW.ERROR_PERMISSION_DENIED
         return self.render_to_response({})
@@ -120,7 +121,7 @@ class UserAuthView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, JsonR
                     user.save()
                 else:
                     PartyUser(wx_open_id=openid, token=my_session, fullname=self.get_fullname()).save()
-                return self.render_to_response({'token': my_session})
+                return self.render_to_response(user)
             self.message = 'code 错误'
             self.status_code = SW.ERROR_VERIFY
             return self.render_to_response({})
@@ -132,6 +133,7 @@ class UserAuthView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, JsonR
 class UserView(CheckSecurityMixin, StatusWrapMixin, JsonRequestMixin, JsonResponseMixin, DetailView):
     model = PartyUser
     http_method_names = ['post']
+    include_attr = ['fullname', 'nick', 'avatar', 'headline', 'token']
 
     def post(self, request, *args, **kwargs):
         if not self.wrap_check_sign_result():
@@ -144,7 +146,7 @@ class UserView(CheckSecurityMixin, StatusWrapMixin, JsonRequestMixin, JsonRespon
                 user.nick = request.POST.get('nick')
                 user.avatar = request.POST.get('avatar')
                 user.save()
-            return self.render_to_response({})
+            return self.render_to_response(user)
         self.message = 'token 已过期或不存在'
         self.status_code = SW.ERROR_PERMISSION_DENIED
         return self.render_to_response({})
