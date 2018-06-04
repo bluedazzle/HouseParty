@@ -4,11 +4,13 @@ from __future__ import unicode_literals
 import json
 import requests
 
-from django.core.cache import cache
+# from django.core.cache import cache
 from django.utils import timezone
 
-APP_KEY = 'wx922e48f2a5c2c1ee'
-APP_SECRET = 'dd1f635ce5758ddb3d8f9049c8752963'
+# APP_KEY = 'wx922e48f2a5c2c1ee'
+APP_KEY = 'wx55112dd988c846bf'
+APP_SECRET = '68a277c3a51e3d77d72f98cc372b1b99'
+# APP_SECRET = 'dd1f635ce5758ddb3d8f9049c8752963'
 
 
 def get_access_token():
