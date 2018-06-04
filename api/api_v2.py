@@ -137,7 +137,7 @@ class UserView(CheckSecurityMixin, StatusWrapMixin, JsonRequestMixin, JsonRespon
         if not self.wrap_check_sign_result():
             return self.render_to_response(dict())
         session = request.POST.get('token')
-        user = PartyUser.objects.filter(session=session)
+        user = PartyUser.objects.filter(token=session)
         if user.exists():
             user = user[0]
             if not user.nick:
@@ -145,6 +145,6 @@ class UserView(CheckSecurityMixin, StatusWrapMixin, JsonRequestMixin, JsonRespon
                 user.avatar = request.POST.get('avatar')
                 user.save()
             return self.render_to_response({})
-        self.message = 'session 已过期或不存在'
+        self.message = 'token 已过期或不存在'
         self.status_code = SW.ERROR_PERMISSION_DENIED
         return self.render_to_response({})
