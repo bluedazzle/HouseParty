@@ -268,13 +268,13 @@ class ChatCenter(object):
 
     @coroutine
     def generate_new_room(self, room):
+        room_obj = session.query(Room).filter(Room.room_id == room).first()
+        if not room_obj:
+            return False
         if room not in self.chat_register:
-            room_obj = session.query(Room).filter(Room.room_id == room).first()
-            if room_obj:
-                self.chat_register[room] = set()
-                self.room.set_init(room, room_obj.name, room_obj.cover)
-                return True
-        return False
+            self.chat_register[room] = set()
+            self.room.set_init(room, room_obj.name, room_obj.cover)
+        return True
 
     @coroutine
     def distribute_room(self, sender, message):
