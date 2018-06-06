@@ -23,6 +23,7 @@ def singing_callback(key, end_time):
     room = HashRedisProxy(redis_room, ROOM_STATUS_KEY)
 
     now = int(time.time())
+    end_time = int(end_time)
     room_status = room.get(key)
     status = room_status.get('status')
     if status != RoomStatus.singing:
@@ -64,6 +65,7 @@ def rest_callback(key, end_time):
             'WARNING in rest callback room {0} rest is not over yet, end time {1} now {2}'.format(key, end_time,
                                                                                                   now))
         delay = end_time - now + 2
+        logging.warning('delay: {0}'.format(delay))
         # rest_callback.apply_async((key, end_time), countdown=delay)
         current_app.send_task('celery_tasks.rest_callback', args=[key, end_time], countdown=delay)
         return
