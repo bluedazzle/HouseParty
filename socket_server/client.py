@@ -9,6 +9,7 @@ import logging.handlers
 import json
 from tornado.ioloop import IOLoop
 
+
 __author__ = "Ennis"
 SERVER_URL = "ws://127.0.0.1:8888/"
 
@@ -113,3 +114,10 @@ if __name__ == '__main__':
     ws = Communicator()
     ws.start()
     io_loop.start()
+    # import pylru
+    #
+    # lru = pylru.lrucache(3)
+    # import time
+    # for i in xrange(3):
+    #     lru[time.time()] = {'fullname': 'xx{0}'.format(i), 'message': 'test{0}'.format(i)}
+    # print {k: v for (k, v) in sorted(zip(lru.table.keys(), [itm.value for itm in lru.table.values()]), key=lambda x: -x[0])}

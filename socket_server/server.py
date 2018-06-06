@@ -40,6 +40,7 @@ class ChatCenter(object):
     '''
     newer = 'newer'
     chat_register = {'newer': set()}
+    chat_history = {}
     members = None
     songs = None
     user = None
@@ -66,10 +67,11 @@ class ChatCenter(object):
         now = int(time.time())
         return now + duration
 
-    def response_wrapper(self, message, status=STATUS_SUCCESS, msg='success'):
+    def response_wrapper(self, message, status=STATUS_SUCCESS, msg='success', msg_type=1):
         chat = {
             # "id": str(uuid.uuid4()),
             "status": status,
+            "type": msg_type,
             "body": message,
             "message": msg,
             "timestamp": str(time.time()),
@@ -122,12 +124,15 @@ class ChatCenter(object):
             }
         '''
         message = self.parameter_wrapper(message)
-        logger.info('INFO recv message {0}'.format(message))
+        logger.info('INFO recv message {0}'.format(message.raw))
         urls = {'join': self.distribute_room,
                 'status': self.room_info,
                 'ask': self.ask_singing,
                 'cut': self.cut_song,
                 'sing': self.pick_song,
+                'heart': self.heart_beat,
+                'chat': self.send_chat,
+                'history': self.get_chat_his,
                 'boardcast': self.boardcast_in_room}
         view_func = urls.get(message.action, self.boardcast_in_room)
         if message.action in ['ask', 'cut', 'sing', 'status']:
@@ -176,10 +181,34 @@ class ChatCenter(object):
         msg = self.get_room_info(message.room)
         yield sender.write_message(self.response_wrapper(msg))
 
+    @coroutine
+    def get_chat_his(self, sender, message):
+        lru = self.chat_history[message.room]
+        chats = {k: v for (k, v) in
+                 sorted(zip(lru.table.keys(), [itm.value for itm in lru.table.values()]), key=lambda x: -x[0])}
+        yield sender.write_message(self.response_wrapper(chats, msg_type=2))
+
     # 路由 广播
     @coroutine
     def boardcast_in_room(self, sender, message):
+        if isinstance(message, WsMessage):
+            message = message.raw
         yield self.callback_trigger(message.get('room'), self.response_wrapper(message))
+
+    # 心跳包
+    @coroutine
+    def heart_beat(self, sender, message):
+        yield sender.write_message(self.response_wrapper({'heart': 'success'}))
+
+    # 聊天
+    @coroutine
+    def send_chat(self, sender, message):
+        lru = self.chat_history.get(message.room)
+        chat = {'fullname': sender.user.fullname, 'nick': sender.user.nick, 'content': message.content}
+        lru[time.time()] = chat
+        chat['action'] = 'chat'
+        chat['room'] = message.room
+        yield self.callback_trigger(message.room, self.response_wrapper(chat, msg_type=2))
 
     @coroutine
     def ask_singing(self, sender, message):
@@ -223,7 +252,6 @@ class ChatCenter(object):
         yield self.boardcast_in_room(sender, res)
         rest_callback.apply_async((message.room, self.get_now_end_time(TIME_REST)), countdown=TIME_REST)
 
-
     @coroutine
     def pick_song(self, sender, message):
         sid = message.sid
@@ -243,13 +271,13 @@ class ChatCenter(object):
         self.user_song.create_update_set(message.room, sender.user.fullname)
         yield sender.write_message(self.response_wrapper({}))
 
-        room_status = self.room.get(message.room)
+        room_status = self.get_room_info(message.room)
         if room_status.get('status') == RoomStatus.free:
             song = self.songs.get(message.room)
             res = self.room.set_ask(message.room, song.get('fullname'), song.get('name'))
-            res = self.get_room_info(message.room)
-            yield self.boardcast_in_room(sender, res)
+            room_status = self.get_room_info(message.room)
             ask_callback.apply_async((message.room, self.get_now_end_time(TIME_ASK)), countdown=TIME_ASK)
+        yield self.boardcast_in_room(sender, room_status)
 
     @coroutine
     def callback_trigger(self, home, message):
@@ -268,11 +296,13 @@ class ChatCenter(object):
 
     @coroutine
     def generate_new_room(self, room):
+        import pylru
         room_obj = session.query(Room).filter(Room.room_id == room).first()
         if not room_obj:
             return False
         if room not in self.chat_register:
             self.chat_register[room] = set()
+            self.chat_history[room] = pylru.lrucache(200)
             self.room.set_init(room, room_obj.name, room_obj.cover)
         return True
 
