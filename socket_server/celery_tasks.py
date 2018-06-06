@@ -21,6 +21,8 @@ app.config_from_object('celery_config')
 def singing_callback(key, end_time):
     redis_room = redis.StrictRedis(host='localhost', port=6379, db=5)
     room = HashRedisProxy(redis_room, ROOM_STATUS_KEY)
+    songs = ListRedisProxy(redis_room, ROOM_SONG_KEY, 'fullname',
+                           ['sid', 'name', 'author', 'nick', 'fullname', 'duration', 'lrc', 'link'])
 
     now = int(time.time())
     end_time = int(end_time)
@@ -39,6 +41,7 @@ def singing_callback(key, end_time):
         # singing_callback.apply_async((key, end_time), countdown=delay)
         return
     res = room.set_rest(key)
+    res['songs'] = songs.get_members(key)
     # 广播其他人状态
     send_board_cast_msg(res)
     current_app.send_task('celery_tasks.rest_callback', args=[key, end_time], countdown=TIME_REST)
@@ -74,6 +77,7 @@ def rest_callback(key, end_time):
         res = room.set_rest(key, True)
     else:
         res = room.set_ask(key, song.get('fullname'), song.get('name'))
+        res['songs'] = songs.get_members(key)
         end_time = int(time.time()) + TIME_ASK
         current_app.send_task('celery_tasks.ask_callback', args=[key, end_time], countdown=TIME_ASK)
         # ask_callback.apply_async((key, end_time), countdown=TIME_ASK)
@@ -113,6 +117,7 @@ def ask_callback(key, end_time):
         res = room.set_rest(key, True)
     else:
         res = room.set_ask(key, song.get('fullname'), song.get('name'))
+        res['songs'] = songs.get_members(key)
         end_time = int(time.time()) + TIME_ASK
         current_app.send_task('celery_tasks.ask_callback', args=[key, end_time], countdown=TIME_ASK)
         # ask_callback.apply_async((key, end_time), countdown=TIME_ASK)

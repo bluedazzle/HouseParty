@@ -6,7 +6,7 @@ import logging
 
 
 def send_board_cast_msg(message):
-    url = 'http://127.0.0.1:8888/board'
+    url = 'http://127.0.0.1:8079/board'
     try:
         requests.post(url, json=message, timeout=5)
     except Exception as e:
