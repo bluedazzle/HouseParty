@@ -168,11 +168,11 @@ class ChatCenter(object):
         #     out_dict['name'] = room_obj.name
         #     out_dict['cover'] = room_obj.cover
         # 房间人数
+        for k, v in result.items():
+            out_dict[k] = v
         out_dict['count'] = self.members.get_set_count(room)
         out_dict['members'] = self.members.get_set_members(room)
         out_dict['songs'] = self.songs.get_members(room)
-        for k, v in result.items():
-            out_dict[k] = v
         return out_dict
 
     # 路由 房间信息
