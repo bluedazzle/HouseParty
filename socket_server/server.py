@@ -124,18 +124,25 @@ class ChatCenter(object):
             }
         '''
         message = self.parameter_wrapper(message)
-        logger.info('INFO recv message {0}'.format(message.raw))
+        msg = ''
+        for k, v in message.raw.items():
+            msg = '{0}\r\n{1}: {2}'.format(msg, k, v)
+        logger.info('INFO recv message: {0}'.format(msg))
         urls = {'join': self.distribute_room,
                 'status': self.room_info,
                 'ask': self.ask_singing,
                 'cut': self.cut_song,
+                'del': self.del_song,
                 'sing': self.pick_song,
                 'heart': self.heart_beat,
                 'chat': self.send_chat,
                 'history': self.get_chat_his,
+                'device': self.send_device_msg,
                 'boardcast': self.boardcast_in_room}
-        view_func = urls.get(message.action, self.boardcast_in_room)
-        if message.action in ['ask', 'cut', 'sing', 'status']:
+        view_func = urls.get(message.action, None)
+        if not view_func:
+            return
+        if message.action in ['ask', 'cut', 'sing', 'status', 'history', 'chat', 'heart', 'device']:
             if not self.user_room.exist(message.room, message.fullname):
                 sender.write_message(self.response_wrapper({}, STATUS_ERROR, '请先进入房间'))
                 return
@@ -185,7 +192,7 @@ class ChatCenter(object):
     def get_chat_his(self, sender, message):
         lru = self.chat_history[message.room]
         chats = {k: v for (k, v) in
-                 sorted(zip(lru.table.keys(), [itm.value for itm in lru.table.values()]), key=lambda x: -x[0])}
+                 sorted(zip(lru.table.keys(), [itm.value for itm in lru.table.values()]), key=lambda x: -float(x[0]))}
         yield sender.write_message(self.response_wrapper(chats, msg_type=2))
 
     # 路由 广播
@@ -198,7 +205,7 @@ class ChatCenter(object):
     # 心跳包
     @coroutine
     def heart_beat(self, sender, message):
-        yield sender.write_message(self.response_wrapper({'heart': 'success'}))
+        yield sender.write_message(self.response_wrapper({'heart': 'success'}, msg_type=2))
 
     # 聊天
     @coroutine
@@ -209,6 +216,14 @@ class ChatCenter(object):
         chat['action'] = 'chat'
         chat['room'] = message.room
         yield self.callback_trigger(message.room, self.response_wrapper(chat, msg_type=2))
+
+    # 设备消息
+    @coroutine
+    def send_device_msg(self, sender, message):
+        msg = {'fullname': message.fullname, "room": message.room}
+        msg["device"] = message.device
+        msg["value"] = message.value
+        yield self.callback_trigger(message.room, self.response_wrapper(msg, msg_type=2))
 
     @coroutine
     def ask_singing(self, sender, message):
@@ -251,6 +266,19 @@ class ChatCenter(object):
         res = self.get_room_info(message.room)
         yield self.boardcast_in_room(sender, res)
         rest_callback.apply_async((message.room, self.get_now_end_time(TIME_REST)), countdown=TIME_REST)
+
+    @coroutine
+    def del_song(self, sender, message):
+        index = self.songs.search(message.room, message.fullname)
+        if index > -1:
+            self.songs.remove(message.room, index)
+            self.user_song.remove_member_from_set(message.room, message.fullname)
+            yield sender.write_message(self.response_wrapper({}, msg='取消排麦成功'))
+            room_status = self.get_room_info(message.room)
+            yield self.boardcast_in_room(sender, room_status)
+            return
+        else:
+            yield sender.write_message(self.response_wrapper({}, STATUS_ERROR, msg='未找到麦序'))
 
     @coroutine
     def pick_song(self, sender, message):

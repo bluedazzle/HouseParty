@@ -357,3 +357,231 @@ action: sing
     "timestamp":"1527915707.61"
 }
 ```
+
+## **取消排麦**
+
+```
+action: del
+```
+### **Parameters**
+* action(_Required_|string)-行为
+* fullname(_Required_|string)- 用户 fullname
+* token(_Required_|string)- 用户 token
+* room(_Required_|string)-房间 id
+
+### **Return**
+成功
+```
+{
+    "status":0,
+    "body":{
+
+    },
+    "message":"取消排麦成功",
+    "timestamp":"1527915490.31"
+}
+```
+失败
+```
+{
+    "status":-1,
+    "body":{
+
+    },
+    "message":"不能重复排麦",
+    "timestamp":"1527915707.61"
+}
+```
+
+
+## **心跳包**
+
+```
+action: heart
+```
+### **Parameters**
+* action(_Required_|string)-行为
+* fullname(_Required_|string)- 用户 fullname
+* token(_Required_|string)- 用户 token
+* room(_Required_|string)-房间 id
+
+### **Return**
+成功
+```
+{
+    "status":0,
+    "body":{
+        "heart":"success"
+    },
+    "message":"success",
+    "type":1,
+    "timestamp":"1528381016.1"
+}
+```
+失败
+```
+{
+    "status":-1,
+    "body":{
+
+    },
+    "message":"",
+    "timestamp":"1527915707.61"
+}
+```
+
+## **发送聊天**
+
+```
+action: chat
+```
+### **Parameters**
+* action(_Required_|string)-行为
+* fullname(_Required_|string)- 用户 fullname
+* token(_Required_|string)- 用户 token
+* room(_Required_|string)-房间 id
+* content(_Required_|string)-聊天消息
+
+
+### **Return**
+成功
+```
+{
+    "status":0,
+    "body":{
+        "content":"test",
+        "nick":"皮皮",
+        "fullname":"13888888888",
+        "action":"chat",
+        "room":"R123"
+    },
+    "message":"success",
+    "type":2,
+    "timestamp":"1528381126.71"
+}
+```
+失败
+```
+{
+    "status":-1,
+    "body":{
+
+    },
+    "message":"",
+    "timestamp":"1527915707.61"
+}
+```
+
+## **获取聊天历史**
+
+```
+action: history
+```
+### **Parameters**
+* action(_Required_|string)-行为
+* fullname(_Required_|string)- 用户 fullname
+* token(_Required_|string)- 用户 token
+* room(_Required_|string)-房间 id
+
+
+### **Return**
+成功
+```
+{
+    "status":0,
+    "body":{
+        "1528381227.002182":{
+            "content":"test",
+            "nick":"皮皮",
+            "fullname":"13888888888",
+            "action":"chat",
+            "room":"R123"
+        },
+        "1528381226.274113":{
+            "content":"test",
+            "nick":"皮皮",
+            "fullname":"13888888888",
+            "action":"chat",
+            "room":"R123"
+        },
+        "1528381227.659472":{
+            "content":"test",
+            "nick":"皮皮",
+            "fullname":"13888888888",
+            "action":"chat",
+            "room":"R123"
+        },
+        "1528381229.297708":{
+            "content":"test",
+            "nick":"皮皮",
+            "fullname":"13888888888",
+            "action":"chat",
+            "room":"R123"
+        },
+        "1528381126.711908":{
+            "content":"test",
+            "nick":"皮皮",
+            "fullname":"13888888888",
+            "action":"chat",
+            "room":"R123"
+        }
+    },
+    "message":"success",
+    "type":2,
+    "timestamp":"1528381236.51"
+}
+```
+失败
+```
+{
+    "status":-1,
+    "body":{
+
+    },
+    "message":"",
+    "timestamp":"1527915707.61"
+}
+```
+
+## **发送设备信息**
+
+```
+action: device
+```
+### **Parameters**
+* action(_Required_|string)-行为
+* fullname(_Required_|string)- 用户 fullname
+* token(_Required_|string)- 用户 token
+* room(_Required_|string)-房间 id
+* device(_Required_|string)- 设备类型 （麦克风、摄像头）
+* value(_Required_|string)- 开关 0 关 1 开
+
+
+
+### **Return**
+成功
+```
+{
+    "status":0,
+    "body":{
+        "device":"video",
+        "fullname":"15608059720",
+        "room":"R123",
+        "value":0
+    },
+    "message":"success",
+    "type":2,
+    "timestamp":"1528384592.1"
+}
+```
+失败
+```
+{
+    "status":-1,
+    "body":{
+
+    },
+    "message":"",
+    "timestamp":"1527915707.61"
+}
+```
