@@ -489,46 +489,59 @@ action: history
 ```
 {
     "status":0,
-    "body":{
-        "1528381227.002182":{
+    "body":[
+        {
             "content":"test",
-            "nick":"皮皮",
-            "fullname":"13888888888",
+            "nick":"15608059720",
+            "room":"R123",
             "action":"chat",
-            "room":"R123"
+            "timestamp":1528449835.640356,
+            "fullname":"15608059720"
         },
-        "1528381226.274113":{
+        {
             "content":"test",
-            "nick":"皮皮",
-            "fullname":"13888888888",
+            "nick":"15608059720",
+            "room":"R123",
             "action":"chat",
-            "room":"R123"
+            "timestamp":1528449829.496153,
+            "fullname":"15608059720"
         },
-        "1528381227.659472":{
+        {
             "content":"test",
-            "nick":"皮皮",
-            "fullname":"13888888888",
+            "nick":"15608059720",
+            "room":"R123",
             "action":"chat",
-            "room":"R123"
+            "timestamp":1528449829.11485,
+            "fullname":"15608059720"
         },
-        "1528381229.297708":{
+        {
             "content":"test",
-            "nick":"皮皮",
-            "fullname":"13888888888",
+            "nick":"15608059720",
+            "room":"R123",
             "action":"chat",
-            "room":"R123"
+            "timestamp":1528449828.6196,
+            "fullname":"15608059720"
         },
-        "1528381126.711908":{
+        {
             "content":"test",
-            "nick":"皮皮",
-            "fullname":"13888888888",
+            "nick":"15608059720",
+            "room":"R123",
             "action":"chat",
-            "room":"R123"
+            "timestamp":1528449828.198985,
+            "fullname":"15608059720"
+        },
+        {
+            "content":"test",
+            "nick":"15608059720",
+            "room":"R123",
+            "action":"chat",
+            "timestamp":1528449827.558498,
+            "fullname":"15608059720"
         }
-    },
+    ],
     "message":"success",
     "type":2,
-    "timestamp":"1528381236.51"
+    "timestamp":"1528449863.58"
 }
 ```
 失败

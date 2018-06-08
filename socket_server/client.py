@@ -109,15 +109,21 @@ class Communicator(object):
 
 
 if __name__ == '__main__':
-    init_logging()
-    io_loop = IOLoop.instance()
-    ws = Communicator()
-    ws.start()
-    io_loop.start()
-    # import pylru
-    #
-    # lru = pylru.lrucache(3)
-    # import time
-    # for i in xrange(3):
-    #     lru[time.time()] = {'fullname': 'xx{0}'.format(i), 'message': 'test{0}'.format(i)}
-    # print {k: v for (k, v) in sorted(zip(lru.table.keys(), [itm.value for itm in lru.table.values()]), key=lambda x: -x[0])}
+    # init_logging()
+    # io_loop = IOLoop.instance()
+    # ws = Communicator()
+    # ws.start()
+    # io_loop.start()
+    import pylru
+
+    lru = pylru.lrucache(3)
+    import time
+    for i in xrange(3):
+        lru[time.time()] = {'fullname': 'xx{0}'.format(i), 'message': 'test{0}'.format(i)}
+    raw_msg = zip(lru.table.keys(), [itm.value for itm in lru.table.values()])
+    output = []
+    for k,v in raw_msg:
+        v.update({'timestamp': k})
+        output.append(v)
+    print sorted(output, key=lambda x: x['timestamp'], reverse=True)
+

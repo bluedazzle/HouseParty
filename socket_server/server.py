@@ -191,9 +191,13 @@ class ChatCenter(object):
     @coroutine
     def get_chat_his(self, sender, message):
         lru = self.chat_history[message.room]
-        chats = {k: v for (k, v) in
-                 sorted(zip(lru.table.keys(), [itm.value for itm in lru.table.values()]), key=lambda x: -float(x[0]))}
-        yield sender.write_message(self.response_wrapper(chats, msg_type=2))
+        raw_msg = zip(lru.table.keys(), [itm.value for itm in lru.table.values()])
+        output = []
+        for k, v in raw_msg:
+            v.update({'timestamp': k})
+            output.append(v)
+        output = sorted(output, key=lambda x: x['timestamp'], reverse=True)
+        yield sender.write_message(self.response_wrapper(output, msg_type=2))
 
     # 路由 广播
     @coroutine
