@@ -67,7 +67,7 @@ class ChatCenter(object):
         now = int(time.time())
         return now + duration
 
-    def response_wrapper(self, message, status=STATUS_SUCCESS, msg='success', msg_type=1):
+    def response_wrapper(self, message, status=STATUS_SUCCESS, msg='success', msg_type=1, raw_message=None):
         chat = {
             # "id": str(uuid.uuid4()),
             "status": status,
@@ -76,6 +76,9 @@ class ChatCenter(object):
             "message": msg,
             "timestamp": str(time.time()),
         }
+        if raw_message:
+            chat['caller_action'] = raw_message.action
+            chat['caller_fullname'] = raw_message.fullname
         return chat
 
     def register(self, newer):
@@ -108,7 +111,7 @@ class ChatCenter(object):
         if status == RoomStatus.singing and room_status.get('fullname') == lefter.user.fullname:
             room_status = self.room.set_rest(room)
             rest_callback.apply_async((room, self.get_now_end_time(TIME_REST)), countdown=TIME_REST)
-        self.boardcast_in_room(None, room_status)
+        self.boardcast_in_room(None, room_status, None)
         self.chat_register[room].remove(lefter)
         logger.info('INFO socket {0} close from room {1}'.format(lefter.user.fullname, room))
 
@@ -144,11 +147,11 @@ class ChatCenter(object):
             return
         if message.action in ['ask', 'cut', 'sing', 'status', 'history', 'chat', 'heart', 'device']:
             if not self.user_room.exist(message.room, message.fullname):
-                sender.write_message(self.response_wrapper({}, STATUS_ERROR, '请先进入房间'))
+                sender.write_message(self.response_wrapper({}, STATUS_ERROR, '请先进入房间', raw_message=message))
                 return
         if message.action in ['join']:
             if self.user_room.exist(message.room, message.fullname):
-                sender.write_message(self.response_wrapper({}, STATUS_ERROR, '你已在房间中'))
+                sender.write_message(self.response_wrapper({}, STATUS_ERROR, '你已在房间中', raw_message=message))
                 return
         yield view_func(sender, message)
 
@@ -186,7 +189,7 @@ class ChatCenter(object):
     @coroutine
     def room_info(self, sender, message):
         msg = self.get_room_info(message.room)
-        yield sender.write_message(self.response_wrapper(msg))
+        yield sender.write_message(self.response_wrapper(msg, raw_message=message))
 
     @coroutine
     def get_chat_his(self, sender, message):
@@ -197,19 +200,21 @@ class ChatCenter(object):
             v.update({'timestamp': k})
             output.append(v)
         output = sorted(output, key=lambda x: x['timestamp'], reverse=True)
-        yield sender.write_message(self.response_wrapper(output, msg_type=2))
+        yield sender.write_message(self.response_wrapper(output, msg_type=2, raw_message=message))
 
     # 路由 广播
     @coroutine
     def boardcast_in_room(self, sender, message):
         if isinstance(message, WsMessage):
             message = message.raw
+            yield self.callback_trigger(message.get('room'), self.response_wrapper(message, raw_message=message))
+            return
         yield self.callback_trigger(message.get('room'), self.response_wrapper(message))
 
     # 心跳包
     @coroutine
     def heart_beat(self, sender, message):
-        yield sender.write_message(self.response_wrapper({'heart': 'success'}, msg_type=2))
+        yield sender.write_message(self.response_wrapper({'heart': 'success'}, msg_type=2, raw_message=message))
 
     # 聊天
     @coroutine
@@ -219,7 +224,7 @@ class ChatCenter(object):
         lru[time.time()] = chat
         chat['action'] = 'chat'
         chat['room'] = message.room
-        yield self.callback_trigger(message.room, self.response_wrapper(chat, msg_type=2))
+        yield self.callback_trigger(message.room, self.response_wrapper(chat, msg_type=2, raw_message=message))
 
     # 设备消息
     @coroutine
@@ -227,18 +232,18 @@ class ChatCenter(object):
         msg = {'fullname': message.fullname, "room": message.room}
         msg["device"] = message.device
         msg["value"] = message.value
-        yield self.callback_trigger(message.room, self.response_wrapper(msg, msg_type=2))
+        yield self.callback_trigger(message.room, self.response_wrapper(msg, msg_type=2, raw_message=message))
 
     @coroutine
     def ask_singing(self, sender, message):
         ack = message.ack
         res = self.get_room_info(message.room)
         if res.get('status') != RoomStatus.ask:
-            yield sender.write_message(self.response_wrapper({}, STATUS_ERROR, '当前状态不能上麦/不能重复上麦'))
+            yield sender.write_message(self.response_wrapper({}, STATUS_ERROR, '当前状态不能上麦/不能重复上麦', raw_message=message))
             return
         song = self.songs.get(message.room)
         if song.get('fullname') != message.fullname:
-            yield sender.write_message(self.response_wrapper({}, STATUS_ERROR, '不能演唱不是自己点的歌~'))
+            yield sender.write_message(self.response_wrapper({}, STATUS_ERROR, '不能演唱不是自己点的歌~', raw_message=message))
             return
         song = self.songs.pop(message.room)
         song['duration'] = int(song.get('duration'), 0)
@@ -261,10 +266,10 @@ class ChatCenter(object):
     def cut_song(self, sender, message):
         room_status = self.room.get(message.room)
         if room_status.get('status') != RoomStatus.singing:
-            yield sender.write_message(self.response_wrapper({}, STATUS_ERROR, '当前不可切歌'))
+            yield sender.write_message(self.response_wrapper({}, STATUS_ERROR, '当前不可切歌', raw_message=message))
             return
         if room_status.get('fullname') != message.fullname:
-            yield sender.write_message(self.response_wrapper({}, STATUS_ERROR, '只有演唱者才能切歌'))
+            yield sender.write_message(self.response_wrapper({}, STATUS_ERROR, '只有演唱者才能切歌', raw_message=message))
             return
         res = self.room.set_rest(message.room)
         res = self.get_room_info(message.room)
@@ -277,31 +282,31 @@ class ChatCenter(object):
         if index > -1:
             self.songs.remove(message.room, index)
             self.user_song.remove_member_from_set(message.room, message.fullname)
-            yield sender.write_message(self.response_wrapper({}, msg='取消排麦成功'))
+            yield sender.write_message(self.response_wrapper({}, msg='取消排麦成功', raw_message=message))
             room_status = self.get_room_info(message.room)
             yield self.boardcast_in_room(sender, room_status)
             return
         else:
-            yield sender.write_message(self.response_wrapper({}, STATUS_ERROR, msg='未找到麦序'))
+            yield sender.write_message(self.response_wrapper({}, STATUS_ERROR, msg='未找到麦序', raw_message=message))
 
     @coroutine
     def pick_song(self, sender, message):
         sid = message.sid
         song = session.query(Song).filter(Song.id == sid).one()
         if not song:
-            yield sender.write_message(self.response_wrapper({}, STATUS_ERROR, '歌曲不存在'))
+            yield sender.write_message(self.response_wrapper({}, STATUS_ERROR, '歌曲不存在', raw_message=message))
             return
         duration = message.duration
         song.duration = duration
         session.commit()
         if self.user_song.exist(message.room, sender.user.fullname):
-            yield sender.write_message(self.response_wrapper({}, STATUS_ERROR, '不能重复排麦'))
+            yield sender.write_message(self.response_wrapper({}, STATUS_ERROR, '不能重复排麦', raw_message=message))
             return
 
         self.songs.push(message.room, song.id, song.name, song.author, sender.user.nick, sender.user.fullname,
                         song.duration, song.lrc, song.link)
         self.user_song.create_update_set(message.room, sender.user.fullname)
-        yield sender.write_message(self.response_wrapper({}))
+        yield sender.write_message(self.response_wrapper({}, raw_message=message))
 
         room_status = self.get_room_info(message.room)
         if room_status.get('status') == RoomStatus.free:
@@ -342,7 +347,7 @@ class ChatCenter(object):
     def distribute_room(self, sender, message):
         result = yield self.generate_new_room(message.room)
         if not result:
-            yield sender.write_message(self.response_wrapper({}, STATUS_ERROR, '房间不存在'))
+            yield sender.write_message(self.response_wrapper({}, STATUS_ERROR, '房间不存在', raw_message=message))
             return
         sender.room_id = message.room
         sender.token = message.token
@@ -357,7 +362,7 @@ class ChatCenter(object):
             res = self.get_room_info(message.room)
             yield self.boardcast_in_room(sender, res)
             return
-        yield sender.write_message(self.response_wrapper({}, STATUS_ERROR, '用户不存在'))
+        yield sender.write_message(self.response_wrapper({}, STATUS_ERROR, '用户不存在', raw_message=message))
 
 
 class Application(tornado.web.Application):

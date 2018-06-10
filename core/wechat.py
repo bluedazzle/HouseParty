@@ -54,7 +54,7 @@ def get_session_key(code):
         APP_KEY, APP_SECRET, code)
     res = requests.get(url).content
     json_data = json.loads(res)
-    openid = json_data.get('openid', None)
+    openid = json_data.get('unionid', None) or json_data.get('openid', None)
     session = json_data.get('session_key', None)
     if openid and session:
         return True, openid, session
