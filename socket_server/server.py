@@ -111,7 +111,7 @@ class ChatCenter(object):
         if status == RoomStatus.singing and room_status.get('fullname') == lefter.user.fullname:
             room_status = self.room.set_rest(room)
             rest_callback.apply_async((room, self.get_now_end_time(TIME_REST)), countdown=TIME_REST)
-        self.boardcast_in_room(None, room_status, None)
+        self.boardcast_in_room(None, room_status)
         self.chat_register[room].remove(lefter)
         logger.info('INFO socket {0} close from room {1}'.format(lefter.user.fullname, room))
 
