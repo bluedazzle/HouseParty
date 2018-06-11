@@ -5,7 +5,7 @@ from core.models import *
 # Register your models here.
 
 class UserAdmin(admin.ModelAdmin):
-    search_fields = ['fullname', ]
+    search_fields = ['fullname', 'phone', 'nick']
 
 class SongAdmin(admin.ModelAdmin):
     search_fields = ['name', 'author']
