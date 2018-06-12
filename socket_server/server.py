@@ -50,7 +50,7 @@ class ChatCenter(object):
     def __init__(self):
         self.members = RedisProxy(redis_room, ROOM_MEMBER_KEY, 'fullname', ['fullname', 'nick', 'avatar'])
         self.songs = ListRedisProxy(redis_room, ROOM_SONG_KEY, 'fullname',
-                                    ['sid', 'name', 'author', 'nick', 'fullname', 'duration', 'lrc', 'link'])
+                                    ['sid', 'name', 'author', 'nick', 'fullname', 'duration', 'lrc', 'link', 'avatar'])
         self.user_song = RedisProxy(redis_room, USER_SONG_KEY, 'fullname', ['fullname'])
         self.user_room = RedisProxy(redis_room, USER_ROOM_KEY, 'fullname', ['fullname'])
         self.room = HashRedisProxy(redis_room, ROOM_STATUS_KEY)
@@ -258,10 +258,13 @@ class ChatCenter(object):
             singing_callback.apply_async((message.room, res.get('end_time')), countdown=int(res.get('duration')))
         else:
             song = self.songs.get(message.room)
-            res = self.room.set_ask(message.room, song.get('fullname'), song.get('name'))
+            if not song:
+                self.room.set_rest(key, True)
+            else:
+                self.room.set_ask(message.room, song.get('fullname'), song.get('name'))
+                ask_callback.apply_async((message.room, self.get_now_end_time(TIME_ASK)), countdown=TIME_ASK)
             res = self.get_room_info(message.room)
             yield self.boardcast_in_room(sender, res)
-            ask_callback.apply_async((message.room, self.get_now_end_time(TIME_ASK)), countdown=TIME_ASK)
 
     @coroutine
     def cut_song(self, sender, message):
