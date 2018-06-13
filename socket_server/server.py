@@ -146,6 +146,7 @@ class ChatCenter(object):
                 'sing': self.pick_song,
                 'heart': self.heart_beat,
                 'chat': self.send_chat,
+                'close': self.close_user,
                 'history': self.get_chat_his,
                 'device': self.send_device_msg,
                 'reconnect': self.reconnect_room,
@@ -192,6 +193,11 @@ class ChatCenter(object):
         out_dict['members'] = self.members.get_set_members(room)
         out_dict['songs'] = self.songs.get_members(room)
         return out_dict
+
+    @coroutine
+    def close_user(self, sender, message):
+        sender.write_message(self.response_wrapper({}))
+        sender.close()
 
     # 路由 房间信息
     @coroutine
