@@ -79,6 +79,7 @@ class ChatCenter(object):
         if raw_message:
             chat['caller_action'] = raw_message.action
             chat['caller_fullname'] = raw_message.fullname
+        logger.info('INFO response msg {0}'.format(chat))
         return chat
 
     def register(self, newer):
@@ -129,9 +130,10 @@ class ChatCenter(object):
         '''
         message = self.parameter_wrapper(message)
         msg = ''
-        for k, v in message.raw.items():
-            msg = '{0}\r\n{1}: {2}'.format(msg, k, v)
-        logger.info('INFO recv message: {0}'.format(msg))
+        if message.action not in ['heart']:
+            for k, v in message.raw.items():
+                msg = '{0}\r\n{1}: {2}'.format(msg, k, v)
+            logger.info('INFO recv message: {0}'.format(msg))
         urls = {'join': self.distribute_room,
                 'status': self.room_info,
                 'ask': self.ask_singing,
@@ -259,7 +261,7 @@ class ChatCenter(object):
         else:
             song = self.songs.get(message.room)
             if not song:
-                self.room.set_rest(key, True)
+                self.room.set_rest(message.room, True)
             else:
                 self.room.set_ask(message.room, song.get('fullname'), song.get('name'))
                 ask_callback.apply_async((message.room, self.get_now_end_time(TIME_ASK)), countdown=TIME_ASK)
