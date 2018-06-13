@@ -21,7 +21,7 @@ from celery_tasks import singing_callback, ask_callback, rest_callback
 from const import RoomStatus, STATUS_ERROR, STATUS_SUCCESS
 from message import WsMessage
 from decorators import validate_room
-from socket_server.utils import generate_task_id
+from utils import generate_task_id
 
 logger = logging.getLogger(__name__)
 
