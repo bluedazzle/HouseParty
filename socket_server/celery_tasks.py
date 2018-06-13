@@ -10,7 +10,7 @@ from celery import Celery, current_app
 from cache import RedisProxy, HashRedisProxy, ROOM_STATUS_KEY, USER_SONG_KEY, ROOM_SONG_KEY, \
     ROOM_MEMBER_KEY, ListRedisProxy, TIME_REST, TIME_ASK
 from const import RoomStatus
-from utils import send_board_cast_msg
+from utils import send_board_cast_msg, generate_task_id
 
 app = Celery('celery_task', backend='redis://localhost:6379/2', broker='redis://localhost:6379/2')
 
@@ -18,7 +18,7 @@ app.config_from_object('celery_config')
 
 
 @app.task()
-def singing_callback(key, end_time):
+def singing_callback(key, end_time, task_id):
     redis_room = redis.StrictRedis(host='localhost', port=6379, db=5)
     room = HashRedisProxy(redis_room, ROOM_STATUS_KEY)
     songs = ListRedisProxy(redis_room, ROOM_SONG_KEY, 'fullname',
@@ -28,6 +28,11 @@ def singing_callback(key, end_time):
     end_time = int(end_time)
     room_status = room.get(key)
     status = room_status.get('status')
+    task = room_status.get('task')
+    if task != task_id:
+        logging.warning(
+            'WARNING in singing callback room {0} task valid, now task {1} celery task {2}'.format(key, task, task_id))
+        return
     if status != RoomStatus.singing:
         logging.warning(
             'WARNING in singing callback room {0} is not in singing status, now status {1}'.format(key, status))
@@ -37,20 +42,21 @@ def singing_callback(key, end_time):
             'WARNING in singing callback room {0} song is not over yet, end time {1} now {2}'.format(key, end_time,
                                                                                                      now))
         delay = end_time - now + 2
-        current_app.send_task('celery_tasks.singing_callback', args=[key, end_time], countdown=delay)
+        current_app.send_task('celery_tasks.singing_callback', args=[key, end_time, task_id], countdown=delay)
         # singing_callback.apply_async((key, end_time), countdown=delay)
         return
-    res = room.set_rest(key)
+    task = generate_task_id()
+    res = room.set_rest(key, task=task)
     res['songs'] = songs.get_members(key)
     # 广播其他人状态
     send_board_cast_msg(res)
-    current_app.send_task('celery_tasks.rest_callback', args=[key, end_time], countdown=TIME_REST)
+    current_app.send_task('celery_tasks.rest_callback', args=[key, end_time, task], countdown=TIME_REST)
     # rest_callback.apply_async((key, end_time), countdown=TIME_REST)
     logging.info('SUCCESS set room {0} to rest info {1}'.format(key, res))
 
 
 @app.task()
-def rest_callback(key, end_time):
+def rest_callback(key, end_time, task_id):
     redis_room = redis.StrictRedis(host='localhost', port=6379, db=5)
     songs = ListRedisProxy(redis_room, ROOM_SONG_KEY, 'fullname',
                            ['sid', 'name', 'author', 'nick', 'fullname', 'duration', 'lrc', 'link', 'avatar'])
@@ -59,6 +65,11 @@ def rest_callback(key, end_time):
     now = int(time.time())
     room_status = room.get(key)
     status = room_status.get('status')
+    task = room_status.get('task')
+    if task != task_id:
+        logging.warning(
+            'WARNING in rest callback room {0} task valid, now task {1} celery task {2}'.format(key, task, task_id))
+        return
     if status != RoomStatus.rest:
         logging.warning(
             'WARNING in rest callback room {0} is not in rest status, now status {1}'.format(key, status))
@@ -70,16 +81,17 @@ def rest_callback(key, end_time):
         delay = end_time - now + 2
         logging.warning('delay: {0}'.format(delay))
         # rest_callback.apply_async((key, end_time), countdown=delay)
-        current_app.send_task('celery_tasks.rest_callback', args=[key, end_time], countdown=delay)
+        current_app.send_task('celery_tasks.rest_callback', args=[key, end_time, task_id], countdown=delay)
         return
     song = songs.get(key)
     if not song:
         res = room.set_rest(key, True)
     else:
-        res = room.set_ask(key, song.get('fullname'), song.get('name'))
+        task = generate_task_id()
+        res = room.set_ask(key, song.get('fullname'), song.get('name'), task)
         res['songs'] = songs.get_members(key)
         end_time = int(time.time()) + TIME_ASK
-        current_app.send_task('celery_tasks.ask_callback', args=[key, end_time], countdown=TIME_ASK)
+        current_app.send_task('celery_tasks.ask_callback', args=[key, end_time, task], countdown=TIME_ASK)
         # ask_callback.apply_async((key, end_time), countdown=TIME_ASK)
         logging.info('SUCCESS set room {0} to ask info {1}'.format(key, res))
     # 广播
@@ -87,7 +99,7 @@ def rest_callback(key, end_time):
 
 
 @app.task()
-def ask_callback(key, end_time):
+def ask_callback(key, end_time, task_id):
     redis_room = redis.StrictRedis(host='localhost', port=6379, db=5)
     members = RedisProxy(redis_room, ROOM_MEMBER_KEY, 'fullname', ['fullname', 'nick', 'avatar'])
     songs = ListRedisProxy(redis_room, ROOM_SONG_KEY, 'fullname',
@@ -98,16 +110,21 @@ def ask_callback(key, end_time):
     now = int(time.time())
     room_status = room.get(key)
     status = room_status.get('status')
+    task = room_status.get('task')
+    if task != task_id:
+        logging.warning(
+            'WARNING in ask callback room {0} task valid, now task {1} celery task {2}'.format(key, task, task_id))
+        return
     if status != RoomStatus.ask:
         logging.warning(
-            'WARNING in rest callback room {0} is not in ask status, now status {1}'.format(key, status))
+            'WARNING in ask callback room {0} is not in ask status, now status {1}'.format(key, status))
         return
     if now < end_time:
         logging.warning(
-            'WARNING in rest callback room {0} ask is not over yet, end time {1} now {2}'.format(key, end_time,
+            'WARNING in ask callback room {0} ask is not over yet, end time {1} now {2}'.format(key, end_time,
                                                                                                  now))
         delay = end_time - now + 1
-        current_app.send_task('celery_tasks.ask_callback', args=[key, end_time], countdown=delay)
+        current_app.send_task('celery_tasks.ask_callback', args=[key, end_time, task_id], countdown=delay)
         # ask_callback.apply_async((key, end_time), countdown=delay)
         return
     song = songs.pop(key)
@@ -116,10 +133,11 @@ def ask_callback(key, end_time):
     if not song:
         res = room.set_rest(key, True)
     else:
-        res = room.set_ask(key, song.get('fullname'), song.get('name'))
+        task = generate_task_id()
+        res = room.set_ask(key, song.get('fullname'), song.get('name'), task)
         res['songs'] = songs.get_members(key)
         end_time = int(time.time()) + TIME_ASK
-        current_app.send_task('celery_tasks.ask_callback', args=[key, end_time], countdown=TIME_ASK)
+        current_app.send_task('celery_tasks.ask_callback', args=[key, end_time, task], countdown=TIME_ASK)
         # ask_callback.apply_async((key, end_time), countdown=TIME_ASK)
     # 广播
     send_board_cast_msg(res)

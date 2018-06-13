@@ -192,7 +192,7 @@ class HashRedisProxy(RedisProxy):
     # def __init__(self):
     # status: 1 演唱中 2 上麦询问中 3 间隔休息中 4 无限期休息中
     status = {'status': RoomStatus.singing, "start_time": 0, "end_time": 0, "current_time": 0, "duration": 0,
-              "room": ""}
+              "room": "", "task": ""}
     reset_song = {'sid': 0, 'name': '', 'author': '', 'nick': '', 'fullname': ''}
 
     def generate_time_tuple(self, duration):
@@ -203,7 +203,7 @@ class HashRedisProxy(RedisProxy):
         time_tuple['current_time'] = start_time
         return time_tuple
 
-    def set_song(self, key, song):
+    def set_song(self, key, song, task=None):
         """
         song {'sid', 'name', 'author', 'nick', 'fullname'}
         """
@@ -213,10 +213,12 @@ class HashRedisProxy(RedisProxy):
         self.status.update(song)
         self.status['room'] = key
         self.status['status'] = RoomStatus.singing
+        if task:
+            self.status['task'] = task
         self.set(key, **self.status)
         return self.status
 
-    def set_init(self, key, room_name, cover):
+    def set_init(self, key, room_name, cover, task=None):
         time_dict = self.generate_time_tuple(TIME_UNLIMIT)
         self.status.update(time_dict)
         self.status.update(self.reset_song)
@@ -225,10 +227,12 @@ class HashRedisProxy(RedisProxy):
         self.status['cover'] = cover
         self.status['room_name'] = room_name
         self.status['duration'] = TIME_UNLIMIT
+        if task:
+            self.status['task'] = task
         self.set(key, **self.status)
         return self.status
 
-    def set_rest(self, key, new=False):
+    def set_rest(self, key, new=False, task=None):
         status = RoomStatus.rest
         time_dict = self.generate_time_tuple(TIME_REST)
         if new:
@@ -239,10 +243,12 @@ class HashRedisProxy(RedisProxy):
         self.status['status'] = status
         self.status['room'] = key
         self.status['duration'] = TIME_UNLIMIT if new else TIME_REST
+        if task:
+            self.status['task'] = task
         self.set(key, **self.status)
         return self.status
 
-    def set_ask(self, key, fullname, name):
+    def set_ask(self, key, fullname, name, task=None):
         time_dict = self.generate_time_tuple(TIME_ASK)
         self.status.update(time_dict)
         self.status.update(self.reset_song)
@@ -251,6 +257,8 @@ class HashRedisProxy(RedisProxy):
         self.status['room'] = key
         self.status['status'] = RoomStatus.ask
         self.status['duration'] = TIME_ASK
+        if task:
+            self.status['task'] = task
         self.set(key, **self.status)
         return self.status
 

@@ -21,6 +21,7 @@ from celery_tasks import singing_callback, ask_callback, rest_callback
 from const import RoomStatus, STATUS_ERROR, STATUS_SUCCESS
 from message import WsMessage
 from decorators import validate_room
+from socket_server.utils import generate_task_id
 
 logger = logging.getLogger(__name__)
 
@@ -110,8 +111,9 @@ class ChatCenter(object):
         room_status = self.get_room_info(room)
         status = room_status.get('status')
         if status == RoomStatus.singing and room_status.get('fullname') == lefter.user.fullname:
-            self.room.set_rest(room)
-            rest_callback.apply_async((room, self.get_now_end_time(TIME_REST)), countdown=TIME_REST)
+            task = generate_task_id()
+            self.room.set_rest(room, task=task)
+            rest_callback.apply_async((room, self.get_now_end_time(TIME_REST), task), countdown=TIME_REST)
         room_status = self.get_room_info(room)
         self.boardcast_in_room(None, room_status)
         self.chat_register[room].remove(lefter)
@@ -252,19 +254,22 @@ class ChatCenter(object):
         song['duration'] = int(song.get('duration'), 0)
         self.user_song.remove_member_from_set(message.room, message.fullname)
         if ack:
-            res = self.room.set_song(message.room, song)
+            # celery task id
+            task = generate_task_id()
+            res = self.room.set_song(message.room, song, task)
             # 广播房间状态
             res = self.get_room_info(message.room)
             yield self.boardcast_in_room(sender, res)
             # 歌曲完成回调
-            singing_callback.apply_async((message.room, res.get('end_time')), countdown=int(res.get('duration')))
+            singing_callback.apply_async((message.room, res.get('end_time'), task), countdown=int(res.get('duration')))
         else:
             song = self.songs.get(message.room)
             if not song:
                 self.room.set_rest(message.room, True)
             else:
-                self.room.set_ask(message.room, song.get('fullname'), song.get('name'))
-                ask_callback.apply_async((message.room, self.get_now_end_time(TIME_ASK)), countdown=TIME_ASK)
+                task = generate_task_id()
+                self.room.set_ask(message.room, song.get('fullname'), song.get('name'), task)
+                ask_callback.apply_async((message.room, self.get_now_end_time(TIME_ASK), task), countdown=TIME_ASK)
             res = self.get_room_info(message.room)
             yield self.boardcast_in_room(sender, res)
 
@@ -277,10 +282,11 @@ class ChatCenter(object):
         if room_status.get('fullname') != message.fullname:
             yield sender.write_message(self.response_wrapper({}, STATUS_ERROR, '只有演唱者才能切歌', raw_message=message))
             return
-        res = self.room.set_rest(message.room)
+        task = generate_task_id()
+        res = self.room.set_rest(message.room, task=task)
         res = self.get_room_info(message.room)
         yield self.boardcast_in_room(sender, res)
-        rest_callback.apply_async((message.room, self.get_now_end_time(TIME_REST)), countdown=TIME_REST)
+        rest_callback.apply_async((message.room, self.get_now_end_time(TIME_REST), task), countdown=TIME_REST)
 
     @coroutine
     def del_song(self, sender, message):
@@ -317,9 +323,10 @@ class ChatCenter(object):
         room_status = self.get_room_info(message.room)
         if room_status.get('status') == RoomStatus.free:
             song = self.songs.get(message.room)
-            res = self.room.set_ask(message.room, song.get('fullname'), song.get('name'))
+            task = generate_task_id()
+            res = self.room.set_ask(message.room, song.get('fullname'), song.get('name'), task)
             room_status = self.get_room_info(message.room)
-            ask_callback.apply_async((message.room, self.get_now_end_time(TIME_ASK)), countdown=TIME_ASK)
+            ask_callback.apply_async((message.room, self.get_now_end_time(TIME_ASK), task), countdown=TIME_ASK)
         yield self.boardcast_in_room(sender, room_status)
 
     @coroutine
@@ -400,6 +407,7 @@ class BoardCastHandler(tornado.web.RequestHandler):
     def post(self, *args, **kwargs):
         message = json.loads(self.request.body)
         if message.get('room'):
+            logger.info('INFO http boardcast msg: {0}'.format(message))
             yield self.application.chat_center.boardcast_in_room(None, message)
             self.write('success')
             return
