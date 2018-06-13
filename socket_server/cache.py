@@ -50,7 +50,7 @@ def init_redis():
 
     members = RedisProxy(redis_room, ROOM_MEMBER_KEY, 'fullname', ['fullname', 'nick', 'avatar'])
     songs = ListRedisProxy(redis_room, ROOM_SONG_KEY, 'fullname',
-                           ['sid', 'name', 'author', 'nick', 'fullname', 'duration', 'lrc', 'link'])
+                           ['sid', 'name', 'author', 'nick', 'fullname', 'duration', 'lrc', 'link', 'avatar'])
     user_song = RedisProxy(redis_room, USER_SONG_KEY, 'fullname', ['fullname'])
     user_room = RedisProxy(redis_room, USER_ROOM_KEY, 'fullname', ['fullname'])
     room = HashRedisProxy(redis_room, ROOM_STATUS_KEY)

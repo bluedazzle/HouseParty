@@ -308,7 +308,7 @@ class ChatCenter(object):
             return
 
         self.songs.push(message.room, song.id, song.name, song.author, sender.user.nick, sender.user.fullname,
-                        song.duration, song.lrc, song.link)
+                        song.duration, song.lrc, song.link, sender.user.avatar)
         self.user_song.create_update_set(message.room, sender.user.fullname)
         yield sender.write_message(self.response_wrapper({}, raw_message=message))
 
