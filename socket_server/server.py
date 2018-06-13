@@ -94,6 +94,8 @@ class ChatCenter(object):
         '''
             客户端关闭连接，删除聊天室内对应的客户端连接实例
         '''
+        if lefter.dead:
+            return
         room = lefter.room_id
         if not lefter.user:
             self.chat_register[self.newer].remove(lefter)
@@ -146,6 +148,7 @@ class ChatCenter(object):
                 'chat': self.send_chat,
                 'history': self.get_chat_his,
                 'device': self.send_device_msg,
+                'reconnect': self.reconnect_room,
                 'boardcast': self.boardcast_in_room}
         view_func = urls.get(message.action, None)
         if not view_func:
@@ -377,6 +380,40 @@ class ChatCenter(object):
             return
         yield sender.write_message(self.response_wrapper({}, STATUS_ERROR, '用户不存在', raw_message=message))
 
+    @coroutine
+    def reconnect_room(self, sender, message):
+        result = yield self.generate_new_room(message.room)
+        if not result:
+            yield sender.write_message(self.response_wrapper({}, STATUS_ERROR, '房间不存在', raw_message=message))
+            return
+        sender.room_id = message.room
+        sender.token = message.token
+        user = session.query(PartyUser).filter(PartyUser.token == message.token).first()
+        if user:
+            sender.user = user
+            self.remove_dead_user(message.room, user)
+            self.chat_register[message.room].add(sender)
+            self.chat_register[self.newer].remove(sender)
+            self.members.create_update_set(message.room, user.fullname, user.nick, user.avatar)
+            self.user_room.create_update_set(message.room, user.fullname)
+            # sender.write_message(self.response_wrapper({}))
+            res = self.get_room_info(message.room)
+            yield self.boardcast_in_room(sender, res)
+            return
+        yield sender.write_message(self.response_wrapper({}, STATUS_ERROR, '用户不存在', raw_message=message))
+
+    def remove_dead_user(self, room, user):
+        socket_set = self.chat_register[room]
+        dead = None
+        for socket in socket_set:
+            if socket.user.fullname == user.fullname:
+                dead = socket
+                break
+        if dead:
+            dead.dead = 1
+            dead.close()
+            self.chat_register[room].remove(dead)
+
 
 class Application(tornado.web.Application):
     def __init__(self):
@@ -426,6 +463,7 @@ class ChatSocketHandler(tornado.websocket.WebSocketHandler):
         self.room_id = None
         self.token = None
         self.user = None
+        self.dead = 0
         super(ChatSocketHandler, self).__init__(application, request, **kwargs)
 
     @coroutine
