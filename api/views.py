@@ -337,10 +337,10 @@ class ThirdLoginView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, Det
         # else:
             # netease.update_user(user.fullname, user.token)
             # res = update_ease_user(ot, NEW_TOKEN, user.fullname)
-        if not res:
-            self.message = '登录失败，请稍后重试'
-            self.status_code = ERROR_UNKNOWN
-            return self.render_to_response({})
+            if not res:
+                self.message = '登录失败，请稍后重试'
+                self.status_code = ERROR_UNKNOWN
+                return self.render_to_response({})
         return self.render_to_response(user)
 
     def create_token(self):
