@@ -1030,7 +1030,7 @@ class SongListView(CheckSecurityMixin, StatusWrapMixin, MultipleJsonResponseMixi
         return super(SongListView, self).get(request, *args, **kwargs)
 
     def get_queryset(self):
-        queryset = super(SongListView, self).get_queryset().filter(hidden=False).order_by('-recommand')
+        queryset = super(SongListView, self).get_queryset().filter(hidden=False).order_by('-recommand')[500:]
         return queryset
 
 
