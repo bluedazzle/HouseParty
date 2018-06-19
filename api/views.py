@@ -886,6 +886,8 @@ class RoomView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespons
             return self.render_to_response(dict())
         # rid = kwargs.get('room', None)
         name = request.POST.get('name', None)
+        is_micro = request.POST.get('micoapp', False)
+        is_micro = True if is_micro else False
         if not name:
             name = '{0}的房间'.format(self.user.nick)
         # if rid:
@@ -906,7 +908,7 @@ class RoomView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespons
         #     return self.render_to_response({})
         # chatroom = data.get('chatroom')
         room = Room(room_id=self.generate_room(), name=name, creator_id=self.user.fullname,
-                    creator_nick=self.user.nick, cover=self.user.avatar)
+                    creator_nick=self.user.nick, cover=self.user.avatar, is_micro=is_micro)
         room.save()
         self.user.room = room
         self.user.save()
@@ -1160,7 +1162,7 @@ class RoomListView(CheckSecurityMixin, StatusWrapMixin, MultipleJsonResponseMixi
     exclude_attr = ['token', 'password', 'forbid', 'last_login', 'qq_open_id', 'wx_open_id']
 
     def get_queryset(self):
-        queryset = super(RoomListView, self).get_queryset().order_by("-priority", "-create_time")
+        queryset = super(RoomListView, self).get_queryset().filter(is_micro=False).order_by("-priority", "-create_time")
         map(self.get_numbers, queryset)
         map(self.get_users, queryset)
         return queryset
