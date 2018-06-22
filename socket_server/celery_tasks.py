@@ -31,7 +31,7 @@ def singing_callback(key, end_time, task_id):
     task = room_status.get('task')
     if task != task_id:
         logging.warning(
-            'WARNING in singing callback room {0} task valid, now task {1} celery task {2}'.format(key, task, task_id))
+            'WARNING in singing callback room {0} task invalid, now task {1} celery task {2}'.format(key, task, task_id))
         return
     if status != RoomStatus.singing:
         logging.warning(
@@ -68,7 +68,7 @@ def rest_callback(key, end_time, task_id):
     task = room_status.get('task')
     if task != task_id:
         logging.warning(
-            'WARNING in rest callback room {0} task valid, now task {1} celery task {2}'.format(key, task, task_id))
+            'WARNING in rest callback room {0} task invalid, now task {1} celery task {2}'.format(key, task, task_id))
         return
     if status != RoomStatus.rest:
         logging.warning(
@@ -113,7 +113,7 @@ def ask_callback(key, end_time, task_id):
     task = room_status.get('task')
     if task != task_id:
         logging.warning(
-            'WARNING in ask callback room {0} task valid, now task {1} celery task {2}'.format(key, task, task_id))
+            'WARNING in ask callback room {0} task invalid, now task {1} celery task {2}'.format(key, task, task_id))
         return
     if status != RoomStatus.ask:
         logging.warning(

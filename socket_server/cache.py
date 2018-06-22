@@ -203,6 +203,10 @@ class HashRedisProxy(RedisProxy):
         time_tuple['current_time'] = start_time
         return time_tuple
 
+    def set_mem_update_time(self, key):
+        self.status['members_update_time'] = int(time.time())
+        self.set(key, **self.status)
+
     def set_song(self, key, song, task=None):
         """
         song {'sid', 'name', 'author', 'nick', 'fullname'}
@@ -227,6 +231,7 @@ class HashRedisProxy(RedisProxy):
         self.status['cover'] = cover
         self.status['room_name'] = room_name
         self.status['duration'] = TIME_UNLIMIT
+        self.status['members_update_time'] = int(time.time())
         if task:
             self.status['task'] = task
         self.set(key, **self.status)

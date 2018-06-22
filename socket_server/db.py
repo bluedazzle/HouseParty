@@ -33,6 +33,8 @@ class Room(Base):
     creator_nick = Column(String)
     creator_id = Column(Integer)
     cover = Column(String)
+    ding = Column(Boolean)
+    is_micro = Column(Boolean)
 
 
 class Song(Base):

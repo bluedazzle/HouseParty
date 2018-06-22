@@ -1278,3 +1278,173 @@ POST /latest_messages/update/
     "msg": ""
 }
 ```
+
+
+## **房间列表（新）**
+```
+GET /api/v2/rooms
+```
+### **Parameters**
+
+### **Return**
+
+```
+
+    "body":{
+        "paginator":null,
+        "is_paginated":false,
+        "object_list":[
+            {
+                "ding":true,
+                "index":0,
+                "name":"123",
+                "cover":"123",
+                "count":0,
+                "priority":0,
+                "is_micro":false,
+                "creator_id":0,
+                "create_time":"2018-06-22 17:20:23",
+                "room_id":"R123",
+                "modify_time":"2018-06-22 17:20:28",
+                "members":[
+
+                ],
+                "members_update_time":"1529659397",
+                "progress":0,
+                "id":3,
+                "creator_nick":"123"
+            },
+            {
+                "ding":false,
+                "index":0,
+                "name":"狮子座",
+                "cover":"123123",
+                "count":0,
+                "priority":0,
+                "is_micro":false,
+                "creator_id":0,
+                "create_time":"2017-08-08 19:45:16",
+                "room_id":"123123",
+                "modify_time":"2017-12-16 18:53:20",
+                "members":[
+
+                ],
+                "members_update_time":null,
+                "progress":0,
+                "id":1,
+                "creator_nick":"1123"
+            }
+        ],
+        "page_obj":null,
+        "room_list":[
+            {
+                "ding":true,
+                "index":0,
+                "name":"123",
+                "cover":"123",
+                "count":0,
+                "priority":0,
+                "is_micro":false,
+                "creator_id":0,
+                "create_time":"2018-06-22 17:20:23",
+                "room_id":"R123",
+                "modify_time":"2018-06-22 17:20:28",
+                "members":[
+
+                ],
+                "members_update_time":"1529659397",
+                "progress":0,
+                "id":3,
+                "creator_nick":"123"
+            },
+            {
+                "ding":false,
+                "index":0,
+                "name":"狮子座",
+                "cover":"123123",
+                "count":0,
+                "priority":0,
+                "is_micro":false,
+                "creator_id":0,
+                "create_time":"2017-08-08 19:45:16",
+                "room_id":"123123",
+                "modify_time":"2017-12-16 18:53:20",
+                "members":[
+
+                ],
+                "members_update_time":null,
+                "progress":0,
+                "id":1,
+                "creator_nick":"1123"
+            }
+        ]
+    },
+    "status":1,
+    "msg":"success"
+}
+```
+其他
+```
+{
+    "body": {},
+    "status": 4,
+    "msg": ""
+}
+```
+
+## **房间列表（新）更新**
+```
+POST /api/v2/rooms
+```
+### **Parameters**
+### **Parameters**
+示例输入：(json)
+
+```
+["R123", "123123"]
+```
+
+### **Return**
+
+```
+    {
+    "body":{
+        "room_list":[
+            {
+                "count":1,
+                "index":0,
+                "name":"room-r123",
+                "cover":"cover_url",
+                "priority":0,
+                "is_micro":false,
+                "creator_id":0,
+                "create_time":"2018-06-04 18:29:43",
+                "room_id":"R123",
+                "modify_time":"2018-06-04 18:29:43",
+                "members":[
+                    {
+                        "nick":"15608059720",
+                        "fullname":"15608059720",
+                        "avatar":"15608059720"
+                    }
+                ],
+                "members_update_time":"1529658034",
+                "progress":0,
+                "id":2,
+                "creator_nick":"1"
+            }
+        ],
+        "is_paginated":false
+    },
+    "status":1,
+    "msg":"success"
+}
+```
+其他
+```
+{
+    "body": {},
+    "status": 4,
+    "msg": ""
+}
+```

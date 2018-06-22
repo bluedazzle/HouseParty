@@ -893,7 +893,7 @@ class RoomView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespons
         # if rid:
         #     room, created = Room.objects.get_or_create(room_id=rid)
         #     if not created:
-        #         room_members = self.user.friend_list.all().filter(room=room)
+        #         room_members = selfget_i18n_core_user_by_ids.user.friend_list.all().filter(room=room)
         #         self.update_notify(room_members)
         #     self.user.room = room
         # else:

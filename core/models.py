@@ -25,6 +25,7 @@ class Room(BaseModel):
     cover = models.CharField(max_length=256, default='')
     priority = models.IntegerField(default=0)
     is_micro = models.BooleanField(default=False)
+    ding = models.BooleanField(default=False)
 
     # participants = models.ManyToManyField(PartyUser, related_name='my_all_rooms', blank=True)
 

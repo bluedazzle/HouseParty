@@ -103,6 +103,13 @@ class ChatCenter(object):
             return
         self.members.remove_member_from_set(room, lefter.user.fullname, lefter.user.nick, lefter.user.avatar)
         self.user_room.remove_member_from_set(room, lefter.user.fullname)
+        self.room.set_mem_update_time(room)
+        count = self.members.get_set_count(room)
+        if not count:
+            room_obj = session.query(Room).filter(Room.room_id == room, Room.ding == False).first()
+            if room_obj:
+                session.delete(room_obj)
+                session.commit()
         # 检查是否排麦
         if self.user_song.exist(room, lefter.user.fullname):
             index = self.songs.search(room, lefter.user.fullname)
@@ -381,6 +388,7 @@ class ChatCenter(object):
             self.members.create_update_set(message.room, user.fullname, user.nick, user.avatar)
             self.user_room.create_update_set(message.room, user.fullname)
             # sender.write_message(self.response_wrapper({}))
+            self.room.set_mem_update_time(message.room)
             res = self.get_room_info(message.room)
             yield self.boardcast_in_room(sender, res)
             return

@@ -25,17 +25,8 @@ from core.dss.Mixin import JsonResponseMixin, MultipleJsonResponseMixin
 from core.hx import create_new_ease_user, update_ease_user
 from core.models import Verify, PartyUser, FriendRequest, FriendNotify, Hook, Room, DeleteNotify, Secret, Present, Song, \
     Report, Singer, Invite
-from core.ntim import netease
-from core.push import push_to_friends, push_friend_request, push_friend_response, push_hook
-from core.sms import send_sms
-from core.utils import upload_picture
-from django.utils.datastructures import MultiValueDict
-
 from core.wechat import get_session_key
-from socket_server.cache import songs, user_song, room, members, RedisProxy, ListRedisProxy
-
-import time
-import redis
+from socket_server.cache import songs, user_song, members, room
 
 NEW_TOKEN = 'ZGBKrriEYvaXsiJjaQuhq5yntpl8ewWdxu7nRmTAhzSCkZGNket92Bf3dFbMIgLj'
 
@@ -149,3 +140,44 @@ class UserView(CheckSecurityMixin, StatusWrapMixin, JsonRequestMixin, JsonRespon
         self.message = 'token 已过期或不存在'
         self.status_code = SW.ERROR_PERMISSION_DENIED
         return self.render_to_response({})
+
+
+class RoomListView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, ListView):
+    http_method_names = ['get', 'post']
+    model = Room
+
+
+    def get_room_mem_from_redis(self, obj):
+        mems = members.get_set_members(obj.room_id)
+        setattr(obj, 'members', mems)
+
+    def get_room_mem_modify_time_from_redis(self, obj):
+        room_info = room.get(obj.room_id)
+        setattr(obj, 'members_update_time', room_info.get('members_update_time'))
+
+    def get_queryset(self):
+        queryset = super(RoomListView, self).get_queryset().filter(is_micro=False).order_by("-priority", "-create_time")
+        return queryset
+
+    def get_room_count_from_redis(self, obj):
+        count = members.get_set_count(obj.room_id)
+        setattr(obj, 'count', count)
+
+    def get_context_data(self, **kwargs):
+        context = super(RoomListView, self).get_context_data(**kwargs)
+        queryset = context['object_list']
+        map(self.get_room_count_from_redis, queryset)
+        map(self.get_room_mem_from_redis, queryset)
+        map(self.get_room_mem_modify_time_from_redis, queryset)
+        return context
+
+    def post(self, request, *args, **kwargs):
+        room_ids = json.loads(request.body)
+        queryset = self.model.objects.filter(room_id__in=room_ids).all()
+        map(self.get_room_count_from_redis, queryset)
+        map(self.get_room_mem_from_redis, queryset)
+        map(self.get_room_mem_modify_time_from_redis, queryset)
+        return self.render_to_response({'room_list': queryset, 'is_paginated': False})
+
+
+
