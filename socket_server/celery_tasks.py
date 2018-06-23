@@ -17,6 +17,7 @@ app = Celery('celery_task', backend='redis://localhost:6379/2', broker='redis://
 app.config_from_object('celery_config')
 
 
+# 歌曲唱完后的回调
 @app.task()
 def singing_callback(key, end_time, task_id):
     redis_room = redis.StrictRedis(host='localhost', port=6379, db=5)
@@ -29,10 +30,10 @@ def singing_callback(key, end_time, task_id):
     room_status = room.get(key)
     status = room_status.get('status')
     task = room_status.get('task')
-    if task != task_id:
-        logging.warning(
-            'WARNING in singing callback room {0} task invalid, now task {1} celery task {2}'.format(key, task, task_id))
-        return
+    # if task != task_id:
+    #     logging.warning(
+    #         'WARNING in singing callback room {0} task invalid, now task {1} celery task {2}'.format(key, task, task_id))
+    #     return
     if status != RoomStatus.singing:
         logging.warning(
             'WARNING in singing callback room {0} is not in singing status, now status {1}'.format(key, status))
@@ -55,6 +56,7 @@ def singing_callback(key, end_time, task_id):
     logging.info('SUCCESS set room {0} to rest info {1}'.format(key, res))
 
 
+# 休息完成后的回调
 @app.task()
 def rest_callback(key, end_time, task_id):
     redis_room = redis.StrictRedis(host='localhost', port=6379, db=5)
@@ -66,10 +68,10 @@ def rest_callback(key, end_time, task_id):
     room_status = room.get(key)
     status = room_status.get('status')
     task = room_status.get('task')
-    if task != task_id:
-        logging.warning(
-            'WARNING in rest callback room {0} task invalid, now task {1} celery task {2}'.format(key, task, task_id))
-        return
+    # if task != task_id:
+    #     logging.warning(
+    #         'WARNING in rest callback room {0} task invalid, now task {1} celery task {2}'.format(key, task, task_id))
+    #     return
     if status != RoomStatus.rest:
         logging.warning(
             'WARNING in rest callback room {0} is not in rest status, now status {1}'.format(key, status))
@@ -98,6 +100,7 @@ def rest_callback(key, end_time, task_id):
     send_board_cast_msg(res)
 
 
+# 上麦询问回调
 @app.task()
 def ask_callback(key, end_time, task_id):
     redis_room = redis.StrictRedis(host='localhost', port=6379, db=5)
