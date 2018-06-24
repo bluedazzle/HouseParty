@@ -34,9 +34,9 @@ def singing_callback(key, end_time, task_id, duration):
     room_status = room.get(key)
     status = room_status.get('status')
     task = room_status.get('task')
-    # if task != task_id:
-    #     logging.warning(
-    #         'WARNING in singing callback room {0} task invalid, now task {1} celery task {2}'.format(key, task, task_id))
+    if task and task != task_id:
+        logging.warning(
+            'WARNING in singing callback room {0} task invalid, now task {1} celery task {2}'.format(key, task, task_id))
     #     return
     if status != RoomStatus.singing:
         logging.warning(
@@ -77,10 +77,10 @@ def rest_callback(key, end_time, task_id, duration):
     end_time_str = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(end_time))
     logging.info('INFO rest exec time {0:%Y-%m-%d %H:%M:%S} end time {1}, duration {2}'.format(datetime.datetime.now(),
                                                                                                end_time_str, duration))
-    # if task != task_id:
-    #     logging.warning(
-    #         'WARNING in rest callback room {0} task invalid, now task {1} celery task {2}'.format(key, task, task_id))
-    #     return
+    if task and task != task_id:
+        logging.warning(
+            'WARNING in rest callback room {0} task invalid, now task {1} celery task {2}'.format(key, task, task_id))
+        return
     if status != RoomStatus.rest:
         logging.warning(
             'WARNING in rest callback room {0} is not in rest status, now status {1}'.format(key, status))
@@ -128,7 +128,7 @@ def ask_callback(key, end_time, task_id, duration):
     room_status = room.get(key)
     status = room_status.get('status')
     task = room_status.get('task')
-    if task != task_id:
+    if task and task != task_id:
         logging.warning(
             'WARNING in ask callback room {0} task invalid, now task {1} celery task {2}'.format(key, task, task_id))
         return key
