@@ -37,7 +37,7 @@ def singing_callback(key, end_time, task_id, duration):
     if task and task != task_id:
         logging.warning(
             'WARNING in singing callback room {0} task invalid, now task {1} celery task {2}'.format(key, task, task_id))
-    #     return
+        return key
     if status != RoomStatus.singing:
         logging.warning(
             'WARNING in singing callback room {0} is not in singing status, now status {1}'.format(key, status))
