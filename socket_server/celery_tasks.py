@@ -37,7 +37,7 @@ def singing_callback(key, end_time, task_id):
     if status != RoomStatus.singing:
         logging.warning(
             'WARNING in singing callback room {0} is not in singing status, now status {1}'.format(key, status))
-        return
+        return key
     if now < end_time:
         logging.warning(
             'WARNING in singing callback room {0} song is not over yet, end time {1} now {2}'.format(key, end_time,
@@ -45,7 +45,7 @@ def singing_callback(key, end_time, task_id):
         delay = end_time - now + 2
         current_app.send_task('celery_tasks.singing_callback', args=[key, end_time, task_id], countdown=delay)
         # singing_callback.apply_async((key, end_time), countdown=delay)
-        return
+        return key
     task = generate_task_id()
     res = room.set_rest(key, task=task)
     res['songs'] = songs.get_members(key)
@@ -54,6 +54,7 @@ def singing_callback(key, end_time, task_id):
     current_app.send_task('celery_tasks.rest_callback', args=[key, end_time, task], countdown=TIME_REST)
     # rest_callback.apply_async((key, end_time), countdown=TIME_REST)
     logging.info('SUCCESS set room {0} to rest info {1}'.format(key, res))
+    return key
 
 
 # 休息完成后的回调
@@ -75,7 +76,7 @@ def rest_callback(key, end_time, task_id):
     if status != RoomStatus.rest:
         logging.warning(
             'WARNING in rest callback room {0} is not in rest status, now status {1}'.format(key, status))
-        return
+        return key
     if now < end_time:
         logging.warning(
             'WARNING in rest callback room {0} rest is not over yet, end time {1} now {2}'.format(key, end_time,
@@ -84,7 +85,7 @@ def rest_callback(key, end_time, task_id):
         logging.warning('delay: {0}'.format(delay))
         # rest_callback.apply_async((key, end_time), countdown=delay)
         current_app.send_task('celery_tasks.rest_callback', args=[key, end_time, task_id], countdown=delay)
-        return
+        return key
     song = songs.get(key)
     if not song:
         res = room.set_rest(key, True)
@@ -98,6 +99,7 @@ def rest_callback(key, end_time, task_id):
         logging.info('SUCCESS set room {0} to ask info {1}'.format(key, res))
     # 广播
     send_board_cast_msg(res)
+    return key
 
 
 # 上麦询问回调
@@ -117,11 +119,11 @@ def ask_callback(key, end_time, task_id):
     if task != task_id:
         logging.warning(
             'WARNING in ask callback room {0} task invalid, now task {1} celery task {2}'.format(key, task, task_id))
-        return
+        return key
     if status != RoomStatus.ask:
         logging.warning(
             'WARNING in ask callback room {0} is not in ask status, now status {1}'.format(key, status))
-        return
+        return key
     if now < end_time:
         logging.warning(
             'WARNING in ask callback room {0} ask is not over yet, end time {1} now {2}'.format(key, end_time,
@@ -129,7 +131,7 @@ def ask_callback(key, end_time, task_id):
         delay = end_time - now + 1
         current_app.send_task('celery_tasks.ask_callback', args=[key, end_time, task_id], countdown=delay)
         # ask_callback.apply_async((key, end_time), countdown=delay)
-        return
+        return key
     song = songs.pop(key)
     user_song.remove_member_from_set(key, song.get('fullname'))
     song = songs.get(key)
@@ -144,3 +146,4 @@ def ask_callback(key, end_time, task_id):
         # ask_callback.apply_async((key, end_time), countdown=TIME_ASK)
     # 广播
     send_board_cast_msg(res)
+    return key

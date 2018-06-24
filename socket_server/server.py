@@ -80,7 +80,8 @@ class ChatCenter(object):
         if raw_message:
             chat['caller_action'] = raw_message.action
             chat['caller_fullname'] = raw_message.fullname
-        logger.info('INFO response msg {0}'.format(chat))
+        if msg_type == 1:
+            logger.info('INFO response msg {0}'.format(chat))
         return chat
 
     def register(self, newer):
