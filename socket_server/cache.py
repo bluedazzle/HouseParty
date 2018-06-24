@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 import redis
 import time
+import logging
 
 from const import RoomStatus
 
@@ -29,6 +30,9 @@ songs = None
 user_song = None
 room = None
 user_room = None
+
+logger = logging.getLogger(__name__)
+
 
 
 def init_redis_room():
@@ -204,8 +208,9 @@ class HashRedisProxy(RedisProxy):
         return time_tuple
 
     def set_mem_update_time(self, key):
-        self.status['members_update_time'] = int(time.time())
-        self.set(key, **self.status)
+        status = {}
+        status['members_update_time'] = int(time.time())
+        self.set(key, **status)
 
     def set_song(self, key, song, task=None):
         """
@@ -213,59 +218,71 @@ class HashRedisProxy(RedisProxy):
         """
         duration = song.get("duration", 0)
         time_dict = self.generate_time_tuple(duration)
-        self.status.update(time_dict)
-        self.status.update(song)
-        self.status['room'] = key
-        self.status['status'] = RoomStatus.singing
+        status = {'status': RoomStatus.singing, "start_time": 0, "end_time": 0, "current_time": 0, "duration": 0,
+              "room": "", "task": ""}
+        status.update(time_dict)
+        status.update(song)
+        status['room'] = key
+        status['status'] = RoomStatus.singing
         if task:
-            self.status['task'] = task
-        self.set(key, **self.status)
-        return self.status
+            status['task'] = task
+        logger.info("INFO set song {0}".format(status))
+        self.set(key, **status)
+        return status
 
     def set_init(self, key, room_name, cover, task=None):
         time_dict = self.generate_time_tuple(TIME_UNLIMIT)
-        self.status.update(time_dict)
-        self.status.update(self.reset_song)
-        self.status['status'] = RoomStatus.free
-        self.status['room'] = key
-        self.status['cover'] = cover
-        self.status['room_name'] = room_name
-        self.status['duration'] = TIME_UNLIMIT
-        self.status['members_update_time'] = int(time.time())
+        status = {'status': RoomStatus.singing, "start_time": 0, "end_time": 0, "current_time": 0, "duration": 0,
+                  "room": "", "task": ""}
+        status.update(time_dict)
+        status.update(self.reset_song)
+        status['status'] = RoomStatus.free
+        status['room'] = key
+        status['cover'] = cover
+        status['room_name'] = room_name
+        status['duration'] = TIME_UNLIMIT
+        status['members_update_time'] = int(time.time())
         if task:
-            self.status['task'] = task
-        self.set(key, **self.status)
-        return self.status
+            status['task'] = task
+        self.set(key, **status)
+        logger.info("INFO set init {0}".format(status))
+        return status
 
     def set_rest(self, key, new=False, task=None):
-        status = RoomStatus.rest
+        status = {'status': RoomStatus.singing, "start_time": 0, "end_time": 0, "current_time": 0, "duration": 0,
+                  "room": "", "task": ""}
+        rs = RoomStatus.rest
         time_dict = self.generate_time_tuple(TIME_REST)
         if new:
             time_dict = self.generate_time_tuple(TIME_UNLIMIT)
-            status = RoomStatus.free
-        self.status.update(time_dict)
-        self.status.update(self.reset_song)
-        self.status['status'] = status
-        self.status['room'] = key
-        self.status['duration'] = TIME_UNLIMIT if new else TIME_REST
+            rs = RoomStatus.free
+        status.update(time_dict)
+        status.update(self.reset_song)
+        status['status'] = rs
+        status['room'] = key
+        status['duration'] = TIME_UNLIMIT if new else TIME_REST
         if task:
-            self.status['task'] = task
-        self.set(key, **self.status)
-        return self.status
+            status['task'] = task
+        self.set(key, **status)
+        logger.info("INFO set rest {0}".format(status))
+        return status
 
     def set_ask(self, key, fullname, name, task=None):
         time_dict = self.generate_time_tuple(TIME_ASK)
-        self.status.update(time_dict)
-        self.status.update(self.reset_song)
-        self.status['fullname'] = fullname
-        self.status['name'] = name
-        self.status['room'] = key
-        self.status['status'] = RoomStatus.ask
-        self.status['duration'] = TIME_ASK
+        status = {'status': RoomStatus.singing, "start_time": 0, "end_time": 0, "current_time": 0, "duration": 0,
+                  "room": "", "task": ""}
+        status.update(time_dict)
+        status.update(self.reset_song)
+        status['fullname'] = fullname
+        status['name'] = name
+        status['room'] = key
+        status['status'] = RoomStatus.ask
+        status['duration'] = TIME_ASK
         if task:
-            self.status['task'] = task
-        self.set(key, **self.status)
-        return self.status
+            status['task'] = task
+        self.set(key, **status)
+        logger.info("INFO set ask {0}".format(status))
+        return status
 
     def set(self, key, **kwargs):
         key = self.base_key.format(key)
