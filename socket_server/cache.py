@@ -70,13 +70,13 @@ class RedisProxy(object):
     def encode_value(self, *args):
         value = args[0]
         for arg in args[1:]:
-            value = '{0}|{1}'.format(value, arg)
+            value = '{0}|$|{1}'.format(value, arg)
         return value
 
     def decode_value(self, itm):
         if not itm:
             return {}
-        value_list = itm.decode('utf-8').split('|')
+        value_list = itm.decode('utf-8').split('|$|')
         value_dict = {}
         for index, value in enumerate(value_list):
             value_dict[self.props[index]] = value
