@@ -96,3 +96,4 @@ def send_voice_sms(code, mobile, apikey):
 
 if __name__ == '__main__':
     send_sms('1111', '156080509720')
+    print 1 == 1.0

