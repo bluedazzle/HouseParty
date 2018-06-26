@@ -45,3 +45,8 @@ class GuideView(DetailView):
 class DownloadView(TemplateView):
     template_name = 'download.html'
     http_method_names = ['get']
+
+
+class ServiceView(TemplateView):
+    template_name = 'service.html'
+    http_method_names = ['get']

@@ -59,6 +59,7 @@ def send_sms(code, mobile, apikey=API_KEY):
     response_str = response.read()
     conn.close()
     json_res = json.loads(response_str)
+    print json_res
     if json_res.get('code') == 0:
         return True
     return False
@@ -91,3 +92,7 @@ def send_voice_sms(code, mobile, apikey):
     response_str = response.read()
     conn.close()
     return response_str
+
+
+if __name__ == '__main__':
+    send_sms('1111', '156080509720')
