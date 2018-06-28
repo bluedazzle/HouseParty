@@ -598,3 +598,119 @@ action: device
     "timestamp":"1527915707.61"
 }
 ```
+
+
+## **点歌**
+
+```
+action: listen
+```
+### **Parameters**
+* action(_Required_|string)-行为
+* fullname(_Required_|string)- 用户 fullname
+* token(_Required_|string)- 用户 token
+* room(_Required_|string)-房间 id
+* sid(_Required_|string)-歌曲 id
+* duration(_Required_|string)-歌曲时长
+
+
+
+### **Return**
+成功
+```
+{
+    "status":0,
+    "body":{
+
+    },
+    "message":"success",
+    "timestamp":"1527915490.31"
+}
+```
+失败
+```
+{
+    "status":-1,
+    "body":{
+
+    },
+    "message":"不能重复排麦",
+    "timestamp":"1527915707.61"
+}
+```
+
+
+## **删除歌曲**
+
+```
+action: del_music
+```
+### **Parameters**
+* action(_Required_|string)-行为
+* fullname(_Required_|string)- 用户 fullname
+* token(_Required_|string)- 用户 token
+* room(_Required_|string)-房间 id
+
+
+
+### **Return**
+成功
+```
+{
+    "status":0,
+    "body":{
+
+    },
+    "message":"success",
+    "timestamp":"1527915490.31"
+}
+```
+失败
+```
+{
+    "status":-1,
+    "body":{
+
+    },
+    "message":"",
+    "timestamp":"1527915707.61"
+}
+```
+
+
+## **切歌曲**
+
+```
+action: cut_music
+```
+### **Parameters**
+* action(_Required_|string)-行为
+* fullname(_Required_|string)- 用户 fullname
+* token(_Required_|string)- 用户 token
+* room(_Required_|string)-房间 id
+
+
+
+### **Return**
+成功
+```
+{
+    "status":0,
+    "body":{
+
+    },
+    "message":"success",
+    "timestamp":"1527915490.31"
+}
+```
+失败
+```
+{
+    "status":-1,
+    "body":{
+
+    },
+    "message":"",
+    "timestamp":"1527915707.61"
+}
+```

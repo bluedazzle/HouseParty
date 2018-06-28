@@ -14,10 +14,14 @@ redis_common = None
 ROOM_MEMBER_KEY = 'ROOM_MEMBER_{0}'
 # 房间歌曲列表
 ROOM_SONG_KEY = 'ROOM_SONG_{0}'
+# 房间音乐列表
+ROOM_MUSIC_KEY = 'ROOM_MUSIC_{0}'
 # 房间信息
 ROOM_STATUS_KEY = 'ROOM_STATUS_{0}'
 # 房间上麦人列表
 USER_SONG_KEY = 'USER_SONG_{0}'
+# 房间听歌人列表
+USER_MUSIC_KEY = 'USER_MUSIC_{0}'
 # 房间成员列表（判断用户是否在房间）
 USER_ROOM_KEY = 'USER_ROOM_{0}'
 
@@ -85,8 +89,7 @@ class RedisProxy(object):
     def remove_member_from_set(self, key, *args):
         key = self.base_key.format(key)
         value = self.encode_value(*args)
-        res = self.redis.srem(key, value)
-        return res
+        return self.redis.srem(key, value)
 
     def get_set_count(self, key):
         key = self.base_key.format(key)
@@ -104,7 +107,8 @@ class RedisProxy(object):
     def exist(self, key, *args):
         key = self.base_key.format(key)
         value = self.encode_value(*args)
-        return self.redis.sismember(key, value)
+        res = self.redis.sismember(key, value)
+        return res
 
     def search(self, key, pk):
         if not self.pk:
@@ -223,7 +227,27 @@ class HashRedisProxy(RedisProxy):
         status.update(time_dict)
         status.update(song)
         status['room'] = key
+        status['room_type'] = 'song'
         status['status'] = RoomStatus.singing
+        if task:
+            status['task'] = task
+        logger.info("INFO set song {0}".format(status))
+        self.set(key, **status)
+        return status
+
+    def set_music(self, key, song, task=None):
+        """
+                song {'sid', 'name', 'author', 'nick', 'fullname'}
+        """
+        duration = song.get("duration", 0)
+        time_dict = self.generate_time_tuple(duration)
+        status = {'status': RoomStatus.music, "start_time": 0, "end_time": 0, "current_time": 0, "duration": 0,
+                  "room": "", "task": ""}
+        status.update(time_dict)
+        status.update(song)
+        status['room'] = key
+        status['room_type'] = 'music'
+        status['status'] = RoomStatus.music
         if task:
             status['task'] = task
         logger.info("INFO set song {0}".format(status))

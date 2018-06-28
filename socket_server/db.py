@@ -45,6 +45,7 @@ class Song(Base):
     author = Column(String)
     link = Column(String)
     lrc = Column(String)
+    original = Column(String)
     hash = Column(String)
     duration = Column(Integer)
 

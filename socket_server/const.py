@@ -28,10 +28,12 @@ class RoomStatus(ChoiceBase):
     ask = '2'
     rest = '3'
     free = '4'
+    music = '5'
 
     __choices__ = (
         (singing, u'演唱中'),
         (ask, u'上麦询问中'),
         (rest, u'间隔休息中'),
         (free, u'空闲'),
+        (music, u'音乐播放中'),
     )
