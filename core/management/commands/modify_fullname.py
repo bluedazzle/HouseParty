@@ -9,7 +9,6 @@ from core.models import PartyUser
 class Command(BaseCommand):
     def handle(self, *args, **options):
         for itm in PartyUser.objects.all():
-            exist = PartyUser.objects.filter(fullname=itm.fullname)
-            if exist.exists():
-                itm.fullname = itm.nick
+            if not itm.avatar:
+                itm.avatar = 'http://ktv.fibar.cn/static/image/avatar.png'
                 itm.save()
