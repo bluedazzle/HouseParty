@@ -42,6 +42,19 @@ class GuideView(DetailView):
         return None
 
 
+class AndroidGuideView(DetailView):
+    template_name = 'guide_android.html'
+    http_method_names = ['get']
+
+    def get_object(self, queryset=None):
+        phone = self.request.GET.get('room')
+        if phone:
+            users = Room.objects.filter(room_id=phone)
+            if users.exists():
+                return users[0]
+        return None
+
+
 class DownloadView(TemplateView):
     template_name = 'download.html'
     http_method_names = ['get']
