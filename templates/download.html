@@ -50,18 +50,18 @@
         } else {
             setTimeout(function () {
                 window.location = "https://itunes.apple.com/cn/app/id1141350790";
-            }, 25);
+            }, 1500);
             window.location = "miku://";
         }
     }
     function android_download() {
         var ua = navigator.userAgent.toLowerCase();
         if (ua.match(/MicroMessenger/i) == "micromessenger" || ua.match(/meipai/i) == "meipai") {
-            window.location.href = "/page/guide?device=1";
+            window.location.href = "/page/guide_android?device=1";
         } else {
             setTimeout(function () {
                 window.location = "http://static.fibar.cn/mido0625.apk";
-            }, 25);
+            }, 1500);
             window.location = "miku://";
         }
     }

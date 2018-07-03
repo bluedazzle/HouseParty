@@ -120,6 +120,11 @@ class ChatCenter(object):
             if index > -1:
                 self.songs.remove(room, index)
             self.user_song.remove_member_from_set(room, lefter.user.fullname)
+        if self.user_music.exist(room, lefter.user.fullname):
+            index = self.music.search(room, lefter.user.fullname)
+            if index > -1:
+                self.music.remove(room, index)
+            self.user_music.remove_member_from_set(room, lefter.user.fullname)
         # 检查是否正在演唱
         room_status = self.get_room_info(room)
         status = room_status.get('status')
@@ -127,6 +132,7 @@ class ChatCenter(object):
             task = generate_task_id()
             self.room.set_rest(room, task=task)
             rest_callback.apply_async((room, self.get_now_end_time(TIME_REST), task, TIME_REST), countdown=TIME_REST)
+        # if status == RoomStatus.music and room_status.get('fullname') == lefter.user.fullname:
         room_status = self.get_room_info(room)
         self.boardcast_in_room(None, room_status)
         self.chat_register[room].remove(lefter)
