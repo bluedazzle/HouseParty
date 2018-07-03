@@ -68,7 +68,7 @@ class ChatCenter(object):
 
     @staticmethod
     def get_now_end_time(duration):
-        now = int(time.time())
+        now = float(time.time())
         return now + duration
 
     def response_wrapper(self, message, status=STATUS_SUCCESS, msg='success', msg_type=1, raw_message=None):
@@ -207,7 +207,7 @@ class ChatCenter(object):
         out_dict['count'] = self.members.get_set_count(room)
         out_dict['members'] = self.members.get_set_members(room)
         out_dict['songs'] = self.songs.get_members(room)
-        out_dict['music'] = self.music.get_members(room)
+        out_dict['musics'] = self.music.get_members(room)
         return out_dict
 
     @coroutine
@@ -276,7 +276,7 @@ class ChatCenter(object):
             yield sender.write_message(self.response_wrapper({}, STATUS_ERROR, '不能演唱不是自己点的歌~', raw_message=message))
             return
         song = self.songs.pop(message.room)
-        song['duration'] = int(song.get('duration'), 0)
+        song['duration'] = float(song.get('duration'), 0)
         self.user_song.remove_member_from_set(message.room, message.fullname)
         if ack:
             # celery task id
@@ -287,7 +287,7 @@ class ChatCenter(object):
             yield self.boardcast_in_room(sender, res)
             # 歌曲完成回调
             singing_callback.apply_async((message.room, res.get('end_time'), task, res.get('duration')),
-                                         countdown=int(res.get('duration')))
+                                         countdown=float(res.get('duration')))
         else:
             song = self.songs.get(message.room)
             if not song:
@@ -329,7 +329,7 @@ class ChatCenter(object):
         music = self.music.pop(message.room)
         if music:
             self.user_music.remove_member_from_set(message.room, message.fullname)
-            duration = int(music.get('duration'))
+            duration = float(music.get('duration'))
             res = self.room.set_music(message.room, music, task)
             music_callback.apply_async((message.room, self.get_now_end_time(duration), task, duration),
                                        countdown=duration)
@@ -426,7 +426,7 @@ class ChatCenter(object):
             song = self.music.pop(message.room)
             self.user_music.remove_member_from_set(message.room, message.fullname)
             task = generate_task_id()
-            duration = int(song.get('duration'))
+            duration = float(song.get('duration'))
             res = self.room.set_music(message.room, song, task)
             room_status = self.get_room_info(message.room)
             music_callback.apply_async((message.room, self.get_now_end_time(duration), task, duration),
