@@ -142,7 +142,7 @@ class ChatCenter(object):
                 music_callback.apply_async((room, self.get_now_end_time(duration), task, duration),
                                            countdown=duration)
             else:
-                res = self.room.set_rest(message.room, True, task=task)
+                res = self.room.set_rest(room, True, task=task)
         # if status == RoomStatus.music and room_status.get('fullname') == lefter.user.fullname:
         room_status = self.get_room_info(room)
         self.boardcast_in_room(None, room_status)
