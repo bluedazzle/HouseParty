@@ -404,6 +404,7 @@ class ChatCenter(object):
                         song.duration, song.lrc, song.link, sender.user.avatar)
         self.user_song.create_update_set(message.room, sender.user.fullname)
         yield sender.write_message(self.response_wrapper({}, raw_message=message))
+        room_status = self.get_room_info(message.room)
 
         if room_status.get('status') == RoomStatus.free:
             song = self.songs.get(message.room)
@@ -438,6 +439,7 @@ class ChatCenter(object):
                         song.duration, song.lrc, song.original, sender.user.avatar)
         self.user_music.create_update_set(message.room, sender.user.fullname)
         yield sender.write_message(self.response_wrapper({}, raw_message=message))
+        room_status = self.get_room_info(message.room)
 
         if room_status.get('status') == RoomStatus.free:
             song = self.music.pop(message.room)
