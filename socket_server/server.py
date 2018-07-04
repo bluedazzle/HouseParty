@@ -134,8 +134,8 @@ class ChatCenter(object):
             rest_callback.apply_async((room, self.get_now_end_time(TIME_REST), task, TIME_REST), countdown=TIME_REST)
         if status == RoomStatus.music and room_status.get('fullname') == lefter.user.fullname:
             music = self.music.pop(room)
+            task = generate_task_id()
             if music:
-                task = generate_task_id()
                 self.user_music.remove_member_from_set(room, music.get('fullname'))
                 duration = int(music.get('duration'))
                 res = self.room.set_music(room, music, task)
