@@ -132,6 +132,17 @@ class ChatCenter(object):
             task = generate_task_id()
             self.room.set_rest(room, task=task)
             rest_callback.apply_async((room, self.get_now_end_time(TIME_REST), task, TIME_REST), countdown=TIME_REST)
+        if status == RoomStatus.music and room_status.get('fullname') == lefter.user.fullname:
+            music = self.music.pop(room)
+            if music:
+                task = generate_task_id()
+                self.user_music.remove_member_from_set(room, music.get('fullname'))
+                duration = int(music.get('duration'))
+                res = self.room.set_music(room, music, task)
+                music_callback.apply_async((room, self.get_now_end_time(duration), task, duration),
+                                           countdown=duration)
+            else:
+                res = self.room.set_rest(message.room, True, task=task)
         # if status == RoomStatus.music and room_status.get('fullname') == lefter.user.fullname:
         room_status = self.get_room_info(room)
         self.boardcast_in_room(None, room_status)
@@ -372,8 +383,9 @@ class ChatCenter(object):
 
     @coroutine
     def pick_song(self, sender, message):
+        room_status = self.get_room_info(message.room)
         count = self.music.get_count(message.room)
-        if count:
+        if count or room_status.get('status') == RoomStatus.music:
             yield sender.write_message(self.response_wrapper({}, STATUS_ERROR, '听歌时不能唱歌哟', raw_message=message))
             return
         sid = message.sid
@@ -393,7 +405,6 @@ class ChatCenter(object):
         self.user_song.create_update_set(message.room, sender.user.fullname)
         yield sender.write_message(self.response_wrapper({}, raw_message=message))
 
-        room_status = self.get_room_info(message.room)
         if room_status.get('status') == RoomStatus.free:
             song = self.songs.get(message.room)
             task = generate_task_id()
@@ -406,8 +417,9 @@ class ChatCenter(object):
     # 听歌
     @coroutine
     def listen_music(self, sender, message):
+        room_status = self.get_room_info(message.room)
         count = self.songs.get_count(message.room)
-        if count:
+        if count or room_status.get('status') == RoomStatus.singing:
             yield sender.write_message(self.response_wrapper({}, STATUS_ERROR, '唱歌时不能听歌哟', raw_message=message))
             return
         sid = message.sid
@@ -427,7 +439,6 @@ class ChatCenter(object):
         self.user_music.create_update_set(message.room, sender.user.fullname)
         yield sender.write_message(self.response_wrapper({}, raw_message=message))
 
-        room_status = self.get_room_info(message.room)
         if room_status.get('status') == RoomStatus.free:
             song = self.music.pop(message.room)
             self.user_music.remove_member_from_set(message.room, message.fullname)

@@ -38,7 +38,6 @@ user_room = None
 logger = logging.getLogger(__name__)
 
 
-
 def init_redis_room():
     global redis_room
     redis_room = redis.StrictRedis(host='localhost', port=6379, db=5)
@@ -223,7 +222,7 @@ class HashRedisProxy(RedisProxy):
         duration = song.get("duration", 0)
         time_dict = self.generate_time_tuple(duration)
         status = {'status': RoomStatus.singing, "start_time": 0, "end_time": 0, "current_time": 0, "duration": 0,
-              "room": "", "task": ""}
+                  "room": "", "task": ""}
         status.update(time_dict)
         status.update(song)
         status['room'] = key
