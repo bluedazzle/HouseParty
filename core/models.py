@@ -89,8 +89,8 @@ class Secret(BaseModel):
     info = models.CharField(max_length=20, default='system')
     version = models.CharField(max_length=20, default='1.0.3')
     num = models.IntegerField(default=324823)
-    start_time = models.DateTimeField(null=True, blank=True)
-    end_time = models.DateTimeField(null=True, blank=True)
+    start_time = models.TimeField(null=True, blank=True)
+    end_time = models.TimeField(null=True, blank=True)
 
     def __unicode__(self):
         return self.info
