@@ -40,7 +40,9 @@ class Room(BaseModel):
         return True if user in self.room_participants.all() else False
 
     def __unicode__(self):
-        return '{0}-{1}'.format(self.room_id, self.name)
+        if self.is_micro:
+            return '小程序: {0}-{1}'.format(self.room_id, self.name)
+        return 'APP: {0}-{1}'.format(self.room_id, self.name)
 
 
 class PartyUser(BaseModel, AbstractBaseUser):
