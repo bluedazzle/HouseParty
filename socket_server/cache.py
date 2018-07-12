@@ -6,6 +6,7 @@ import time
 import logging
 
 from const import RoomStatus
+from socket_server.utils import get_now_timestamp
 
 redis_room = None
 redis_common = None
@@ -204,15 +205,15 @@ class HashRedisProxy(RedisProxy):
 
     def generate_time_tuple(self, duration):
         time_tuple = {}
-        start_time = int(time.time())
+        start_time = get_now_timestamp()
         time_tuple['start_time'] = start_time
-        time_tuple['end_time'] = start_time + int(duration)
+        time_tuple['end_time'] = start_time + float(duration)
         time_tuple['current_time'] = start_time
         return time_tuple
 
     def set_mem_update_time(self, key):
         status = {}
-        status['members_update_time'] = int(time.time())
+        status['members_update_time'] = get_now_timestamp()
         self.set(key, **status)
 
     def set_song(self, key, song, task=None):
@@ -264,7 +265,7 @@ class HashRedisProxy(RedisProxy):
         status['cover'] = cover
         status['room_name'] = room_name
         status['duration'] = TIME_UNLIMIT
-        status['members_update_time'] = int(time.time())
+        status['members_update_time'] = get_now_timestamp()
         if task:
             status['task'] = task
         self.set(key, **status)
@@ -312,7 +313,7 @@ class HashRedisProxy(RedisProxy):
         self.redis.hmset(key, kwargs)
 
     def get(self, key):
-        now = int(time.time())
+        now = get_now_timestamp()
         redis_key = self.base_key.format(key)
         result = self.redis.hgetall(redis_key)
         result['current_time'] = now

@@ -5,7 +5,9 @@ import uuid
 
 import requests
 import logging
+import time
 
+from decimal import Decimal
 
 def send_board_cast_msg(message):
     url = 'http://127.0.0.1:8079/board'
@@ -17,3 +19,9 @@ def send_board_cast_msg(message):
 
 def generate_task_id():
     return unicode(uuid.uuid4())
+
+
+def get_now_timestamp():
+    return float('%.3f' % time.time())
+
+

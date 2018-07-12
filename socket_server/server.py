@@ -21,7 +21,7 @@ from celery_tasks import singing_callback, ask_callback, rest_callback, music_ca
 from const import RoomStatus, STATUS_ERROR, STATUS_SUCCESS
 from message import WsMessage
 from decorators import validate_room
-from utils import generate_task_id
+from utils import generate_task_id, get_now_timestamp
 
 logger = logging.getLogger(__name__)
 
@@ -68,7 +68,7 @@ class ChatCenter(object):
 
     @staticmethod
     def get_now_end_time(duration):
-        now = int(time.time())
+        now = get_now_timestamp()
         return now + duration
 
     def response_wrapper(self, message, status=STATUS_SUCCESS, msg='success', msg_type=1, raw_message=None):
@@ -137,7 +137,7 @@ class ChatCenter(object):
             task = generate_task_id()
             if music:
                 self.user_music.remove_member_from_set(room, music.get('fullname'))
-                duration = int(music.get('duration'))
+                duration = float(music.get('duration'))
                 res = self.room.set_music(room, music, task)
                 music_callback.apply_async((room, self.get_now_end_time(duration), task, duration),
                                            countdown=duration)
@@ -147,6 +147,12 @@ class ChatCenter(object):
         room_status = self.get_room_info(room)
         self.boardcast_in_room(None, room_status)
         self.chat_register[room].remove(lefter)
+        # 无人房间删除
+        # if not self.members.get_set_count(room):
+        #     obj = session.query(Room).filter(Room.room_id == room, Room.ding == False).first()
+        #     if obj:
+        #         session.delete(obj)
+        #         session.commit()
         logger.info('INFO socket {0} close from room {1}'.format(lefter.user.fullname, room))
 
     @coroutine
@@ -293,7 +299,7 @@ class ChatCenter(object):
             yield sender.write_message(self.response_wrapper({}, STATUS_ERROR, '不能演唱不是自己点的歌~', raw_message=message))
             return
         song = self.songs.pop(message.room)
-        song['duration'] = int(song.get('duration'), 0)
+        song['duration'] = float(song.get('duration'), 0)
         self.user_song.remove_member_from_set(message.room, message.fullname)
         if ack:
             # celery task id
@@ -304,7 +310,7 @@ class ChatCenter(object):
             yield self.boardcast_in_room(sender, res)
             # 歌曲完成回调
             singing_callback.apply_async((message.room, res.get('end_time'), task, res.get('duration')),
-                                         countdown=int(res.get('duration')))
+                                         countdown=float(res.get('duration')))
         else:
             song = self.songs.get(message.room)
             if not song:
@@ -346,7 +352,7 @@ class ChatCenter(object):
         music = self.music.pop(message.room)
         if music:
             self.user_music.remove_member_from_set(message.room, message.fullname)
-            duration = int(music.get('duration'))
+            duration = float(music.get('duration'))
             res = self.room.set_music(message.room, music, task)
             music_callback.apply_async((message.room, self.get_now_end_time(duration), task, duration),
                                        countdown=duration)
@@ -445,7 +451,7 @@ class ChatCenter(object):
             song = self.music.pop(message.room)
             self.user_music.remove_member_from_set(message.room, message.fullname)
             task = generate_task_id()
-            duration = int(song.get('duration'))
+            duration = float(song.get('duration'))
             res = self.room.set_music(message.room, song, task)
             room_status = self.get_room_info(message.room)
             music_callback.apply_async((message.room, self.get_now_end_time(duration), task, duration),
@@ -482,6 +488,10 @@ class ChatCenter(object):
     @coroutine
     def distribute_room(self, sender, message):
         result = yield self.generate_new_room(message.room)
+        if len(self.chat_register[message.room]) >= 12:
+            yield sender.write_message(self.response_wrapper({}, STATUS_ERROR, '房间人数已满', raw_message=message))
+            sender.close()
+            return
         if not result:
             yield sender.write_message(self.response_wrapper({}, STATUS_ERROR, '房间不存在', raw_message=message))
             return
