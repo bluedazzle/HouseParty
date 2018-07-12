@@ -488,12 +488,12 @@ class ChatCenter(object):
     @coroutine
     def distribute_room(self, sender, message):
         result = yield self.generate_new_room(message.room)
+        if not result:
+            yield sender.write_message(self.response_wrapper({}, STATUS_ERROR, '房间不存在', raw_message=message))
+            return
         if len(self.chat_register[message.room]) >= 12:
             yield sender.write_message(self.response_wrapper({}, STATUS_ERROR, '房间人数已满', raw_message=message))
             sender.close()
-            return
-        if not result:
-            yield sender.write_message(self.response_wrapper({}, STATUS_ERROR, '房间不存在', raw_message=message))
             return
         sender.room_id = message.room
         sender.token = message.token

@@ -6,7 +6,7 @@ import time
 import logging
 
 from const import RoomStatus
-from socket_server.utils import get_now_timestamp
+from utils import get_now_timestamp
 
 redis_room = None
 redis_common = None
