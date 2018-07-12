@@ -12,7 +12,7 @@ from .Warning import remove_check
 
 try:
     from django.db import models
-    from django.db.models import manager
+    from django.db.models import manager, TimeField
     from django.core.paginator import Page
     from django.db.models.query import QuerySet
     from django.db.models.fields.files import ImageFieldFile, FileField

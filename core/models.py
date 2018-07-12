@@ -40,7 +40,9 @@ class Room(BaseModel):
         return True if user in self.room_participants.all() else False
 
     def __unicode__(self):
-        return '{0}-{1}'.format(self.room_id, self.name)
+        if self.is_micro:
+            return '小程序: {0}-{1}'.format(self.room_id, self.name)
+        return 'APP: {0}-{1}'.format(self.room_id, self.name)
 
 
 class PartyUser(BaseModel, AbstractBaseUser):
@@ -87,6 +89,8 @@ class Secret(BaseModel):
     info = models.CharField(max_length=20, default='system')
     version = models.CharField(max_length=20, default='1.0.3')
     num = models.IntegerField(default=324823)
+    start_time = models.TimeField(null=True, blank=True)
+    end_time = models.TimeField(null=True, blank=True)
 
     def __unicode__(self):
         return self.info

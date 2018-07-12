@@ -146,7 +146,6 @@ class RoomListView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, ListV
     http_method_names = ['get', 'post']
     model = Room
 
-
     def get_room_mem_from_redis(self, obj):
         mems = members.get_set_members(obj.room_id)
         setattr(obj, 'members', mems)
@@ -178,6 +177,16 @@ class RoomListView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, ListV
         map(self.get_room_mem_from_redis, queryset)
         map(self.get_room_mem_modify_time_from_redis, queryset)
         return self.render_to_response({'room_list': queryset, 'is_paginated': False})
+
+
+class OpenTimeView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, DetailView):
+    model = Secret
+    http_method_names = ['get']
+    datetime_type = 'string'
+
+    def get(self, request, *args, **kwargs):
+        obj = self.model.objects.all()[0]
+        return self.render_to_response({'start_time': obj.start_time, 'end_time': obj.end_time})
 
 
 
