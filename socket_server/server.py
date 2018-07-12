@@ -299,7 +299,7 @@ class ChatCenter(object):
             yield sender.write_message(self.response_wrapper({}, STATUS_ERROR, '不能演唱不是自己点的歌~', raw_message=message))
             return
         song = self.songs.pop(message.room)
-        song['duration'] = float(song.get('duration'), 0)
+        song['duration'] = float(song.get('duration'))
         self.user_song.remove_member_from_set(message.room, message.fullname)
         if ack:
             # celery task id
