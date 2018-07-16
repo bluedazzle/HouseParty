@@ -186,7 +186,7 @@ class OpenTimeView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, Detai
 
     def get(self, request, *args, **kwargs):
         obj = self.model.objects.all()[0]
-        return self.render_to_response({'start_time': obj.start_time, 'end_time': obj.end_time})
+        return self.render_to_response({'start_time': obj.start_time, 'end_time': obj.end_time, 'open': obj.open})
 
 
 

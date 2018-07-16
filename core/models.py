@@ -91,6 +91,7 @@ class Secret(BaseModel):
     num = models.IntegerField(default=324823)
     start_time = models.TimeField(null=True, blank=True)
     end_time = models.TimeField(null=True, blank=True)
+    open = models.BooleanField(default=True)
 
     def __unicode__(self):
         return self.info
