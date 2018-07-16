@@ -94,12 +94,12 @@
         language: (navigator.browserLanguage || navigator.language).toLowerCase()
     };
     function is_weixn() {
-        if (browser.versions.weixin) {
+        if (browser.versions.weixin) { 
             return false;
         } else {
             if (browser.versions.android) {
                 setTimeout(function () {
-                    window.location = "http://static.fibar.cn/mido0706.apk";
+                    window.location = "http://static.fibar.cn/mido0716.apk";
                 }, 500);
                 var surl = "miku://myproject.com:80/mido?room={{ room.room_id }}&name={{ room.name }}";
                 window.location = surl;
