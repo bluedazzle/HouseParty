@@ -847,10 +847,10 @@ class RoomView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespons
             self.status_code = INFO_NO_EXIST
             return self.render_to_response({})
         room = rooms[0]
-        if room.number() >= self.max_members:
-            self.message = '房间已满'
-            self.status_code = ERROR_DATA
-            return self.render_to_response({})
+        # if room.number() >= self.max_members:
+        #     self.message = '房间已满'
+        #     self.status_code = ERROR_DATA
+        #     return self.render_to_response({})
         if self.user.room and room != self.user.room:
             singers = Singer.objects.filter(creator=self.user, room=self.user.room)
             if singers.exists():
