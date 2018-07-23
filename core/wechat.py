@@ -9,7 +9,7 @@ from django.utils import timezone
 
 # APP_KEY = 'wx922e48f2a5c2c1ee'
 APP_KEY = 'wx55112dd988c846bf'
-APP_SECRET = '68a277c3a51e3d77d72f98cc372b1b99'
+APP_SECRET = '0e78a9e464f5879534c7d411def6d30c'
 # APP_SECRET = 'dd1f635ce5758ddb3d8f9049c8752963'
 
 
