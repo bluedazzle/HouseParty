@@ -561,6 +561,8 @@ class Application(tornado.web.Application):
             template_path=os.path.join(os.path.dirname(__file__), "templates"),
             static_path=os.path.join(os.path.dirname(__file__), "static"),
             xsrf_cookies=False,
+            websocket_ping_interval=5,
+            websocket_ping_timeout=30,
         )
         super(Application, self).__init__(handlers, **settings)
 
@@ -620,6 +622,12 @@ class ChatSocketHandler(tornado.websocket.WebSocketHandler):
         # except Exception as e:
         #     logger.error('ERROR IN new message coming, message {0}, reason {1}'.format(message, e))
         #     raise e
+
+    def on_pong(self, data):
+        logger.info('INFO on pong {0}'.format(self.user))
+
+    def on_ping(self, data):
+        logger.info('INFO on ping {0}'.format(self.user))
 
     def get_compression_options(self):
         # Non-None enables compression with default options.
