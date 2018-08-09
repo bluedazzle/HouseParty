@@ -497,6 +497,10 @@ class ChatCenter(object):
             return
         sender.room_id = message.room
         sender.token = message.token
+        try:
+            session.commit()
+        except Exception as e:
+            session.rollback()
         user = session.query(PartyUser).filter(PartyUser.token == message.token).first()
         if user:
             sender.user = user
@@ -519,6 +523,10 @@ class ChatCenter(object):
             return
         sender.room_id = message.room
         sender.token = message.token
+        try:
+            session.commit()
+        except Exception as e:
+            session.rollback()
         user = session.query(PartyUser).filter(PartyUser.token == message.token).first()
         if user:
             sender.user = user
