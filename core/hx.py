@@ -9,6 +9,8 @@ import time
 import logging
 
 APP_KEY = '1179170304115557#miku'
+client_id = 'YXA6kqKaMHtBEeekmBucIzGEJA'
+client_secret = 'YXA6P8TuLYCmb2jGMT9ZfF_4vTVsqIM'
 
 
 def create_new_ease_user(user_id, nick, token):
@@ -44,11 +46,10 @@ def get_access_token():
         return token
     org, app = APP_KEY.split('#')
     url = 'https://a1.easemob.com/{0}/{1}/token/'.format(org, app)
-    data = {"grant_type": "client_credentials", "client_id": app, "client_secret": app}
+    data = {"grant_type": "client_credentials", "client_id": client_id, "client_secret": client_secret}
     req = requests.post(url, json=data, timeout=3)
     if req.status_code != 200:
-        print req.content
-    return False
+        return False
     data = req.json()
     token = data.get('access_token')
     mem.setex('hx_token', data.get('expires_in') - 100, token)
@@ -60,18 +61,20 @@ def get_user_status(user_id):
         org, app = APP_KEY.split('#')
         url = 'https://a1.easemob.com/{0}/{1}/users/{2}/status'.format(org, app, user_id)
         token = get_access_token()
-        headers = {"Content-Type": "application/json", "Authorization": "Bearer ${0}".format(token)}
+        headers = {"Content-Type": "application/json", "Authorization": "Bearer {0}".format(token)}
         req = requests.get(url, headers=headers, timeout=3)
         if req.status_code != 200:
-            return False
+            return None
         data = req.json()
-        return data
+        if data.get('data').get(unicode(user_id)) == 'offline':
+            return False
+        return True
     except Exception as e:
         print 'ERROR IN update ease user {0} reason {1}'.format(user_id, e)
-        return False
+        return None
 
 
 if __name__ == '__main__':
-    # print get_user_status(425136)
+    print get_user_status(425136)
     # print create_new_ease_user('123a','123','123')
-    print get_access_token()
+    # print get_access_token()

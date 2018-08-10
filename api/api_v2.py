@@ -23,7 +23,7 @@ from core.Mixin.StatusWrapMixin import StatusWrapMixin, INFO_EXPIRE, ERROR_VERIF
     ERROR_UNKNOWN, ERROR_PERMISSION_DENIED, ERROR_PASSWORD, INFO_NO_EXIST, INFO_EXISTED
 from core.Mixin import StatusWrapMixin as SW
 from core.dss.Mixin import JsonResponseMixin, MultipleJsonResponseMixin
-from core.hx import create_new_ease_user, update_ease_user
+from core.hx import create_new_ease_user, update_ease_user, get_user_status
 from core.models import Verify, PartyUser, FriendRequest, FriendNotify, Hook, Room, DeleteNotify, Secret, Present, Song, \
     Report, Singer, Invite
 from core.wechat import get_session_key
@@ -203,14 +203,27 @@ class FriendStatusView(CheckTokenMixin, StatusWrapMixin, JsonResponseMixin, Deta
         if not self.wrap_check_token_result():
             return self.render_to_response(dict())
         friends = request.body
-        # 群组缓存，所有用户共用
-        out_dict = {}
-        if friends:
-            friends = json.loads(friends)
-            friends_set = set(friends)
-            result = self.kv.mget(friends)
-            if not result[0]:
-                return self.render_to_response({'friend_list': []})
+        import pudb;pu.db
+        if not friends:
+            return self.render_to_response({'friend_list': []})
+        friends = json.loads(friends)
+        friends_set = set(friends)
+        result = self.kv.mget(friends)
+        result = [itm for itm in result if itm.get('fullname', None)]
+        if result:
             redis_set = set([itm['fullname'] for itm in result])
-            update_list = list(friends_set.difference(redis_set))
-            return self.render_to_response({'friend_list': result})
+        else:
+            redis_set = set()
+        update_list = list(friends_set - redis_set)
+        update_set = self.model.objects.filter(fullname__in=update_list).all()
+        for update in update_set:
+            res = get_user_status(update.fullname)
+            if res != None:
+                result.append(
+                    {'fullname': update.fullname, 'nick': update.nick, 'room_id': '', 'room_name': '', 'online': res})
+                self.kv.setex(update.fullname, 300, update.fullname, update.nick, '', '', res)
+            else:
+                result.append(
+                    {'fullname': update.fullname, 'nick': update.nick, 'room_id': '', 'room_name': '',
+                     'online': 'unknown'})
+        return self.render_to_response({'friend_list': result})
