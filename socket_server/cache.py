@@ -132,10 +132,20 @@ class KVRedisProxy(RedisProxy):
         value = self.encode_value(*args)
         self.redis.set(key, value)
 
+    def setex(self, key, t, *args):
+        key = self.base_key.format(key)
+        value = self.encode_value(*args)
+        self.redis.setex(key, t, value)
+
     def get(self, key):
         key = self.base_key.format(key)
         result = self.redis.get(key)
         self.decode_value(result)
+
+    def mget(self, keys):
+        base_keys = [self.base_key.format(itm) for itm in keys]
+        result = self.redis.mget(base_keys)
+        return [self.decode_value(itm) for itm in result]
 
 
 class ListRedisProxy(RedisProxy):

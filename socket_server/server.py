@@ -33,7 +33,7 @@ from db import session, Room, PartyUser, Song
 define("port", default=8888, help="run on the given port", type=int)
 
 redis_room = None
-
+redis_common = None
 
 class ChatCenter(object):
     '''
@@ -58,6 +58,8 @@ class ChatCenter(object):
         self.user_music = RedisProxy(redis_room, USER_MUSIC_KEY, 'fullname', ['fullname'])
         self.user_room = RedisProxy(redis_room, USER_ROOM_KEY, 'fullname', ['fullname'])
         self.room = HashRedisProxy(redis_room, ROOM_STATUS_KEY)
+        self.kv = KVRedisProxy(redis_common, 'USER_STATUS_{0}', 'fullname',
+                               ['fullname', 'nick', 'room_id', 'room_name', 'online'])
 
     def parameter_wrapper(self, message):
         parsed = tornado.escape.json_decode(message)
@@ -147,6 +149,7 @@ class ChatCenter(object):
         room_status = self.get_room_info(room)
         self.boardcast_in_room(None, room_status)
         self.chat_register[room].remove(lefter)
+        self.kv.setex(lefter.user.fullname, 300, lefter.user.fullname, lefter.user.nick, '', '', True)
         # 无人房间删除
         # if not self.members.get_set_count(room):
         #     obj = session.query(Room).filter(Room.room_id == room, Room.ding == False).first()
@@ -478,16 +481,16 @@ class ChatCenter(object):
         import pylru
         room_obj = session.query(Room).filter(Room.room_id == room).first()
         if not room_obj:
-            return False
+            return False, None
         if room not in self.chat_register:
             self.chat_register[room] = set()
             self.chat_history[room] = pylru.lrucache(200)
             self.room.set_init(room, room_obj.name, room_obj.cover)
-        return True
+        return True, room_obj
 
     @coroutine
     def distribute_room(self, sender, message):
-        result = yield self.generate_new_room(message.room)
+        result, obj = yield self.generate_new_room(message.room)
         if not result:
             yield sender.write_message(self.response_wrapper({}, STATUS_ERROR, '房间不存在', raw_message=message))
             return
@@ -510,6 +513,7 @@ class ChatCenter(object):
             self.user_room.create_update_set(message.room, user.fullname)
             # sender.write_message(self.response_wrapper({}))
             self.room.set_mem_update_time(message.room)
+            self.kv.set(user.fullname, user.fullname, user.nick, message.room, obj.name, True)
             res = self.get_room_info(message.room)
             yield self.boardcast_in_room(sender, res)
             return
@@ -643,9 +647,10 @@ class ChatSocketHandler(tornado.websocket.WebSocketHandler):
 
 
 def main():
-    global redis_room
+    global redis_room, redis_common
     init_redis()
     redis_room = redis.StrictRedis(host='localhost', port=6379, db=5)
+    redis_common = redis.StrictRedis(host='localhost', port=6379, db=4)
     tornado.options.parse_command_line()
     app = Application()
     app.listen(options.port)

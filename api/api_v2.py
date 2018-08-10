@@ -7,6 +7,7 @@ import random
 import string
 
 # Create your views here.
+import redis
 from django.db.models import Q
 from django.http import Http404
 from django.http import HttpResponseRedirect
@@ -26,7 +27,7 @@ from core.hx import create_new_ease_user, update_ease_user
 from core.models import Verify, PartyUser, FriendRequest, FriendNotify, Hook, Room, DeleteNotify, Secret, Present, Song, \
     Report, Singer, Invite
 from core.wechat import get_session_key
-from socket_server.cache import songs, user_song, members, room
+from socket_server.cache import songs, user_song, members, room, KVRedisProxy
 
 NEW_TOKEN = 'ZGBKrriEYvaXsiJjaQuhq5yntpl8ewWdxu7nRmTAhzSCkZGNket92Bf3dFbMIgLj'
 
@@ -189,4 +190,27 @@ class OpenTimeView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, Detai
         return self.render_to_response({'start_time': obj.start_time, 'end_time': obj.end_time, 'open': obj.open})
 
 
+class FriendStatusView(CheckTokenMixin, StatusWrapMixin, JsonResponseMixin, DetailView):
+    model = PartyUser
 
+    def __init__(self, *args, **kwargs):
+        self.redis = redis.StrictRedis(host='localhost', port=6379, db=4)
+        self.kv = KVRedisProxy(self.redis, 'USER_STATUS_{0}', 'fullname',
+                               ['fullname', 'nick', 'room_id', 'room_name', 'online'])
+        super(FriendStatusView, self).__init__(*args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        if not self.wrap_check_token_result():
+            return self.render_to_response(dict())
+        friends = request.body
+        # 群组缓存，所有用户共用
+        out_dict = {}
+        if friends:
+            friends = json.loads(friends)
+            friends_set = set(friends)
+            result = self.kv.mget(friends)
+            if not result[0]:
+                return self.render_to_response({'friend_list': []})
+            redis_set = set([itm['fullname'] for itm in result])
+            update_list = list(friends_set.difference(redis_set))
+            return self.render_to_response({'friend_list': result})
