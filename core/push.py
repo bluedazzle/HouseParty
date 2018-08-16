@@ -74,8 +74,7 @@ def push_hook(user, to):
     kv = KVRedisProxy(r, 'USER_STATUS_{0}', 'fullname',
                       ['fullname', 'nick', 'room_id', 'room_name', 'online'])
     user_data = kv.get(user)
-    user_data['room_id'] = 'R1534301781443160'
-    msg = '{0} 向你打招呼, 点击加入聊天'.format(user_data.get('nick').encode('utf-8'))
+    msg = '{0} 向你打招呼, 点击加入聊天'.format(user_data.get('nick'))
     _jpush = jpush.JPush(APP_KEY, MASTER_SECRET)
     _jpush.set_logging("DEBUG")
     push = _jpush.create_push()
