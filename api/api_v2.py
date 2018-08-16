@@ -203,7 +203,6 @@ class FriendStatusView(CheckTokenMixin, StatusWrapMixin, JsonResponseMixin, Deta
         if not self.wrap_check_token_result():
             return self.render_to_response(dict())
         friends = request.body
-        import pudb;pu.db
         if not friends:
             return self.render_to_response({'friend_list': []})
         friends = json.loads(friends)

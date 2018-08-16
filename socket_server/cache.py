@@ -140,7 +140,7 @@ class KVRedisProxy(RedisProxy):
     def get(self, key):
         key = self.base_key.format(key)
         result = self.redis.get(key)
-        self.decode_value(result)
+        return self.decode_value(result)
 
     def mget(self, keys):
         base_keys = [self.base_key.format(itm) for itm in keys]

@@ -805,7 +805,7 @@ class HookView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespons
                 now_time = datetime.datetime.now(tz=get_current_timezone())
                 if now_time - hook.modify_time > datetime.timedelta(seconds=10) or created:
                     # 推送到手机
-                    push_hook(user.fullname, self.user)
+                    push_hook(self.user.fullname, user.fullname)
                     hook.save()
                     self.update_notify(user)
                     return self.render_to_response({})

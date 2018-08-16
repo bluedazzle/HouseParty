@@ -2,8 +2,11 @@
 
 from __future__ import unicode_literals
 import jpush as jpush
+import redis
 
-APP_KEY = '8a3d8a574a0137f8e153ddf'
+from socket_server.cache import KVRedisProxy
+
+APP_KEY = '8a3d8a574a0137f8e153ddf1'
 MASTER_SECRET = 'b593a0b85c902c0d2261b4d0'
 
 
@@ -66,16 +69,24 @@ def push_friend_request(rid, user):
         pass
 
 
-def push_hook(rid, user):
-    msg = '{0} 向你打招呼, 点击加入聊天'.format(user.nick).encode('utf-8')
+def push_hook(user, to):
+    r = redis.StrictRedis(host='localhost', port=6379, db=4)
+    kv = KVRedisProxy(r, 'USER_STATUS_{0}', 'fullname',
+                      ['fullname', 'nick', 'room_id', 'room_name', 'online'])
+    user_data = kv.get(user)
+    user_data['room_id'] = 'R1534301781443160'
+    msg = '{0} 向你打招呼, 点击加入聊天'.format(user_data.get('nick').encode('utf-8'))
     _jpush = jpush.JPush(APP_KEY, MASTER_SECRET)
-    # _jpush.set_logging("DEBUG")
+    _jpush.set_logging("DEBUG")
     push = _jpush.create_push()
-    ios_msg = jpush.ios(alert=msg, extras={'room_id': user.room.room_id, 'room_name': user.room.name})
+    ios_msg = jpush.ios(alert=msg,
+                        extras={'room_id': user_data.get('room_id'), 'room_name': user_data.get('room_name')})
+    android_msg = jpush.android(alert=msg,
+                                extras={'room_id': user_data.get('room_id'), 'room_name': user_data.get('room_name')})
     push.audience = jpush.audience(
-        jpush.alias(rid)
+        jpush.alias(to)
     )
-    push.notification = jpush.notification(alert=msg, ios=ios_msg)
+    push.notification = jpush.notification(alert=msg, ios=ios_msg, android=android_msg)
     push.platform = jpush.all_
     push.options = {"apns_production": True}
     try:
@@ -85,26 +96,5 @@ def push_hook(rid, user):
         pass
 
 
-class too(object):
-    pass
-
-
-# user = too()
-# room = too()
-# setattr(room, 'room_id', '123')
-# setattr(user, 'fullname', 'testserver')
-# setattr(user, 'room', room)
-#
-# push_hook('18310160177', user)
-#
-# class too(object):
-#     pass
-#
-#
-# user = too()
-# room = too()
-# setattr(user, 'fullname', 'test')
-# setattr(room, 'room_id', '123')
-# setattr(user, 'room', room)
-#
-# push_hook('18310160178', user)
+if __name__ == '__main__':
+    push_hook('427304', '425029')
