@@ -4,26 +4,37 @@ from __future__ import unicode_literals
 import json
 import requests
 
-# from django.core.cache import cache
+from django.core.cache import cache
 from django.utils import timezone
 
 # APP_KEY = 'wx922e48f2a5c2c1ee'
-APP_KEY = 'wx55112dd988c846bf'
-APP_SECRET = '0e78a9e464f5879534c7d411def6d30c'
+# APP_KEY = 'wx55112dd988c846bf'
+# APP_SECRET = '0e78a9e464f5879534c7d411def6d30c'
+
+APP_DICT = {'old': {'APP_KEY': 'wx55112dd988c846bf', 'APP_SECRET': '0e78a9e464f5879534c7d411def6d30c'},
+            'new': {'APP_KEY': 'wx43df1809aaaf0452', 'APP_SECRET': '0f574f2e90f1cf7e8a9957290a04e9ed'}}
+
+
 # APP_SECRET = 'dd1f635ce5758ddb3d8f9049c8752963'
 
+def get_key(source='old'):
+    key = APP_DICT.get(source, APP_DICT.get('new'))
+    res = key.items()
+    return res[0], res[1]
 
-def get_access_token():
-    access_token = cache.get('access_token')
+
+def get_access_token(source='old'):
+    access_token = cache.get('{0}_access_token'.format(source))
+    app_key, app_secret = get_key(source)
     if access_token:
         return access_token
     res = requests.get(
-        'https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid={0}&secret={1}'.format(APP_KEY,
-                                                                                                           APP_SECRET))
+        'https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid={0}&secret={1}'.format(app_key,
+                                                                                                           app_secret))
     json_data = json.loads(res.content)
     access_token = json_data.get('access_token', None)
     if access_token:
-        cache.set('access_token', access_token, 60 * 60 * 2)
+        cache.set('{0}_access_token'.format(source), access_token, 60 * 60 * 2)
         return access_token
     return None
 
@@ -49,7 +60,8 @@ def send_template_message(feedback):
     return False
 
 
-def get_session_key(code):
+def get_session_key(code, source='old'):
+    APP_KEY, APP_SECRET = get_key(source)
     url = 'https://api.weixin.qq.com/sns/jscode2session?appid={0}&secret={1}&js_code={2}&grant_type=authorization_code'.format(
         APP_KEY, APP_SECRET, code)
     res = requests.get(url).content

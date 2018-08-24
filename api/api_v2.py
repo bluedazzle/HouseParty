@@ -102,8 +102,9 @@ class UserAuthView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, JsonR
         if not self.wrap_check_sign_result():
             return self.render_to_response(dict())
         code = request.POST.get('code', None)
+        source = request.POST.get('source', 'old')
         if code:
-            status, openid, session = get_session_key(code)
+            status, openid, session = get_session_key(code, source)
             if status:
                 my_session = self.generate_session()
                 user = PartyUser.objects.filter(wx_open_id=openid)
@@ -156,7 +157,13 @@ class RoomListView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, ListV
         setattr(obj, 'members_update_time', room_info.get('members_update_time'))
 
     def get_queryset(self):
-        queryset = super(RoomListView, self).get_queryset().filter(is_micro=False).order_by("-priority", "-create_time")
+        is_micro = self.request.GET.get('is_micro', 0)
+        if is_micro:
+            queryset = super(RoomListView, self).get_queryset().filter(is_micro=True).order_by("-priority",
+                                                                                                "-create_time")
+        else:
+            queryset = super(RoomListView, self).get_queryset().filter(is_micro=False).order_by("-priority",
+                                                                                                "-create_time")
         return queryset
 
     def get_room_count_from_redis(self, obj):
