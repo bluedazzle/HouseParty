@@ -18,9 +18,12 @@ APP_DICT = {'old': {'APP_KEY': 'wx55112dd988c846bf', 'APP_SECRET': '0e78a9e464f5
 # APP_SECRET = 'dd1f635ce5758ddb3d8f9049c8752963'
 
 def get_key(source='old'):
-    key = APP_DICT.get(source, APP_DICT.get('new'))
-    res = key.items()
-    return res[0], res[1]
+    if source == 'new':
+        return 'wx43df1809aaaf0452', '0f574f2e90f1cf7e8a9957290a04e9ed'
+    return 'wx55112dd988c846bf', '0e78a9e464f5879534c7d411def6d30c'
+    # key = APP_DICT.get(source, APP_DICT.get('new'))
+    # res = key.items()
+    # return res[0], res[1]
 
 
 def get_access_token(source='old'):
