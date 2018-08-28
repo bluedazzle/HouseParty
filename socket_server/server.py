@@ -110,12 +110,7 @@ class ChatCenter(object):
         self.members.remove_member_from_set(room, lefter.user.fullname, lefter.user.nick, lefter.user.avatar)
         self.user_room.remove_member_from_set(room, lefter.user.fullname)
         self.room.set_mem_update_time(room)
-        # count = self.members.get_set_count(room)
-        # if not count:
-        #     room_obj = session.query(Room).filter(Room.room_id == room, Room.ding == False).first()
-        #     if room_obj:
-        #         session.delete(room_obj)
-        #         session.commit()
+
         # 检查是否排麦
         if self.user_song.exist(room, lefter.user.fullname):
             index = self.songs.search(room, lefter.user.fullname)
@@ -151,6 +146,16 @@ class ChatCenter(object):
         self.chat_register[room].remove(lefter)
         self.kv.setex(lefter.user.fullname, 300, lefter.user.fullname, lefter.user.nick, '', '', True)
         # 无人房间删除
+        count = self.members.get_set_count(room)
+        if not count:
+            room_obj = session.query(Room).filter(Room.room_id == room, Room.ding == False).first()
+            if room_obj:
+                try:
+                    session.delete(room_obj)
+                    session.commit()
+                except Exception as e:
+                    session.rollback()
+                    logger.exception('ERROR in session commit reason {0}'.format(e))
         # if not self.members.get_set_count(room):
         #     obj = session.query(Room).filter(Room.room_id == room, Room.ding == False).first()
         #     if obj:
@@ -504,6 +509,7 @@ class ChatCenter(object):
             session.commit()
         except Exception as e:
             session.rollback()
+            logger.exception('ERROR in session commit reason {0}'.format(e))
         user = session.query(PartyUser).filter(PartyUser.token == message.token).first()
         if user:
             sender.user = user
@@ -531,6 +537,8 @@ class ChatCenter(object):
             session.commit()
         except Exception as e:
             session.rollback()
+            logger.exception('ERROR in session commit reason {0}'.format(e))
+
         user = session.query(PartyUser).filter(PartyUser.token == message.token).first()
         if user:
             sender.user = user
