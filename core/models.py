@@ -30,14 +30,16 @@ class Room(BaseModel):
     # participants = models.ManyToManyField(PartyUser, related_name='my_all_rooms', blank=True)
 
     def number(self):
-        return self.room_participants.all().count()
+        return 0
+        # return self.room_participants.all().count()
 
     def destroy(self):
         if self.number() == 0:
             self.delete()
 
     def search(self, user):
-        return True if user in self.room_participants.all() else False
+        return False
+        # return True if user in self.room_participants.all() else False
 
     def __unicode__(self):
         if self.is_micro:
@@ -61,7 +63,7 @@ class PartyUser(BaseModel, AbstractBaseUser):
     forbid = models.BooleanField(default=False)
     sex = models.IntegerField(default=0, choices=sex_choices)
     headline = models.CharField(max_length=512, default='', null=True, blank=True)
-    room = models.ForeignKey(Room, related_name='room_participants', null=True, blank=True, on_delete=models.SET_NULL)
+    # room = models.ForeignKey(Room, related_name='room_participants', null=True, blank=True, on_delete=models.SET_NULL)
     qq_open_id = models.CharField(max_length=128, default='', blank=True, null=True)
     wx_open_id = models.CharField(max_length=128, default='', blank=True, null=True)
     token = models.CharField(max_length=64, unique=True)

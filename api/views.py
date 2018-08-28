@@ -510,37 +510,37 @@ class HeartView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespon
             # if not self.user.online:
             # 好友上线通知
             # push_to_friends(self.user.phone, self.user.fullname)
-        self.user.online = True
-        self.user.save()
-        friend_list = self.user.friend_list.all().order_by('online')
-        map(self.generate_notify_to_friends, friend_list)
-        dct = MultiValueDict()
-        for obj in friend_list:
-            if obj.room:
-                for itm in obj.room.room_participants.all():
-                    if itm != self.user:
-                        if itm in self.user.friend_list.all():
-                            setattr(itm, 'is_friend', True)
-                        else:
-                            setattr(itm, 'is_friend', False)
-                        dct.appendlist(obj.room.room_id, itm)
-            else:
-                dct.appendlist('free', obj)
-        user = {'id': self.user.id,
-                'nick': self.user.nick,
-                'phone': self.user.phone,
-                'room': self.user.room,
-                'fullname': self.user.fullname}
-        if self.user.room:
-            dct.appendlist(self.user.room.room_id, user)
-        else:
-            dct.appendlist('free', user)
-        tp = [{'room': k, 'participants': self.ensure_unique(dct.getlist(k))} for k in dct.keys()]
-        dns = DeleteNotify.objects.filter(belong=self.user)
-        setattr(self.user, 'deletes', dns)
-        setattr(self.user, 'friends', tp)
-        secret = Secret.objects.all()[0]
-        setattr(self.user, 'version', secret.version)
+        # self.user.online = True
+        # self.user.save()
+        # friend_list = self.user.friend_list.all().order_by('online')
+        # map(self.generate_notify_to_friends, friend_list)
+        # dct = MultiValueDict()
+        # for obj in friend_list:
+        #     if obj.room:
+        #         for itm in obj.room.room_participants.all():
+        #             if itm != self.user:
+        #                 if itm in self.user.friend_list.all():
+        #                     setattr(itm, 'is_friend', True)
+        #                 else:
+        #                     setattr(itm, 'is_friend', False)
+        #                 dct.appendlist(obj.room.room_id, itm)
+        #     else:
+        #         dct.appendlist('free', obj)
+        # user = {'id': self.user.id,
+        #         'nick': self.user.nick,
+        #         'phone': self.user.phone,
+        #         'room': self.user.room,
+        #         'fullname': self.user.fullname}
+        # if self.user.room:
+        #     dct.appendlist(self.user.room.room_id, user)
+        # else:
+        #     dct.appendlist('free', user)
+        # tp = [{'room': k, 'participants': self.ensure_unique(dct.getlist(k))} for k in dct.keys()]
+        # dns = DeleteNotify.objects.filter(belong=self.user)
+        # setattr(self.user, 'deletes', dns)
+        # setattr(self.user, 'friends', tp)
+        # secret = Secret.objects.all()[0]
+        # setattr(self.user, 'version', secret.version)
         return self.render_to_response(self.user)
 
     def generate_notify_to_friends(self, friend):
@@ -572,12 +572,12 @@ class ExitView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespons
             return self.render_to_response(dict())
         if not self.wrap_check_token_result():
             return self.render_to_response(dict())
-        singers = Singer.objects.filter(creator=self.user, room=self.user.room)
-        if singers.exists():
-            singer = singers[0]
-            singer.delete()
-        self.user.room = None
-        self.user.save()
+        # singers = Singer.objects.filter(creator=self.user, room=self.user.room)
+        # if singers.exists():
+        #     singer = singers[0]
+        #     singer.delete()
+        # self.user.room = None
+        # self.user.save()
         return self.render_to_response({})
 
 
@@ -851,17 +851,18 @@ class RoomView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonRespons
         #     self.message = '房间已满'
         #     self.status_code = ERROR_DATA
         #     return self.render_to_response({})
-        if self.user.room and room != self.user.room:
-            singers = Singer.objects.filter(creator=self.user, room=self.user.room)
-            if singers.exists():
-                singer = singers[0]
-                singer.delete()
-        self.user.room = room
-        self.user.save()
-        users = room.room_participants.filter(online=True)
-        map(self.check_friend, users)
+        # if self.user.room and room != self.user.room:
+        #     singers = Singer.objects.filter(creator=self.user, room=self.user.room)
+        #     if singers.exists():
+        #         singer = singers[0]
+        #         singer.delete()
+        # self.user.room = room
+        # self.user.save()
+        # users = room.room_participants.filter(online=True)
+        # map(self.check_friend, users)
 
-        return self.render_to_response({'count': users.count(), 'participants': users})
+        # return self.render_to_response({'count': users.count(), 'participants': users})
+        return self.render_to_response({})
 
     def check_friend(self, obj):
         match_user = obj
@@ -1172,7 +1173,8 @@ class RoomListView(CheckSecurityMixin, StatusWrapMixin, MultipleJsonResponseMixi
         setattr(obj, 'numbers', obj.number())
 
     def get_users(self, obj):
-        setattr(obj, 'participants', obj.room_participants.all())
+        return None
+        # setattr(obj, 'participants', obj.room_participants.all())
 
 
 # class YoukuVideoList(CheckSecurityMixin, StatusWrapMixin, MultipleJsonResponseMixin, ListView):
