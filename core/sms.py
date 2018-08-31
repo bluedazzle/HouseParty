@@ -17,6 +17,7 @@ API_KEY = '43d849d573a5617ae3cb31980160a513'
 # 服务地址
 sms_host = "sms.yunpian.com"
 voice_host = "voice.yunpian.com"
+i18n_host = 'us.yunpian.com'
 # 端口号
 port = 443
 # 版本号
@@ -65,6 +66,28 @@ def send_sms(code, mobile, apikey=API_KEY):
     return False
 
 
+def i18n_send_sms(code, mobile, apikey=API_KEY):
+    """
+    i18n 接口短信
+    :param code:
+    :param mobile:
+    :param apike:
+    :return:
+    """
+    import requests
+    text = '【Musicparty】your verify code is {0}'.format(code).encode('utf-8')
+    headers = {"Content-type": "application/x-www-form-urlencoded;charset=utf-8",
+               "Accept": "application/json;charset=utf-8"}
+    # conn = httplib.HTTPSConnection(i18n_host, port=port, timeout=30)
+    resp = requests.post('http://{0}{1}'.format(i18n_host, sms_send_uri),
+                         data={'apikey': apikey, 'text': text, 'mobile': mobile}, headers=headers)
+    print resp.content
+    json_res = resp.json()
+    if json_res.get('code') == 0:
+        return True
+    return False
+
+
 def tpl_send_sms(apikey, tpl_id, tpl_value, mobile):
     """
     模板接口发短信
@@ -95,5 +118,4 @@ def send_voice_sms(code, mobile, apikey):
 
 
 if __name__ == '__main__':
-    send_sms('1111', '156080509720')
-    print 1 == 1.0
+    i18n_send_sms('1111', '+8615608059720')

@@ -34,8 +34,8 @@ class VerifyCodeForm(forms.ModelForm):
     def clean_phone(self):
         phone = unicode(self.cleaned_data.get('phone', None))
         if phone:
-            if len(phone) != 11:
-                raise forms.ValidationError(message=self.error_messages['phone_format'], code='phone_format')
+            # if len(phone) != 11:
+            #     raise forms.ValidationError(message=self.error_messages['phone_format'], code='phone_format')
             phone_list = Verify.objects.filter(phone=phone).order_by('-create_time')
             if phone_list.exists():
                 phone_obj = phone_list[0]

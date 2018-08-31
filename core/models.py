@@ -55,7 +55,7 @@ class PartyUser(BaseModel, AbstractBaseUser):
     )
 
     nick = models.CharField(max_length=100, default='')
-    phone = models.CharField(max_length=11, default='', null=True, blank=True)
+    phone = models.CharField(max_length=20, default='', null=True, blank=True)
     fullname = models.CharField(max_length=64, unique=True)
     avatar = models.CharField(max_length=256, null=True, blank=True, default='http://ktv.fibar.cn/static/image/avatar.png')
     friend_list = models.ManyToManyField('self', related_name='friend_by', blank=True)
@@ -68,6 +68,7 @@ class PartyUser(BaseModel, AbstractBaseUser):
     wx_open_id = models.CharField(max_length=128, default='', blank=True, null=True)
     token = models.CharField(max_length=64, unique=True)
     active = models.BooleanField(default=True)
+    # area_code = models.CharField(max_length=10, default='+86')
 
     USERNAME_FIELD = 'phone'
 

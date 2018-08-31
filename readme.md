@@ -6,6 +6,8 @@
 
 **host: http://ktv.fibar.cn**
 
+**i18n_host: http://va-ktv.fibar.cn**
+
 **api_version: v1**
 
 # 概要
@@ -1446,5 +1448,102 @@ POST /api/v2/rooms
     "body": {},
     "status": 4,
     "msg": ""
+}
+```
+
+## **海外验证注册验证码**
+```
+GET /i18n/verify
+```
+### **Parameters**
+* phone(_Required_|string)-手机号，附带地区编码（+8615608059720）
+* code(_Required_|string)-验证码
+
+### **Return**
+成功
+```
+{
+  "body": {},
+  "status": 1,
+  "msg": "success"
+}
+```
+失败
+```
+{
+  "body": {},
+  "status": 4,
+  "msg": "数据缺失"
+}
+
+{
+  "body": {},
+  "status": 10,
+  "msg": "请获取验证码"
+}
+
+{
+  "body": {},
+  "status": 11,
+  "msg": "验证码不正确"
+}
+
+```
+
+## **短信登陆**
+```
+POST /i18n/sms_login
+```
+### **Parameters**
+* phone(_Optional_|string)- 手机 ，附带地区编码（+8615608059720）
+* code(_Optional_|string)- 验证码
+
+### **Return**
+
+```
+{
+    "body": {
+        user object
+    },
+    "status": 1,
+    "msg": "success"
+}
+or
+```
+其他
+```
+{
+  "body": {},
+  "status": 4,
+  "msg": "数据缺失"
+}
+```
+
+发送登陆短信
+
+```
+GET /i18n/sms_login
+```
+### **Parameters**
+* phone(_Optional_|string)- 手机，附带地区编码（+8615608059720）
+
+### **Return**
+
+```
+{
+    "body": {
+        user object
+    },
+    "status": 1,
+    "msg": "success"
+}
+or
+```
+其他
+```
+{
+  "body": {},
+  "status": 4,
+  "msg": "数据缺失"
 }
 ```

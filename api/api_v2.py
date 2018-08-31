@@ -26,6 +26,7 @@ from core.dss.Mixin import JsonResponseMixin, MultipleJsonResponseMixin
 from core.hx import create_new_ease_user, update_ease_user, get_user_status
 from core.models import Verify, PartyUser, FriendRequest, FriendNotify, Hook, Room, DeleteNotify, Secret, Present, Song, \
     Report, Singer, Invite
+from core.sms import i18n_send_sms
 from core.wechat import get_session_key
 from socket_server.cache import songs, user_song, members, room, KVRedisProxy
 

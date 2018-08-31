@@ -35,7 +35,6 @@ import redis
 NEW_TOKEN = 'ZGBKrriEYvaXsiJjaQuhq5yntpl8ewWdxu7nRmTAhzSCkZGNket92Bf3dFbMIgLj'
 
 
-
 class VerifyCodeView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, CreateView):
     form_class = VerifyCodeForm
     datetime_type = 'timestamp'
