@@ -1030,7 +1030,8 @@ class SongListView(CheckSecurityMixin, StatusWrapMixin, MultipleJsonResponseMixi
             # self.paginator_class = SearchPaginator
             match_queryset = Song.objects.filter(Q(name=query) | Q(author=query)).all()
             res_list = [itm for itm in match_queryset]
-            queryset = tuple(res_list.extend(fuzzy_queryset))
+            res_list.extend(fuzzy_queryset)
+            queryset = list(tuple(res_list))
             return self.render_to_response({'song_list': queryset, 'is_paginated': False})
         return super(SongListView, self).get(request, *args, **kwargs)
 
