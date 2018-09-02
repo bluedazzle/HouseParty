@@ -1029,7 +1029,10 @@ class SongListView(CheckSecurityMixin, StatusWrapMixin, MultipleJsonResponseMixi
             # self.raw_count = len(list(queryset))
             # self.paginator_class = SearchPaginator
             # res_list = [itm for itm in queryset]
-            return self.render_to_response({'song_list': fuzzy_queryset, 'is_paginated': False})
+            name_querset = Song.objects.filter(name=query).all()
+            author_queryset = Song.objects.filter(author=query).all()
+            queryset = name_querset | author_queryset | fuzzy_queryset
+            return self.render_to_response({'song_list': queryset, 'is_paginated': False})
         return super(SongListView, self).get(request, *args, **kwargs)
 
     def get_queryset(self):
