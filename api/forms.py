@@ -27,7 +27,7 @@ class VerifyCodeForm(forms.ModelForm):
         'exist': '邀请码已使用'
     }
 
-    phone = forms.CharField(max_length=11, error_messages=error_messages)
+    phone = forms.CharField(max_length=30, error_messages=error_messages)
 
     # code = forms.CharField(max_length=6, min_length=6, error_messages=code_messages)
 
