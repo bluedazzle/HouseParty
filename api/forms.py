@@ -73,7 +73,7 @@ class UserRegisterForm(forms.ModelForm):
     phone_error_messages = {
         'required': '请输入手机号',
         'unique': '帐号已存在',
-        'phone_format': '请输入11位手机号',
+        # 'phone_format': '请输入11位手机号',
     }
 
     # nick_error_messages = {
@@ -86,7 +86,7 @@ class UserRegisterForm(forms.ModelForm):
     #     'min_length': '请至少输入6位以上密码',
     # }
 
-    phone = forms.CharField(max_length=11, error_messages=phone_error_messages)
+    phone = forms.CharField(max_length=1, error_messages=phone_error_messages)
     nick = forms.CharField(max_length=20)
     # fullname = forms.CharField(max_length=100)
     # password = forms.CharField(max_length=100)
@@ -120,7 +120,7 @@ class UserResetForm(forms.ModelForm):
     }
     password = forms.CharField(max_length=100, error_messages=password_error_messages)
     # code = forms.CharField(max_length=6, min_length=6)
-    phone = forms.CharField(max_length=11, min_length=11)
+    phone = forms.CharField(max_length=20, min_length=1)
 
     # def clean_code(self):
     #     phone = self.cleaned_data.get('phone')
