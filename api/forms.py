@@ -99,11 +99,11 @@ class UserRegisterForm(forms.ModelForm):
     #         raise forms.ValidationError(message=self.password_error_messages['min_length'], code='min_length')
     #     return password
 
-    def clean_phone(self):
-        phone = unicode(self.cleaned_data.get('phone', None))
-        if len(phone) != 11:
-            raise forms.ValidationError(message=self.phone_error_messages['phone_format'], code='phone_format')
-        return phone
+    # def clean_phone(self):
+    #     phone = unicode(self.cleaned_data.get('phone', None))
+    #     if len(phone) != 11:
+    #         raise forms.ValidationError(message=self.phone_error_messages['phone_format'], code='phone_format')
+    #     return phone
 
     def save(self, commit=False):
         return super(UserRegisterForm, self).save(commit)
