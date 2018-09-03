@@ -86,7 +86,7 @@ class UserRegisterForm(forms.ModelForm):
     #     'min_length': '请至少输入6位以上密码',
     # }
 
-    phone = forms.CharField(max_length=1, error_messages=phone_error_messages)
+    phone = forms.CharField(max_length=30, error_messages=phone_error_messages)
     nick = forms.CharField(max_length=20)
     # fullname = forms.CharField(max_length=100)
     # password = forms.CharField(max_length=100)
