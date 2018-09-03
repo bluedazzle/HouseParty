@@ -145,17 +145,7 @@ class ChatCenter(object):
         self.boardcast_in_room(None, room_status)
         self.chat_register[room].remove(lefter)
         self.kv.setex(lefter.user.fullname, 300, lefter.user.fullname, lefter.user.nick, '', '', True)
-        # 无人房间删除
-        count = self.members.get_set_count(room)
-        if not count:
-            room_obj = session.query(Room).filter(Room.room_id == room, Room.ding == False).first()
-            if room_obj:
-                try:
-                    session.delete(room_obj)
-                    session.commit()
-                except Exception as e:
-                    session.rollback()
-                    logger.exception('ERROR in session commit reason {0}'.format(e))
+        # 无人房间删除.exception('ERROR in session commit reason {0}'.format(e))
         # if not self.members.get_set_count(room):
         #     obj = session.query(Room).filter(Room.room_id == room, Room.ding == False).first()
         #     if obj:
