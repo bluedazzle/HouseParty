@@ -58,9 +58,11 @@ class RoomInviteView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonR
         fullname_rece = request.GET.get('fullname_rece')
         redis_room = redis.StrictRedis(host='localhost', port=6379, db=6)
         fr = redis_room.get("firebase{0}".format(fullname_rece))
-        send_message = friend_greet(room_id=room_id, nick=nick, fullname_rece=fr[8:])
-        return self.render_to_response(dict({"message": send_message}))
-
+        fg_status = friend_greet(room_id=room_id, nick=nick, fullname_rece=fr[8:])
+        if fg_status:
+            return self.render_to_response(dict({"message": "send sucess"}))
+        else:
+            return self.render_to_response(dict({"message": "send failure"}))
 
 class SMSLoginView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, DetailView):
     model = PartyUser

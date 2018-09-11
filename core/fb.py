@@ -13,8 +13,10 @@ def friend_greet(room_id, nick, fullname_rece):
         "to": fullname_rece,
         "data": {"room_id": room_id}}
     try:
-        a = requests.post(url=url, headers=headers, data=json.dumps(data))
-        return "firebase send success"
+        resp = requests.post(url=url, headers=headers, data=json.dumps(data))
+        if resp.status_code == 200:
+            return True
+        return False
     except Exception as e:
         print e
-        return "firebase send failure"
+        return False
