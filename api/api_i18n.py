@@ -29,33 +29,38 @@ from core.models import Verify, PartyUser, FriendRequest, FriendNotify, Hook, Ro
 from core.sms import i18n_send_sms
 from core.wechat import get_session_key
 from socket_server.cache import songs, user_song, members, room, KVRedisProxy
-
 from core.fb import friend_greet
 
-#用户登录时调用得到fullname和user_token并存储
+
+# 用户登录时调用得到fullname和user_token并存储
 class GetFirebaseView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, DetailView):
     http_method_names = ['get']
+
     def get(self, request, *args, **kwargs):
         fullname = request.GET.get("fullname")
         user_token = request.GET.get("user_token")
         if fullname == None or user_token == None:
             return self.render_to_response({})
         redis_room = redis.StrictRedis(host='localhost', port=6379, db=6)
-        redis_room.set(fullname,user_token)
+        redis_room.set("firebase{0}".format(fullname), "firebase{0}".format(user_token))
         return self.render_to_response(dict())
-#发送房间邀请接口
+
+
+# 发送房间邀请接口
 class RoomInviteView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, JsonResponseMixin, DetailView):
     http_method_names = ['get']
     datetime_type = 'timestamp'
     model = PartyUser
+
     def get(self, request, *args, **kwargs):
         room_id = request.GET.get('room_id')
-        nick= request.GET.get('nick')
+        nick = request.GET.get('nick')
         fullname_rece = request.GET.get('fullname_rece')
         redis_room = redis.StrictRedis(host='localhost', port=6379, db=6)
-        fr = redis_room.get(fullname_rece)
-        send_message = friend_greet(room_id=room_id,nick = nick,fullname_rece=fr)
-        return self.render_to_response(dict({"message":send_message}))
+        fr = redis_room.get("firebase{0}".format(fullname_rece))
+        send_message = friend_greet(room_id=room_id, nick=nick, fullname_rece=fr[8:])
+        return self.render_to_response(dict({"message": send_message}))
+
 
 class SMSLoginView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, DetailView):
     model = PartyUser
