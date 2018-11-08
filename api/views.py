@@ -1024,11 +1024,12 @@ class SongListView(CheckSecurityMixin, StatusWrapMixin, MultipleJsonResponseMixi
         query = self.request.GET.get('query')
         if query:
             fuzzy_queryset = Song.objects.raw(
-                '''SELECT * FROM core_song WHERE to_tsvector('parser_name', name) @@ to_tsquery('parser_name', '{0}') or to_tsvector('parser_name', author) @@ to_tsquery('parser_name', '{1}');'''.format(
+                '''SELECT * FROM core_song WHERE to_tsvector('parser_name', name) @@ plainto_tsquery('parser_name', '{0}') or to_tsvector('parser_name', author) @@ plainto_tsquery('parser_name', '{1}') ORDER BY author desc;'''.format(
                     query, query))[0:200]
-            # self.raw_count = len(list(queryset))
-            # self.paginator_class = SearchPaginator
+            self.raw_count = len(list(queryset))
+            self.paginator_class = SearchPaginator
             match_queryset = Song.objects.filter(Q(name=query) | Q(author=query)).all()
+            match_queryset = []
             res_list = [itm for itm in match_queryset]
             res_list.extend(fuzzy_queryset)
             queryset = list(tuple(res_list))
@@ -1036,7 +1037,7 @@ class SongListView(CheckSecurityMixin, StatusWrapMixin, MultipleJsonResponseMixi
         return super(SongListView, self).get(request, *args, **kwargs)
 
     def get_queryset(self):
-        queryset = super(SongListView, self).get_queryset().filter(hidden=False).order_by('-recommand')[500:]
+        queryset = super(SongListView, self).get_queryset().filter(hidden=False).order_by('-recommand')[0:500]
         return queryset
 
 
