@@ -21,7 +21,7 @@ app.config_from_object('celery_config')
 # 歌曲唱完后的回调
 @app.task()
 def singing_callback(key, end_time, task_id, duration):
-    redis_room = redis.StrictRedis(host='localhost', port=6379, db=5)
+    redis_room = redis.StrictRedis(host='localhost', port=6379, db=6)
     room = HashRedisProxy(redis_room, ROOM_STATUS_KEY)
     songs = ListRedisProxy(redis_room, ROOM_SONG_KEY, 'fullname',
                            ['sid', 'name', 'author', 'nick', 'fullname', 'duration', 'lrc', 'link', 'avatar'])
@@ -69,7 +69,7 @@ def singing_callback(key, end_time, task_id, duration):
 # 音乐回调
 @app.task()
 def music_callback(key, end_time, task_id, duration):
-    redis_room = redis.StrictRedis(host='localhost', port=6379, db=5)
+    redis_room = redis.StrictRedis(host='localhost', port=6379, db=6)
     room = HashRedisProxy(redis_room, ROOM_STATUS_KEY)
     songs = ListRedisProxy(redis_room, ROOM_SONG_KEY, 'fullname',
                            ['sid', 'name', 'author', 'nick', 'fullname', 'duration', 'lrc', 'link', 'avatar'])
@@ -135,7 +135,7 @@ def music_callback(key, end_time, task_id, duration):
 # 休息完成后的回调
 @app.task()
 def rest_callback(key, end_time, task_id, duration):
-    redis_room = redis.StrictRedis(host='localhost', port=6379, db=5)
+    redis_room = redis.StrictRedis(host='localhost', port=6379, db=6)
     songs = ListRedisProxy(redis_room, ROOM_SONG_KEY, 'fullname',
                            ['sid', 'name', 'author', 'nick', 'fullname', 'duration', 'lrc', 'link', 'avatar'])
     musics = ListRedisProxy(redis_room, ROOM_MUSIC_KEY, 'fullname',
@@ -193,7 +193,7 @@ def rest_callback(key, end_time, task_id, duration):
 # 上麦询问回调
 @app.task()
 def ask_callback(key, end_time, task_id, duration):
-    redis_room = redis.StrictRedis(host='localhost', port=6379, db=5)
+    redis_room = redis.StrictRedis(host='localhost', port=6379, db=6)
     members = RedisProxy(redis_room, ROOM_MEMBER_KEY, 'fullname', ['fullname', 'nick', 'avatar'])
     songs = ListRedisProxy(redis_room, ROOM_SONG_KEY, 'fullname',
                            ['sid', 'name', 'author', 'nick', 'fullname', 'duration', 'lrc', 'link', 'avatar'])

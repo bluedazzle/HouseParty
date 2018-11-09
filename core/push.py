@@ -70,7 +70,7 @@ def push_friend_request(rid, user):
 
 
 def push_hook(user, to):
-    r = redis.StrictRedis(host='localhost', port=6379, db=4)
+    r = redis.StrictRedis(host='localhost', port=6379, db=6)
     kv = KVRedisProxy(r, 'USER_STATUS_{0}', 'fullname',
                       ['fullname', 'nick', 'room_id', 'room_name', 'online'])
     user_data = kv.get(user)

@@ -10,7 +10,7 @@ from socket_server.cache import RedisProxy, ROOM_MEMBER_KEY
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
-        redis_room = redis.StrictRedis(host='localhost', port=6379, db=5)
+        redis_room = redis.StrictRedis(host='localhost', port=6379, db=7)
         members = RedisProxy(redis_room, ROOM_MEMBER_KEY, 'fullname', ['fullname', 'nick', 'avatar'])
         rooms = Room.objects.filter(ding=False).all()
         total = rooms.count()

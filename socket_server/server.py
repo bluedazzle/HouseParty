@@ -698,8 +698,8 @@ class ChatSocketHandler(tornado.websocket.WebSocketHandler):
 def main():
     global redis_room, redis_common
     init_redis()
-    redis_room = redis.StrictRedis(host='localhost', port=6379, db=5)
-    redis_common = redis.StrictRedis(host='localhost', port=6379, db=4)
+    redis_room = redis.StrictRedis(host='localhost', port=6379, db=7)
+    redis_common = redis.StrictRedis(host='localhost', port=6379, db=6)
     tornado.options.parse_command_line()
     app = Application()
     app.listen(options.port)

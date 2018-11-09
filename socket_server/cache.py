@@ -41,13 +41,13 @@ logger = logging.getLogger(__name__)
 
 def init_redis_room():
     global redis_room
-    redis_room = redis.StrictRedis(host='localhost', port=6379, db=5)
+    redis_room = redis.StrictRedis(host='localhost', port=6379, db=7)
     return redis_room
 
 
 def init_redis_common():
     global redis_common
-    redis_common = redis.StrictRedis(host='localhost', port=6379, db=4)
+    redis_common = redis.StrictRedis(host='localhost', port=6379, db=6)
     return redis_common
 
 

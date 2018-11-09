@@ -40,7 +40,7 @@ def update_ease_user(token, new_token, user_id):
 
 def get_access_token():
     import redis
-    mem = redis.StrictRedis(host='localhost', port=6379, db=4)
+    mem = redis.StrictRedis(host='localhost', port=6379, db=6)
     token = mem.get('hx_token')
     if token:
         return token

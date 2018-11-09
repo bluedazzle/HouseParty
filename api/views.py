@@ -1445,7 +1445,7 @@ class UserMessageView(CheckTokenMixin, StatusWrapMixin, JsonResponseMixin, Detai
     model = PartyUser
 
     def __init__(self, *args, **kwargs):
-        self.redis = redis.StrictRedis(host='localhost', port=6379, db=4)
+        self.redis = redis.StrictRedis(host='localhost', port=6379, db=6)
         super(UserMessageView, self).__init__(*args, **kwargs)
 
     def post(self, request, *args, **kwargs):
@@ -1476,7 +1476,7 @@ class UserMessageUpdateView(CheckTokenMixin, StatusWrapMixin, JsonResponseMixin,
     model = PartyUser
 
     def __init__(self, *args, **kwargs):
-        self.redis = redis.StrictRedis(host='localhost', port=6379, db=4)
+        self.redis = redis.StrictRedis(host='localhost', port=6379, db=6)
         super(UserMessageUpdateView, self).__init__(*args, **kwargs)
 
     def post(self, request, *args, **kwargs):

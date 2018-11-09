@@ -202,7 +202,7 @@ class FriendStatusView(CheckTokenMixin, StatusWrapMixin, JsonResponseMixin, Deta
     model = PartyUser
 
     def __init__(self, *args, **kwargs):
-        self.redis = redis.StrictRedis(host='localhost', port=6379, db=4)
+        self.redis = redis.StrictRedis(host='localhost', port=6379, db=6)
         self.kv = KVRedisProxy(self.redis, 'USER_STATUS_{0}', 'fullname',
                                ['fullname', 'nick', 'room_id', 'room_name', 'online'])
         super(FriendStatusView, self).__init__(*args, **kwargs)
