@@ -318,6 +318,34 @@ class HashRedisProxy(RedisProxy):
         logger.info("INFO set ask {0}".format(status))
         return status
 
+    def set_video(self, key, fullname, video, task=None):
+        status = {'status': RoomStatus.singing, "start_time": 0, "end_time": 0, "current_time": 0, "duration": 0,
+                  "room": "", "task": ""}
+        time_tuple = self.generate_time_tuple(video.get('duration'))
+        status.update(video)
+        status.update(time_tuple)
+        status['room'] = key
+        status['fullname'] = fullname
+        status['room_type'] = 'video'
+        status['status'] = RoomStatus.singing
+        if task:
+            status['task'] = task
+        logger.info("INFO set video {0}".format(status))
+        self.set(key, **status)
+        return status
+
+    def set_progress(self, key, current, duration):
+        """
+        设置视频进度
+        """
+        status = self.get(key)
+        delta = duration - current
+        time_tuple = self.generate_time_tuple(delta)
+        time_tuple['start_time'] = 0
+        status.update(time_tuple)
+        self.set(key, **status)
+        return status
+
     def set(self, key, **kwargs):
         key = self.base_key.format(key)
         self.redis.hmset(key, kwargs)

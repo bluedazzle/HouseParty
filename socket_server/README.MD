@@ -714,3 +714,122 @@ action: cut_music
     "timestamp":"1527915707.61"
 }
 ```
+
+
+## **切视频**
+
+```
+action: cut_video
+```
+### **Parameters**
+* action(_Required_|string)-行为
+* fullname(_Required_|string)- 用户 fullname
+* token(_Required_|string)- 用户 token
+* room(_Required_|string)-房间 id
+
+
+
+### **Return**
+成功
+```
+{
+    "status":0,
+    "body":{
+
+    },
+    "message":"success",
+    "timestamp":"1527915490.31"
+}
+```
+失败
+```
+{
+    "status":-1,
+    "body":{
+
+    },
+    "message":"",
+    "timestamp":"1527915707.61"
+}
+```
+
+
+
+## **点视频**
+
+```
+action: watch
+```
+### **Parameters**
+* action(_Required_|string)-行为
+* fullname(_Required_|string)- 用户 fullname
+* token(_Required_|string)- 用户 token
+* room(_Required_|string)-房间 id
+* vid(_Required_|integer)-视频 id
+
+
+
+### **Return**
+成功
+```
+{
+    "status":0,
+    "body":{
+
+    },
+    "message":"success",
+    "timestamp":"1527915490.31"
+}
+```
+失败
+```
+{
+    "status":-1,
+    "body":{
+
+    },
+    "message":"",
+    "timestamp":"1527915707.61"
+}
+```
+
+## **拖动进度**
+
+```
+action: set_duration
+```
+### **Parameters**
+* action(_Required_|string)-行为
+* fullname(_Required_|string)- 用户 fullname
+* token(_Required_|string)- 用户 token
+* room(_Required_|string)-房间 id
+* current(_Required_|integer)-拖动到的进度（例如duration=100s的视频，current=60s，就拖动到 60s 处）
+
+**其他客户端同步进度使用房间信息的 end_time - current_time 得到当前进度**
+**播放完成时调用此接口改变房间状态，current=duration 即可**
+
+
+### **Return**
+成功
+```
+{
+    "status":0,
+    "body":{
+
+    },
+    "message":"success",
+    "timestamp":"1527915490.31"
+}
+```
+失败
+```
+{
+    "status":-1,
+    "body":{
+
+    },
+    "message":"",
+    "timestamp":"1527915707.61"
+}
+```
+

@@ -57,7 +57,8 @@ class PartyUser(BaseModel, AbstractBaseUser):
     nick = models.CharField(max_length=100, default='')
     phone = models.CharField(max_length=20, default='', null=True, blank=True)
     fullname = models.CharField(max_length=64, unique=True)
-    avatar = models.CharField(max_length=256, null=True, blank=True, default='http://ktv.fibar.cn/static/image/avatar.png')
+    avatar = models.CharField(max_length=256, null=True, blank=True,
+                              default='http://ktv.fibar.cn/static/image/avatar.png')
     friend_list = models.ManyToManyField('self', related_name='friend_by', blank=True)
     online = models.BooleanField(default=False)
     forbid = models.BooleanField(default=False)
@@ -190,6 +191,16 @@ class Song(BaseModel):
     original = models.CharField(default='', max_length=150, null=True, blank=True)
     hash = models.CharField(default='', max_length=128, blank=True, null=True)
     song_type = models.IntegerField(default=1, choices=song_choice)
+    duration = models.IntegerField(default=0)
+
+    def __unicode__(self):
+        return '{0}-{1}'.format(self.name, self.author)
+
+
+class Video(BaseModel):
+    name = models.CharField(max_length=256)
+    url = models.CharField(max_length=256)
+    author = models.CharField(max_length=128)
     duration = models.IntegerField(default=0)
 
     def __unicode__(self):

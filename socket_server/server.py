@@ -28,12 +28,13 @@ logger = logging.getLogger(__name__)
 from tornado.options import define, options
 from tornado.gen import coroutine, sleep
 
-from db import session, Room, PartyUser, Song
+from db import session, Room, PartyUser, Song, Video
 
 define("port", default=8888, help="run on the given port", type=int)
 
 redis_room = None
 redis_common = None
+
 
 class ChatCenter(object):
     '''
@@ -43,19 +44,19 @@ class ChatCenter(object):
     chat_register = {'newer': set()}
     chat_history = {}
     members = None
-    songs = None
+    # songs = None
     user = None
-    user_song = None
+    # user_song = None
     room = None
 
     def __init__(self):
         self.members = RedisProxy(redis_room, ROOM_MEMBER_KEY, 'fullname', ['fullname', 'nick', 'avatar'])
-        self.songs = ListRedisProxy(redis_room, ROOM_SONG_KEY, 'fullname',
-                                    ['sid', 'name', 'author', 'nick', 'fullname', 'duration', 'lrc', 'link', 'avatar'])
-        self.music = ListRedisProxy(redis_room, ROOM_MUSIC_KEY, 'fullname',
-                                    ['sid', 'name', 'author', 'nick', 'fullname', 'duration', 'lrc', 'link', 'avatar'])
-        self.user_song = RedisProxy(redis_room, USER_SONG_KEY, 'fullname', ['fullname'])
-        self.user_music = RedisProxy(redis_room, USER_MUSIC_KEY, 'fullname', ['fullname'])
+        # self.songs = ListRedisProxy(redis_room, ROOM_SONG_KEY, 'fullname',
+        #                             ['sid', 'name', 'author', 'nick', 'fullname', 'duration', 'lrc', 'link', 'avatar'])
+        # self.music = ListRedisProxy(redis_room, ROOM_MUSIC_KEY, 'fullname',
+        #                             ['sid', 'name', 'author', 'nick', 'fullname', 'duration', 'lrc', 'link', 'avatar'])
+        # self.user_song = RedisProxy(redis_room, USER_SONG_KEY, 'fullname', ['fullname'])
+        # self.user_music = RedisProxy(redis_room, USER_MUSIC_KEY, 'fullname', ['fullname'])
         self.user_room = RedisProxy(redis_room, USER_ROOM_KEY, 'fullname', ['fullname'])
         self.room = HashRedisProxy(redis_room, ROOM_STATUS_KEY)
         self.kv = KVRedisProxy(redis_common, 'USER_STATUS_{0}', 'fullname',
@@ -112,34 +113,34 @@ class ChatCenter(object):
         self.room.set_mem_update_time(room)
 
         # 检查是否排麦
-        if self.user_song.exist(room, lefter.user.fullname):
-            index = self.songs.search(room, lefter.user.fullname)
-            if index > -1:
-                self.songs.remove(room, index)
-            self.user_song.remove_member_from_set(room, lefter.user.fullname)
-        if self.user_music.exist(room, lefter.user.fullname):
-            index = self.music.search(room, lefter.user.fullname)
-            if index > -1:
-                self.music.remove(room, index)
-            self.user_music.remove_member_from_set(room, lefter.user.fullname)
-        # 检查是否正在演唱
-        room_status = self.get_room_info(room)
-        status = room_status.get('status')
-        if status == RoomStatus.singing and room_status.get('fullname') == lefter.user.fullname:
-            task = generate_task_id()
-            self.room.set_rest(room, task=task)
-            rest_callback.apply_async((room, self.get_now_end_time(TIME_REST), task, TIME_REST), countdown=TIME_REST)
-        if status == RoomStatus.music and room_status.get('fullname') == lefter.user.fullname:
-            music = self.music.pop(room)
-            task = generate_task_id()
-            if music:
-                self.user_music.remove_member_from_set(room, music.get('fullname'))
-                duration = float(music.get('duration'))
-                res = self.room.set_music(room, music, task)
-                music_callback.apply_async((room, self.get_now_end_time(duration), task, duration),
-                                           countdown=duration)
-            else:
-                res = self.room.set_rest(room, True, task=task)
+        # if self.user_song.exist(room, lefter.user.fullname):
+        #     index = self.songs.search(room, lefter.user.fullname)
+        #     if index > -1:
+        #         self.songs.remove(room, index)
+        #     self.user_song.remove_member_from_set(room, lefter.user.fullname)
+        # if self.user_music.exist(room, lefter.user.fullname):
+        #     index = self.music.search(room, lefter.user.fullname)
+        #     if index > -1:
+        #         self.music.remove(room, index)
+        #     self.user_music.remove_member_from_set(room, lefter.user.fullname)
+        # # 检查是否正在演唱
+        # room_status = self.get_room_info(room)
+        # status = room_status.get('status')
+        # if status == RoomStatus.singing and room_status.get('fullname') == lefter.user.fullname:
+        #     task = generate_task_id()
+        #     self.room.set_rest(room, task=task)
+        #     rest_callback.apply_async((room, self.get_now_end_time(TIME_REST), task, TIME_REST), countdown=TIME_REST)
+        # if status == RoomStatus.music and room_status.get('fullname') == lefter.user.fullname:
+        #     music = self.music.pop(room)
+        #     task = generate_task_id()
+        #     if music:
+        #         self.user_music.remove_member_from_set(room, music.get('fullname'))
+        #         duration = float(music.get('duration'))
+        #         res = self.room.set_music(room, music, task)
+        #         music_callback.apply_async((room, self.get_now_end_time(duration), task, duration),
+        #                                    countdown=duration)
+        #     else:
+        #         res = self.room.set_rest(room, True, task=task)
         # if status == RoomStatus.music and room_status.get('fullname') == lefter.user.fullname:
         room_status = self.get_room_info(room)
         self.boardcast_in_room(None, room_status)
@@ -172,13 +173,16 @@ class ChatCenter(object):
             logger.info('INFO recv message: {0}'.format(msg))
         urls = {'join': self.distribute_room,
                 'status': self.room_info,
-                'ask': self.ask_singing,
-                'cut': self.cut_song,
-                'del': self.del_song,
-                'sing': self.pick_song,
-                'del_music': self.del_music,
-                'cut_music': self.cut_music,
-                'listen': self.listen_music,
+                # 'ask': self.ask_singing,
+                # 'cut': self.cut_song,
+                # 'del': self.del_song,
+                # 'sing': self.pick_song,
+                'watch': self.pick_video,
+                'cut_video': self.cut_video,
+                'set_duration': self.set_video_duration,
+                # 'del_music': self.del_music,
+                # 'cut_music': self.cut_music,
+                # 'listen': self.listen_music,
                 'heart': self.heart_beat,
                 'chat': self.send_chat,
                 'close': self.close_user,
@@ -227,8 +231,8 @@ class ChatCenter(object):
             out_dict[k] = v
         out_dict['count'] = self.members.get_set_count(room)
         out_dict['members'] = self.members.get_set_members(room)
-        out_dict['songs'] = self.songs.get_members(room)
-        out_dict['musics'] = self.music.get_members(room)
+        # out_dict['songs'] = self.songs.get_members(room)
+        # out_dict['musics'] = self.music.get_members(room)
         return out_dict
 
     @coroutine
@@ -322,6 +326,20 @@ class ChatCenter(object):
             yield self.boardcast_in_room(sender, res)
 
     @coroutine
+    def cut_video(self, sender, message):
+        room_status = self.room.get(message.room)
+        if room_status.get('status') != RoomStatus.singing:
+            yield sender.write_message(self.response_wrapper({}, STATUS_ERROR, '当前没有视频可切', raw_message=message))
+            return
+        if room_status.get('fullname') != message.fullname:
+            yield sender.write_message(self.response_wrapper({}, STATUS_ERROR, '只有点播者才能切视频', raw_message=message))
+            return
+        task = generate_task_id()
+        res = self.room.set_rest(message.room, True, task=task)
+        res = self.get_room_info(message.room)
+        yield self.boardcast_in_room(sender, res)
+
+    @coroutine
     def cut_song(self, sender, message):
         room_status = self.room.get(message.room)
         if room_status.get('status') != RoomStatus.singing:
@@ -384,6 +402,39 @@ class ChatCenter(object):
             return
         else:
             yield sender.write_message(self.response_wrapper({}, STATUS_ERROR, msg='未找到已点歌曲', raw_message=message))
+
+    @coroutine
+    def set_video_duration(self, sender, message):
+        room_status = self.get_room_info(message.room)
+        current = message.current
+        if room_status.get('status') != RoomStatus.singing:
+            yield sender.write_message(self.response_wrapper({}, STATUS_ERROR, '当前无播放视频', raw_message=message))
+            return
+        if current > int(room_status.get('duration')) or current < 0:
+            yield sender.write_message(self.response_wrapper({}, msg='进度调整错误', raw_message=message))
+            return
+        if current == int(room_status.get('duration')):
+            self.room.set_rest(message.room, True)
+        else:
+            self.room.set_progress(message.room, current, int(room_status.get('duration')))
+        room_status = self.get_room_info(message.room)
+        yield self.boardcast_in_room(sender, room_status)
+
+    @coroutine
+    def pick_video(self, sender, message):
+        room_status = self.get_room_info(message.room)
+        if room_status.get('status') != RoomStatus.free:
+            yield sender.write_message(self.response_wrapper({}, STATUS_ERROR, '视频已经在播放中啦', raw_message=message))
+            return
+        vid = message.vid
+        video = session.query(Video).filter(Video.id == vid).one()
+        if not video:
+            yield sender.write_message(self.response_wrapper({}, STATUS_ERROR, '视频不存在', raw_message=message))
+            return
+        obj = {'name': video.name, 'duration': video.duration, 'url': video.url}
+        res = self.room.set_video(message.room, sender.user.fullname, obj, 'none')
+        room_status = self.get_room_info(message.room)
+        yield self.boardcast_in_room(sender, room_status)
 
     @coroutine
     def pick_song(self, sender, message):

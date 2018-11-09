@@ -50,6 +50,16 @@ class Song(Base):
     duration = Column(Integer)
 
 
+class Video(Base):
+    __tablename__ = 'core_video'
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String)
+    author = Column(String)
+    url = Column(String)
+    duration = Column(Integer)
+
+
 engine = create_engine('postgresql+psycopg2://postgres:@localhost:5432/ktv',
                        encoding='utf-8'.encode())
 
