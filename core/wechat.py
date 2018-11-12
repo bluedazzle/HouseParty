@@ -19,8 +19,8 @@ APP_DICT = {'old': {'APP_KEY': 'wx55112dd988c846bf', 'APP_SECRET': '0e78a9e464f5
 
 def get_key(source='old'):
     if source == 'new':
-        return 'wx43df1809aaaf0452', '0f574f2e90f1cf7e8a9957290a04e9ed'
-    return 'wx55112dd988c846bf', '0e78a9e464f5879534c7d411def6d30c'
+        return 'wxf7d0b5dab9902328', '1ded3815a58aaf75d7198701e7130954'
+    return 'wxf7d0b5dab9902328', '1ded3815a58aaf75d7198701e7130954'
     # key = APP_DICT.get(source, APP_DICT.get('new'))
     # res = key.items()
     # return res[0], res[1]
