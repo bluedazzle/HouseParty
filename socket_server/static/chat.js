@@ -52,7 +52,7 @@ var updater = {
     socket: null,
 
     start: function() {
-        var url = "wss://" + location.host;
+        var url = "ws://" + location.host;
         var data = {room: $("#room").val(),
                     type: 1,
                     body: ''};
