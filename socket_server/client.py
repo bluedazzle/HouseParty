@@ -11,7 +11,7 @@ from tornado.ioloop import IOLoop
 
 
 __author__ = "Ennis"
-SERVER_URL = "ws://127.0.0.1:8888/"
+SERVER_URL = "wss://mido.fibar.cn/"
 
 
 def init_logging():
@@ -82,14 +82,15 @@ class Communicator(object):
             data = {
                 "action": "join",
                 "body": "xx",
-                "fullname": '13888888888',
-                "token": "13888888888",
-                'room': 'R123'
+                "fullname": '424947',
+                "token": "123",
+                'room': 'R1529755227893742'
             }
             self.send_data(json.dumps(data))
             data['action'] = 'status'
             self.send_data(json.dumps(data))
             logging.info("connect server success:%s", SERVER_URL)
+            self._websocket_client
         except Exception as err_info:
             logging.error("start device controller failed: %s", err_info)
             yield self.on_recv_msg(None)
@@ -109,21 +110,21 @@ class Communicator(object):
 
 
 if __name__ == '__main__':
-    # init_logging()
-    # io_loop = IOLoop.instance()
-    # ws = Communicator()
-    # ws.start()
-    # io_loop.start()
-    import pylru
-
-    lru = pylru.lrucache(3)
-    import time
-    for i in xrange(3):
-        lru[time.time()] = {'fullname': 'xx{0}'.format(i), 'message': 'test{0}'.format(i)}
-    raw_msg = zip(lru.table.keys(), [itm.value for itm in lru.table.values()])
-    output = []
-    for k,v in raw_msg:
-        v.update({'timestamp': k})
-        output.append(v)
-    print sorted(output, key=lambda x: x['timestamp'], reverse=True)
+    init_logging()
+    io_loop = IOLoop.instance()
+    ws = Communicator()
+    ws.start()
+    io_loop.start()
+    # import pylru
+    #
+    # lru = pylru.lrucache(3)
+    # import time
+    # for i in xrange(3):
+    #     lru[time.time()] = {'fullname': 'xx{0}'.format(i), 'message': 'test{0}'.format(i)}
+    # raw_msg = zip(lru.table.keys(), [itm.value for itm in lru.table.values()])
+    # output = []
+    # for k,v in raw_msg:
+    #     v.update({'timestamp': k})
+    #     output.append(v)
+    # print sorted(output, key=lambda x: x['timestamp'], reverse=True)
 
