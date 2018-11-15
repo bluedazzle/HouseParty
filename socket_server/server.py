@@ -25,10 +25,11 @@ from utils import generate_task_id, get_now_timestamp
 
 logger = logging.getLogger(__name__)
 
+import socket
+
 from tornado.options import define, options
 from tornado.gen import coroutine, sleep
 
-from db import session, Room, PartyUser, Song
 
 define("port", default=8888, help="run on the given port", type=int)
 
@@ -184,7 +185,15 @@ class ChatCenter(object):
         #     if self.user_room.exist(message.room, message.fullname):
         #         sender.write_message(self.response_wrapper({}, STATUS_ERROR, '你已在房间中', raw_message=message))
         #         return
-        yield self.boardcast_in_room(sender, message)
+        HOST = '127.0.0.1'  # The remote host
+        PORT = 9090  # The same port as used by the server
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.connect((HOST, PORT))
+        s.sendall('{0}\n'.format(message))
+        data = s.recv(1024)
+        logger.info('Received {0}'.format(repr(data)))
+        s.close()
+        yield sender.write_message('send success!')
 
         # room = parsed.get("room")
         # send_type = parsed.get("type", 0)
