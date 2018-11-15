@@ -189,7 +189,7 @@ class ChatCenter(object):
         PORT = 9090  # The same port as used by the server
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.connect((HOST, PORT))
-        s.sendall('{0}\n'.format(message))
+        s.sendall(message)
         data = s.recv(1024)
         logger.info('Received {0}'.format(repr(data)))
         s.close()
