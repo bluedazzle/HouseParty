@@ -17,7 +17,7 @@ class Connection(object):
         print "A new user has entered the chat room.", address
 
     def read_message(self):
-        self._stream.read_until('\n', self.broadcast_messages)
+        self._stream.read_bytes(4096, self.broadcast_messages, partial=True)
 
     def broadcast_messages(self, data):
         print "User said:", data[:-1], self._address
