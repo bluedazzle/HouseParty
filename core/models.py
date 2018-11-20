@@ -149,6 +149,7 @@ class Video(BaseModel):
     duration = models.FloatField(default=0)
     video_type = models.IntegerField(default=1, choices=type_choices)
     hidden = models.BooleanField(default=False)
+    recommand = models.IntegerField(default=0)
 
     def __unicode__(self):
         return self.title
@@ -169,7 +170,8 @@ class Video(BaseModel):
             self.view_count = video.get('view_count', 0)
         elif self.video_type == 2:
             self.link = self.address
-            self.thumbnail = '{0}?vframe/jpg/offset/0/w/200/h/112/'.format(self.address)
+            if not self.thumbnail:
+                self.thumbnail = '{0}?vframe/jpg/offset/0/w/200/h/112/'.format(self.address)
         else:
             self.link = self.address
         return super(Video, self).save(force_insert, force_update, using, update_fields)
@@ -196,15 +198,15 @@ class Song(BaseModel):
     def __unicode__(self):
         return '{0}-{1}'.format(self.name, self.author)
 
-
-class Video(BaseModel):
-    name = models.CharField(max_length=256)
-    url = models.CharField(max_length=256)
-    author = models.CharField(max_length=128)
-    duration = models.IntegerField(default=0)
-
-    def __unicode__(self):
-        return '{0}-{1}'.format(self.name, self.author)
+#
+# class Video(BaseModel):
+#     name = models.CharField(max_length=256)
+#     url = models.CharField(max_length=256)
+#     author = models.CharField(max_length=128)
+#     duration = models.IntegerField(default=0)
+#
+#     def __unicode__(self):
+#         return '{0}-{1}'.format(self.name, self.author)
 
 
 class Present(BaseModel):

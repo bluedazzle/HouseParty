@@ -42,4 +42,5 @@ urlpatterns = patterns('',
                        url(r'^kick/$', views.KickView.as_view()),
                        url(r'^latest_messages/update/$', views.UserMessageUpdateView.as_view()),
                        url(r'^latest_messages/$', views.UserMessageView.as_view()),
+                       url(r'^videos/$', views.VideoList.as_view()),
                        )

@@ -22,7 +22,7 @@ from core.Mixin.StatusWrapMixin import StatusWrapMixin, INFO_EXPIRE, ERROR_VERIF
 from core.dss.Mixin import JsonResponseMixin, MultipleJsonResponseMixin
 from core.hx import create_new_ease_user, update_ease_user
 from core.models import Verify, PartyUser, FriendRequest, FriendNotify, Hook, Room, DeleteNotify, Secret, Present, Song, \
-    Report, Singer, Invite
+    Report, Singer, Invite, Video
 from core.ntim import netease
 from core.push import push_to_friends, push_friend_request, push_friend_response, push_hook
 from core.sms import send_sms
@@ -334,7 +334,7 @@ class ThirdLoginView(CheckSecurityMixin, StatusWrapMixin, JsonResponseMixin, Det
         if flag:
             # netease.create_user(user.fullname, user.nick, icon=user.avatar, token=user.token)
             res = create_new_ease_user(user.fullname, user.nick, NEW_TOKEN)
-        # else:
+            # else:
             # netease.update_user(user.fullname, user.token)
             # res = update_ease_user(ot, NEW_TOKEN, user.fullname)
             if not res:
@@ -1180,19 +1180,30 @@ class RoomListView(CheckSecurityMixin, StatusWrapMixin, MultipleJsonResponseMixi
         # setattr(obj, 'participants', obj.room_participants.all())
 
 
-# class YoukuVideoList(CheckSecurityMixin, StatusWrapMixin, MultipleJsonResponseMixin, ListView):
-#     model = Video
-#     datetime_type = 'timestamp'
-#     http_method_names = ['get']
-#     paginate_by = 40
-#
-#     def get_queryset(self):
-#         queryset = super(YoukuVideoList, self).get_queryset().filter(hidden=False).order_by('-create_time')
-#         video_type = int(self.request.GET.get('type', 1))
-#         search = self.request.GET.get('search', None)
-#         if search:
-#             return queryset.filter(video_type=2).filter(title__icontains=search)
-#         return queryset.filter(video_type=video_type)
+class VideoList(CheckSecurityMixin, StatusWrapMixin, MultipleJsonResponseMixin, ListView):
+    model = Video
+    datetime_type = 'timestamp'
+    http_method_names = ['get']
+    paginate_by = 40
+
+    def get_queryset(self):
+        queryset = super(VideoList, self).get_queryset().filter(hidden=False).order_by('-recommand').order_by(
+            '-create_time')
+        # video_type = int(self.request.GET.get('type', 1))
+        search = self.request.GET.get('search', None)
+        if search:
+            return queryset.filter(title__icontains=search)
+        return queryset
+
+    def post(self, request, *args, **kwargs):
+        post_data = request.POST
+        video = Video()
+
+        for k, v in post_data.iteritems():
+            setattr(video, k, v)
+        video.video_type = 2
+        video.save()
+        return self.render_to_response({})
 
 
 class PresentListView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, MultipleJsonResponseMixin, ListView):
@@ -1464,7 +1475,7 @@ class UserMessageView(CheckTokenMixin, StatusWrapMixin, JsonResponseMixin, Detai
                 gp_detail = groups_detail[index]
                 if gp_detail:
                     out_dict[group] = json.loads(groups_detail[index])
-                # out_dict[k] = json.loads(v)
+                    # out_dict[k] = json.loads(v)
         key = 'IE_{0}'.format(self.user.fullname)
         result = self.redis.hgetall(key)
         for k, v in result.items():
