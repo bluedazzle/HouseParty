@@ -1183,7 +1183,7 @@ class RoomListView(CheckSecurityMixin, StatusWrapMixin, MultipleJsonResponseMixi
 class VideoList(CheckSecurityMixin, StatusWrapMixin, MultipleJsonResponseMixin, ListView):
     model = Video
     datetime_type = 'timestamp'
-    http_method_names = ['get']
+    http_method_names = ['get', 'post']
     paginate_by = 40
 
     def get_queryset(self):
