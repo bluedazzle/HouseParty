@@ -134,45 +134,45 @@ class DeleteNotify(BaseModel):
         return '{0} delete {1}'.format(self.deleter.nick, self.belong.nick)
 
 
-# class Video(BaseModel):
-#     type_choices = (
-#         (1, '优酷'),
-#         (2, '自建'),
-#         (3, '电视直播'),
-#     )
-#     address = models.CharField(max_length=512, default='')
-#     title = models.CharField(max_length=100, default='', null=True, blank=True)
-#     thumbnail = models.CharField(max_length=1024, default='', null=True, blank=True)
-#     link = models.CharField(max_length=1024, default='', null=True, blank=True)
-#     view_count = models.IntegerField(default=0)
-#     yid = models.CharField(max_length=100, default='', null=True, blank=True)
-#     duration = models.FloatField(default=0)
-#     video_type = models.IntegerField(default=1, choices=type_choices)
-#     hidden = models.BooleanField(default=False)
-#
-#     def __unicode__(self):
-#         return self.title
-#
-#     def save(self, force_insert=False, force_update=False, using=None,
-#              update_fields=None):
-#         import re
-#         from youku import YoukuVideos
-#         if self.video_type == 1:
-#             video_id = re.findall(r'id_(.*)==.html', self.address)[0]
-#             youku = YoukuVideos('d124ea671a7616d5')
-#             video = youku.find_video_by_id(video_id)
-#             self.title = video.get('title')
-#             self.yid = video_id
-#             self.thumbnail = video.get('thumbnail', '')
-#             self.link = video.get('link', '')
-#             self.duration = video.get('duration', 0)
-#             self.view_count = video.get('view_count', 0)
-#         elif self.video_type == 2:
-#             self.link = self.address
-#             self.thumbnail = '{0}?vframe/jpg/offset/0/w/200/h/112/'.format(self.address)
-#         else:
-#             self.link = self.address
-#         return super(Video, self).save(force_insert, force_update, using, update_fields)
+class Video(BaseModel):
+    type_choices = (
+        (1, '优酷'),
+        (2, '自建'),
+        (3, '电视直播'),
+    )
+    address = models.CharField(max_length=512, default='')
+    title = models.CharField(max_length=100, default='', null=True, blank=True)
+    thumbnail = models.CharField(max_length=1024, default='', null=True, blank=True)
+    link = models.CharField(max_length=1024, default='', null=True, blank=True)
+    view_count = models.IntegerField(default=0)
+    yid = models.CharField(max_length=100, default='', null=True, blank=True)
+    duration = models.FloatField(default=0)
+    video_type = models.IntegerField(default=1, choices=type_choices)
+    hidden = models.BooleanField(default=False)
+
+    def __unicode__(self):
+        return self.title
+
+    def save(self, force_insert=False, force_update=False, using=None,
+             update_fields=None):
+        import re
+        from youku import YoukuVideos
+        if self.video_type == 1:
+            video_id = re.findall(r'id_(.*)==.html', self.address)[0]
+            youku = YoukuVideos('d124ea671a7616d5')
+            video = youku.find_video_by_id(video_id)
+            self.title = video.get('title')
+            self.yid = video_id
+            self.thumbnail = video.get('thumbnail', '')
+            self.link = video.get('link', '')
+            self.duration = video.get('duration', 0)
+            self.view_count = video.get('view_count', 0)
+        elif self.video_type == 2:
+            self.link = self.address
+            self.thumbnail = '{0}?vframe/jpg/offset/0/w/200/h/112/'.format(self.address)
+        else:
+            self.link = self.address
+        return super(Video, self).save(force_insert, force_update, using, update_fields)
 
 
 class Song(BaseModel):
