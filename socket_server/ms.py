@@ -19,7 +19,7 @@ from cache import init_redis, ROOM_STATUS_KEY, RedisProxy, ROOM_MEMBER_KEY, ROOM
     USER_SONG_KEY, HashRedisProxy, ListRedisProxy, TIME_ASK, TIME_REST, USER_ROOM_KEY, ROOM_MUSIC_KEY, USER_MUSIC_KEY
 from celery_tasks import singing_callback, ask_callback, rest_callback, music_callback
 from const import RoomStatus, STATUS_ERROR, STATUS_SUCCESS
-from core.dy import get_live_detail
+from dy import get_live_detail
 from message import WsMessage
 from decorators import validate_room
 from utils import generate_task_id, get_now_timestamp

@@ -765,7 +765,9 @@ action: watch
 * fullname(_Required_|string)- 用户 fullname
 * token(_Required_|string)- 用户 token
 * room(_Required_|string)-房间 id
-* vid(_Required_|integer)-视频 id
+* watch_type(_Required_|string)-视频类型 live 直播 video 视频
+* live_room(_Optional_|integer)-直播间 id
+* vid(_Optional_|integer)-视频 id
 
 
 
