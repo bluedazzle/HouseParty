@@ -431,7 +431,7 @@ class ChatCenter(object):
         if not video:
             yield sender.write_message(self.response_wrapper({}, STATUS_ERROR, '视频不存在', raw_message=message))
             return
-        obj = {'name': video.name, 'duration': video.duration, 'url': video.url}
+        obj = {'name': video.title, 'duration': video.duration, 'url': video.link, 'video_type': video.video_type}
         res = self.room.set_video(message.room, sender.user.fullname, obj, 'none')
         room_status = self.get_room_info(message.room)
         yield self.boardcast_in_room(sender, room_status)

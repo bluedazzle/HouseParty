@@ -54,10 +54,11 @@ class Video(Base):
     __tablename__ = 'core_video'
 
     id = Column(Integer, primary_key=True)
-    name = Column(String)
+    title = Column(String)
     author = Column(String)
-    url = Column(String)
+    link = Column(String)
     duration = Column(Integer)
+    video_type = Column(Integer)
 
 
 engine = create_engine('postgresql+psycopg2://postgres:@localhost:5432/ktv',
