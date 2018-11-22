@@ -8,7 +8,7 @@ import string
 
 # Create your views here.
 from django.db.models import Q
-from django.http import Http404
+from django.http import Http404, HttpResponse
 from django.http import HttpResponseRedirect
 from django.utils.timezone import get_current_timezone
 from django.views.generic import CreateView, UpdateView, View, DetailView, DeleteView, ListView
@@ -20,6 +20,7 @@ from core.Mixin.CheckMixin import CheckSecurityMixin, CheckTokenMixin
 from core.Mixin.StatusWrapMixin import StatusWrapMixin, INFO_EXPIRE, ERROR_VERIFY, INFO_NO_VERIFY, ERROR_DATA, \
     ERROR_UNKNOWN, ERROR_PERMISSION_DENIED, ERROR_PASSWORD, INFO_NO_EXIST, INFO_EXISTED
 from core.dss.Mixin import JsonResponseMixin, MultipleJsonResponseMixin
+from core.dy import get_token, api_post
 from core.hx import create_new_ease_user, update_ease_user
 from core.models import Verify, PartyUser, FriendRequest, FriendNotify, Hook, Room, DeleteNotify, Secret, Present, Song, \
     Report, Singer, Invite, Video
@@ -1204,6 +1205,23 @@ class VideoList(CheckSecurityMixin, StatusWrapMixin, MultipleJsonResponseMixin, 
         video.video_type = 2
         video.save()
         return self.render_to_response({})
+
+
+class LiveListView(ListView):
+    def get(self, request, *args, **kwargs):
+        test_data = {'cid_type': 2, 'cid': 69, 'offset': 0, 'limit': 100}
+        token = get_token()
+        reply = api_post("/api/thirdPart/live", test_data, token)
+        return HttpResponse(reply, content_type='application/json')
+
+
+class LiveDetailView(DetailView):
+    def get(self, request, *args, **kwargs):
+        token = get_token()
+        room_id = int(self.request.GET.get('room_id'))
+        test_data = {'cid_type': 2, 'cid': 69, "rid": room_id, 'rate': 2}
+        reply = api_post("/api/thirdPart/getPlay", test_data, token)
+        return HttpResponse(reply, content_type='application/json')
 
 
 class PresentListView(CheckSecurityMixin, CheckTokenMixin, StatusWrapMixin, MultipleJsonResponseMixin, ListView):

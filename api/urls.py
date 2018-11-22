@@ -43,4 +43,6 @@ urlpatterns = patterns('',
                        url(r'^latest_messages/update/$', views.UserMessageUpdateView.as_view()),
                        url(r'^latest_messages/$', views.UserMessageView.as_view()),
                        url(r'^videos/$', views.VideoList.as_view()),
+                       url(r'^lives/$', views.LiveListView.as_view()),
+                       url(r'^live/$', views.LiveDetailView.as_view()),
                        )

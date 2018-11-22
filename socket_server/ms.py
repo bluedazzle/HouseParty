@@ -19,6 +19,7 @@ from cache import init_redis, ROOM_STATUS_KEY, RedisProxy, ROOM_MEMBER_KEY, ROOM
     USER_SONG_KEY, HashRedisProxy, ListRedisProxy, TIME_ASK, TIME_REST, USER_ROOM_KEY, ROOM_MUSIC_KEY, USER_MUSIC_KEY
 from celery_tasks import singing_callback, ask_callback, rest_callback, music_callback
 from const import RoomStatus, STATUS_ERROR, STATUS_SUCCESS
+from core.dy import get_live_detail
 from message import WsMessage
 from decorators import validate_room
 from utils import generate_task_id, get_now_timestamp
@@ -426,12 +427,16 @@ class ChatCenter(object):
         if room_status.get('status') != RoomStatus.free:
             yield sender.write_message(self.response_wrapper({}, STATUS_ERROR, '视频已经在播放中啦', raw_message=message))
             return
-        vid = message.vid
-        video = session.query(Video).filter(Video.id == vid).one()
-        if not video:
-            yield sender.write_message(self.response_wrapper({}, STATUS_ERROR, '视频不存在', raw_message=message))
-            return
-        obj = {'name': video.title, 'duration': video.duration, 'url': video.link, 'video_type': video.video_type}
+        if message.watch_type == 'live':
+            live = get_live_detail(message.live_room)
+            obj = {'name': live.get('room_name'), 'duration': 0, 'url': live.get('live_url'), 'video_type': 3}
+        else:
+            vid = message.vid
+            video = session.query(Video).filter(Video.id == vid).one()
+            if not video:
+                yield sender.write_message(self.response_wrapper({}, STATUS_ERROR, '视频不存在', raw_message=message))
+                return
+            obj = {'name': video.title, 'duration': video.duration, 'url': video.link, 'video_type': video.video_type}
         res = self.room.set_video(message.room, sender.user.fullname, obj, 'none')
         room_status = self.get_room_info(message.room)
         yield self.boardcast_in_room(sender, room_status)
